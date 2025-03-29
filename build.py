@@ -60,4 +60,4 @@ if args.build or args.all:
                   '--follow-imports '
                   '--output-filename="App" '
                   'app/__main__.py '
-                  '--onefile ' if args.onefile else '--onedir ')
+                  '--onefile ' if args.onefile else '')
