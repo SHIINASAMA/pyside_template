@@ -56,7 +56,7 @@ if args.build or args.all:
                   '--standalone '
                   '--windows-console-mode=disable '
                   '--plugin-enable=pyside6 '
-                  '--output-dir=build-nuitka '
+                  '--output-dir=build_nuitka '
                   '--follow-imports '
                   '--output-filename="App" '
                   'app/__main__.py '
