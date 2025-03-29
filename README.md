@@ -30,7 +30,7 @@ pyside6-designer
 How to build and package the project. Run the following command to get the help message:
 
 ```bash
-python ./build.py --h
+python ./build.py -h
 ```
 
 Help message example:
