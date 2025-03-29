@@ -36,8 +36,8 @@ python ./build.py -h
 Help message example:
 
 ```
-> python build.py -h
-usage: build.py [-h] (--ui | --build | --all) (--pyinstaller | --nuitka) (--onefile | --onedir)
+> python ./build.py -h
+usage: build.py [-h] (--ui | --build | --all) [--pyinstaller | --nuitka] [--onefile | --onedir]
 
 Build the app.
 

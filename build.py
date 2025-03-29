@@ -13,12 +13,12 @@ mode_group.add_argument('--build', action='store_true', help='Build the app')
 mode_group.add_argument('--all', action='store_true', help='Convert ui files and build the app')
 # --pyinstaller: use pyinstaller to build the app
 # --nuitka: use nuitka to build the app
-builder_group = parser.add_mutually_exclusive_group(required=True)
+builder_group = parser.add_mutually_exclusive_group()
 builder_group.add_argument('--pyinstaller', action='store_true', help='Use pyinstaller to build the app')
 builder_group.add_argument('--nuitka', action='store_true', help='Use nuitka to build the app')
 # --onefile: create a single executable file
 # --onedir: create a directory with the executable and all dependencies
-package_format_group = parser.add_mutually_exclusive_group(required=True)
+package_format_group = parser.add_mutually_exclusive_group()
 package_format_group.add_argument('--onefile', action='store_true', help='Create a single executable file')
 package_format_group.add_argument('--onedir', action='store_true',
                                   help='Create a directory with the executable and all dependencies')
@@ -61,3 +61,6 @@ if args.build or args.all:
                   '--output-filename="App" '
                   'app/__main__.py '
                   '--onefile ' if args.onefile else '')
+    else:
+        print('No builder specified. Use --pyinstaller or --nuitka.')
+        exit(1)
