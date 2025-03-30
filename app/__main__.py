@@ -1,19 +1,11 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
-from app.ui_resources.main_window_ui import Ui_MainWindow
+from PySide6.QtWidgets import QApplication, QMainWindow
 
-ui = Ui_MainWindow()
-
-def click_push_button():
-    QMessageBox.information(None, "Button Clicked", "You clicked the button!")
+from app.main_window import MainWindow
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    MainWindow = QMainWindow()
-    ui.setupUi(MainWindow)
-
-    # Connect the button click signal to the slot
-    ui.pushButton.clicked.connect(click_push_button)
-
-    MainWindow.show()
+    window = QMainWindow()
+    main_window = MainWindow(window)
+    window.show()
     sys.exit(app.exec())
