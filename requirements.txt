@@ -1,4 +1,6 @@
 altgraph==0.17.4
+Nuitka==2.6.9
+ordered-set==4.1.0
 packaging==24.2
 pefile==2023.2.7
 pyinstaller==6.12.0
@@ -9,3 +11,4 @@ PySide6_Essentials==6.8.3
 pywin32-ctypes==0.2.3
 setuptools==78.1.0
 shiboken6==6.8.3
+zstandard==0.23.0
