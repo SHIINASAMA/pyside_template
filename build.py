@@ -31,7 +31,7 @@ if args.ui or args.all:
         for file in files:
             if file.endswith('.ui'):
                 input_file = os.path.join(root, file)
-                output_file = os.path.join('app/ui_resources', file.replace('.ui', '_ui.py'))
+                output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
                 os.system(f'pyside6-uic {input_file} -o {output_file}')
                 print(f'Converted {input_file} to {output_file}')
 
@@ -60,6 +60,7 @@ if args.build or args.all:
                   '--windows-console-mode=disable '
                   '--plugin-enable=pyside6 '
                   '--output-dir=build_nuitka '
+                  '--include-data-dir=app=app '
                   '--follow-imports '
                   '--windows-icon-from-ico="app/asserts/logo.ico" '
                   '--output-filename="App" '
