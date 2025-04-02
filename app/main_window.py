@@ -1,3 +1,4 @@
+from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMessageBox
 
 from app.ui_resources.main_window_ui import Ui_MainWindow
@@ -6,6 +7,7 @@ from app.ui_resources.main_window_ui import Ui_MainWindow
 class MainWindow:
     def __init__(self, window):
         self.window = window
+        self.window.setWindowIcon(QIcon("asserts/logo.png"))
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.window)
         self.ui.pushButton.clicked.connect(self.click_push_button)

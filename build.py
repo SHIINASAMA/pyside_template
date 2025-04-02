@@ -47,6 +47,7 @@ if args.build or args.all:
                   '--distpath "build" '
                   '--workpath "build/work" '
                   '--add-data "app:app" '
+                  '--icon "app/asserts/logo.ico" '
                   'app/__main__.py '
                   '--name App '
                    + ('--onefile ' if args.onefile else '--onedir '))
@@ -60,6 +61,7 @@ if args.build or args.all:
                   '--plugin-enable=pyside6 '
                   '--output-dir=build_nuitka '
                   '--follow-imports '
+                  '--windows-icon-from-ico="app/asserts/logo.ico" '
                   '--output-filename="App" '
                   'app/__main__.py '
                   + ('--onefile ' if args.onefile else ' '))
