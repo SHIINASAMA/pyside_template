@@ -36,18 +36,20 @@ if args.ui or args.all:
                 print(f'Converted {input_file} to {output_file}')
 
 if args.build or args.all:
+    print('Building the app...')
     if args.pyinstaller:
         # call pyinstaller to build the app
         # include all files in app package and exclude the ui files
         os.system('pyinstaller '
-                  '--quiet '
+                  '--noconfirm '
+                  '--log-level=WARN '
                   '--windowed '
                   '--distpath "build" '
                   '--workpath "build/work" '
                   '--add-data "app:app" '
                   'app/__main__.py '
-                  '--name App'
-                  '--onefile ' if args.onefile else '--onedir ')
+                  '--name App '
+                   + ('--onefile ' if args.onefile else '--onedir '))
     elif args.nuitka:
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
@@ -60,7 +62,7 @@ if args.build or args.all:
                   '--follow-imports '
                   '--output-filename="App" '
                   'app/__main__.py '
-                  '--onefile ' if args.onefile else '')
+                  + ('--onefile ' if args.onefile else ' '))
     else:
         print('No builder specified. Use --pyinstaller or --nuitka.')
         exit(1)
