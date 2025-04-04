@@ -1,5 +1,19 @@
 import argparse
 import os
+import sys
+
+# check working directory
+# if 'app' is not in the current working directory, exit
+if not os.path.exists('app'):
+    print('Please run this script from the app directory.')
+    exit(1)
+
+# check using python virtual environment
+if sys.prefix == sys.base_prefix:
+    print(f'sys.prefix is {sys.prefix}.')
+    print(f'sys.base_prefix is {sys.base_prefix}.')
+    print('Please run this script from a python virtual environment.')
+    exit(1)
 
 # parse command line arguments
 # --help: show this help message
@@ -27,15 +41,29 @@ args = parser.parse_args()
 
 if args.ui or args.all:
     # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
-    for root, dirs, files in os.walk('app/ui'):
-        for file in files:
-            if file.endswith('.ui'):
-                input_file = os.path.join(root, file)
-                output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
-                os.system(f'pyside6-uic {input_file} -o {output_file}')
-                print(f'Converted {input_file} to {output_file}')
+    # if ui folder does not exist, skip it
+    if not os.path.exists('app/ui'):
+        print('No ui folder found, skipping ui conversion.')
+    # if app/resources folder does not exist, create it
+    if not os.path.exists('app/resources'):
+        os.makedirs('app/resources')
+    else:
+        for root, dirs, files in os.walk('app/ui'):
+            for file in files:
+                if file.endswith('.ui'):
+                    input_file = os.path.join(root, file)
+                    output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
+                    os.system(f'pyside6-uic {input_file} -o {output_file}')
+                    print(f'Converted {input_file} to {output_file}.')
 
 if args.build or args.all:
+    print('Converting resource files to python files...')
+    # if app/asserts.qrc does not exist, skip it
+    if os.path.exists('app/asserts.qrc'):
+        if not os.path.exists('app/resources'):
+            os.makedirs('app/resources')
+        os.system('pyside6-rcc app/asserts.qrc -o app/resources/resource.py')
+
     print('Building the app...')
     if args.pyinstaller:
         # call pyinstaller to build the app
@@ -46,11 +74,13 @@ if args.build or args.all:
                   '--windowed '
                   '--distpath "build" '
                   '--workpath "build/work" '
-                  '--add-data "app:app" '
                   '--icon "app/asserts/logo.ico" '
                   'app/__main__.py '
                   '--name App '
                    + ('--onefile ' if args.onefile else '--onedir '))
+        # remove *.spec file
+        if os.path.exists('App.spec'):
+            os.remove('App.spec')
     elif args.nuitka:
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
@@ -60,7 +90,6 @@ if args.build or args.all:
                   '--windows-console-mode=disable '
                   '--plugin-enable=pyside6 '
                   '--output-dir=build_nuitka '
-                  '--include-data-dir=app=app '
                   '--follow-imports '
                   '--windows-icon-from-ico="app/asserts/logo.ico" '
                   '--output-filename="App" '
@@ -69,3 +98,4 @@ if args.build or args.all:
     else:
         print('No builder specified. Use --pyinstaller or --nuitka.')
         exit(1)
+    print('Build complete.')
