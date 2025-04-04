@@ -1,14 +1,29 @@
 # PySide6 Project Template
 
 Easy to use template for PySide6 projects.
-This template is designed to help you get started with PySide6 quickly and easily. 
+This template is designed to help you get started with PySide6 quickly and easily.
 It includes a basic project structure, a build script, and a requirements file.
 
 ## Main Dependencies
 
 - PySide6
-- Pyinstaller
-- Nuitka
+- Pyinstaller (Optional)
+- Nuitka (Optional)
+
+## Project Structure
+
+| File or Directory   | Description                                        |
+|---------------------|----------------------------------------------------|
+| app/                | Source code directory                              |
+| app/asserts.qrc     | Qt resources mapping descript file                 |
+| app/asserts/**      | Qt resources files (images, icons, etc.)           |
+| app/ui/*.ui         | Qt Designer UI files                               |
+| app/resources/*.py  | Generated Python files from UI and QRC files       |
+| build.py            | Build script for the project                       |
+| requirements.txt    | List of dependencies for the project               |
+| setup_via_mirror.py | Setup script for the project via mirror (optional) |
+| build/              | Build Destination Directory if use Pyinstaller     |
+| build_nuitka/       | Build Destination Directory if use Nuitka          |
 
 ## Command
 
