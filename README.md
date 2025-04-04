@@ -52,15 +52,15 @@ Help message example:
 
 ```
 > python ./build.py -h
-usage: build.py [-h] (--ui | --build | --all) [--pyinstaller | --nuitka] [--onefile | --onedir]
+usage: build.py [-h] (--rc | --build | --all) [--pyinstaller | --nuitka] [--onefile | --onedir]
 
 Build the app.
 
 options:
   -h, --help     show this help message and exit
-  --ui           Convert ui files to python files
+  --rc           Convert rc files to python files
   --build        Build the app
-  --all          Convert ui files and build the app
+  --all          Convert rc files and build the app
   --pyinstaller  Use pyinstaller to build the app
   --nuitka       Use nuitka to build the app
   --onefile      Create a single executable file

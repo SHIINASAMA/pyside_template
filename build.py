@@ -22,9 +22,9 @@ parser = argparse.ArgumentParser(description='Build the app.')
 # --build: only build the app
 # --all: convert ui files and build the app
 mode_group = parser.add_mutually_exclusive_group(required=True)
-mode_group.add_argument('--ui', action='store_true', help='Convert ui files to python files')
+mode_group.add_argument('--rc', action='store_true', help='Convert rc files to python files')
 mode_group.add_argument('--build', action='store_true', help='Build the app')
-mode_group.add_argument('--all', action='store_true', help='Convert ui files and build the app')
+mode_group.add_argument('--all', action='store_true', help='Convert rc files and build the app')
 # --pyinstaller: use pyinstaller to build the app
 # --nuitka: use nuitka to build the app
 builder_group = parser.add_mutually_exclusive_group()
@@ -39,7 +39,7 @@ package_format_group.add_argument('--onedir', action='store_true',
 # do parse
 args = parser.parse_args()
 
-if args.ui or args.all:
+if args.rc or args.all:
     # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
     # if ui folder does not exist, skip it
     if not os.path.exists('app/ui'):
@@ -47,23 +47,25 @@ if args.ui or args.all:
     # if app/resources folder does not exist, create it
     if not os.path.exists('app/resources'):
         os.makedirs('app/resources')
-    else:
-        for root, dirs, files in os.walk('app/ui'):
-            for file in files:
-                if file.endswith('.ui'):
-                    input_file = os.path.join(root, file)
-                    output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
-                    os.system(f'pyside6-uic {input_file} -o {output_file}')
-                    print(f'Converted {input_file} to {output_file}.')
 
-if args.build or args.all:
-    print('Converting resource files to python files...')
+    print('Converting ui files to python files...')
+    for root, dirs, files in os.walk('app/ui'):
+        for file in files:
+            if file.endswith('.ui'):
+                input_file = os.path.join(root, file)
+                output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
+                os.system(f'pyside6-uic {input_file} -o {output_file}')
+                print(f'Converted {input_file} to {output_file}.')
+
     # if app/asserts.qrc does not exist, skip it
     if os.path.exists('app/asserts.qrc'):
+        print('Converting resource files to python files...')
         if not os.path.exists('app/resources'):
             os.makedirs('app/resources')
         os.system('pyside6-rcc app/asserts.qrc -o app/resources/resource.py')
+        print('Converted app/asserts.qrc to app/resources/resource.py.')
 
+if args.build or args.all:
     print('Building the app...')
     if args.pyinstaller:
         # call pyinstaller to build the app
@@ -77,7 +79,7 @@ if args.build or args.all:
                   '--icon "app/asserts/logo.ico" '
                   'app/__main__.py '
                   '--name App '
-                   + ('--onefile ' if args.onefile else '--onedir '))
+                  + ('--onefile ' if args.onefile else '--onedir '))
         # remove *.spec file
         if os.path.exists('App.spec'):
             os.remove('App.spec')
