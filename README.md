@@ -15,8 +15,8 @@ It includes a basic project structure, a build script, and a requirements file.
 | File or Directory   | Description                                        |
 |---------------------|----------------------------------------------------|
 | app/                | Source code directory                              |
-| app/asserts.qrc     | Qt resources mapping descript file                 |
-| app/asserts/**      | Qt resources files (images, icons, etc.)           |
+| app/assets.qrc      | Qt resources mapping descript file                 |
+| app/assets/**       | Qt resources files (images, icons, etc.)           |
 | app/ui/*.ui         | Qt Designer UI files                               |
 | app/resources/*.py  | Generated Python files from UI and QRC files       |
 | build.py            | Build script for the project                       |

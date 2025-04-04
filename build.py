@@ -57,13 +57,13 @@ if args.rc or args.all:
                 os.system(f'pyside6-uic {input_file} -o {output_file}')
                 print(f'Converted {input_file} to {output_file}.')
 
-    # if app/asserts.qrc does not exist, skip it
-    if os.path.exists('app/asserts.qrc'):
+    # if app/assets.qrc does not exist, skip it
+    if os.path.exists('app/assets.qrc'):
         print('Converting resource files to python files...')
         if not os.path.exists('app/resources'):
             os.makedirs('app/resources')
-        os.system('pyside6-rcc app/asserts.qrc -o app/resources/resource.py')
-        print('Converted app/asserts.qrc to app/resources/resource.py.')
+        os.system('pyside6-rcc app/assets.qrc -o app/resources/resource.py')
+        print('Converted app/assets.qrc to app/resources/resource.py.')
 
 if args.build or args.all:
     print('Building the app...')
@@ -76,7 +76,7 @@ if args.build or args.all:
                   '--windowed '
                   '--distpath "build" '
                   '--workpath "build/work" '
-                  '--icon "app/asserts/logo.ico" '
+                  '--icon "app/assets/logo.ico" '
                   'app/__main__.py '
                   '--name App '
                   + ('--onefile ' if args.onefile else '--onedir '))
@@ -93,7 +93,7 @@ if args.build or args.all:
                   '--plugin-enable=pyside6 '
                   '--output-dir=build_nuitka '
                   '--follow-imports '
-                  '--windows-icon-from-ico="app/asserts/logo.ico" '
+                  '--windows-icon-from-ico="app/assets/logo.ico" '
                   '--output-filename="App" '
                   'app/__main__.py '
                   + ('--onefile ' if args.onefile else ' '))
