@@ -9,6 +9,7 @@ It includes a basic project structure, a build script, and a requirements file.
 - PySide6
 - Pyinstaller (Optional)
 - Nuitka (Optional)
+- PyQtDarkTheme (Optional)
 
 ## Project Structure
 
