@@ -89,6 +89,7 @@ if args.build or args.all:
         os.system('nuitka '
                   '--quiet '
                   '--standalone '
+                  '--assume-yes-for-downloads '
                   '--windows-console-mode=disable '
                   '--plugin-enable=pyside6 '
                   '--output-dir=build_nuitka '

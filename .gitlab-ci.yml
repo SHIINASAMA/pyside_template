@@ -1,0 +1,22 @@
+build:
+  stage: build
+  tags:
+    - windows
+  script:
+    - python -m venv venv
+    - ./venv/Scripts/Activate.ps1
+    - pip install -r requirements.txt
+    - python build.py --all --pyinstaller --onefile
+    # - python build.py --all --nuitka --onefile
+  rules:
+    - changes:
+        - app/**
+        - requirements.txt
+        - build.py
+        - .gitlab-ci.yml
+  artifacts:
+    name: "build-${CI_COMMIT_SHA}"
+    paths:
+      - build/App.exe
+      # - build_nuitka/App.exe
+    expire_in: 30 days
