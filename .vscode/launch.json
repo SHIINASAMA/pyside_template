@@ -7,6 +7,17 @@
             "request": "launch",
             "module": "app",
             "preLaunchTask": "Build rc"
+        },
+        {
+            "name": "Debug build.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "build.py",
+            "args": [
+                "--all",
+                "--pyinstaller",
+                "--onefile"
+            ]
         }
     ]
 }
