@@ -15,6 +15,7 @@
             "type": "shell",
             "command": "python",
             "args": [
+                "build.py",
                 "--all",
                 "--pyinstaller",
                 "--onefile"
@@ -25,6 +26,7 @@
             "type": "shell",
             "command": "python",
             "args": [
+                "build.py",
                 "--all",
                 "--pyinstaller",
                 "--onedir"
@@ -35,6 +37,7 @@
             "type": "shell",
             "command": "python",
             "args": [
+                "build.py",
                 "--all",
                 "--nuitka",
                 "--onefile"
@@ -45,6 +48,7 @@
             "type": "shell",
             "command": "python",
             "args": [
+                "build.py",
                 "--all",
                 "--nuitka",
                 "--onedir"
