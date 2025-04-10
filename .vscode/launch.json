@@ -5,7 +5,8 @@
             "name": "Debug App",
             "type": "debugpy",
             "request": "launch",
-            "module": "app"
+            "module": "app",
+            "preLaunchTask": "Build RC"
         }
     ]
 }
