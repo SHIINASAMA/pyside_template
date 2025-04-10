@@ -1,18 +1,20 @@
 import argparse
 import os
 import sys
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 # check working directory
 # if 'app' is not in the current working directory, exit
 if not os.path.exists('app'):
-    print('Please run this script from the app directory.')
+    logging.error('Please run this script from the app directory.')
     exit(1)
 
 # check using python virtual environment
 if sys.prefix == sys.base_prefix:
-    print(f'sys.prefix is {sys.prefix}.')
-    print(f'sys.base_prefix is {sys.base_prefix}.')
-    print('Please run this script from a python virtual environment.')
+    logging.error(f'sys.prefix is {sys.prefix}.')
+    logging.error(f'sys.base_prefix is {sys.base_prefix}.')
+    logging.error('Please run this script from a python virtual environment.')
     exit(1)
 
 # parse command line arguments
@@ -43,34 +45,38 @@ if args.rc or args.all:
     # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
     # if ui folder does not exist, skip it
     if not os.path.exists('app/ui'):
-        print('No ui folder found, skipping ui conversion.')
+        logging.info('No ui folder found, skipping ui conversion.')
     # if app/resources folder does not exist, create it
     if not os.path.exists('app/resources'):
         os.makedirs('app/resources')
 
-    print('Converting ui files to python files...')
+    logging.info('Converting ui files to python files...')
     for root, dirs, files in os.walk('app/ui'):
         for file in files:
             if file.endswith('.ui'):
                 input_file = os.path.join(root, file)
                 output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
-                os.system(f'pyside6-uic {input_file} -o {output_file}')
-                print(f'Converted {input_file} to {output_file}.')
+                if 0 != os.system(f'pyside6-uic {input_file} -o {output_file}'):
+                    logging.error('Failed to convert ui file.')
+                    exit(1)
+                logging.info(f'Converted {input_file} to {output_file}.')
 
     # if app/assets.qrc does not exist, skip it
     if os.path.exists('app/assets.qrc'):
-        print('Converting resource files to python files...')
+        logging.info('Converting resource files to python files...')
         if not os.path.exists('app/resources'):
             os.makedirs('app/resources')
-        os.system('pyside6-rcc app/assets.qrc -o app/resources/resource.py')
-        print('Converted app/assets.qrc to app/resources/resource.py.')
+        if 0 != os.system('pyside6-rcc app/assets.qrc -o app/resources/resource.py'):
+            logging.error('Failed to convert resource file.')
+            exit(1)
+        logging.info('Converted app/assets.qrc to app/resources/resource.py.')
 
 if args.build or args.all:
-    print('Building the app...')
+    logging.info('Building the app...')
     if args.pyinstaller:
         # call pyinstaller to build the app
         # include all files in app package and exclude the ui files
-        os.system('pyinstaller '
+        if 0 != os.system('pyinstaller '
                   '--noconfirm '
                   '--log-level=WARN '
                   '--windowed '
@@ -79,14 +85,16 @@ if args.build or args.all:
                   '--icon "app/assets/logo.ico" '
                   'app/__main__.py '
                   '--name App '
-                  + ('--onefile ' if args.onefile else '--onedir '))
+                  + ('--onefile ' if args.onefile else '--onedir ')):
+            logging.error('Failed to build app via pyinstaller.')
+            exit(1)
         # remove *.spec file
         if os.path.exists('App.spec'):
             os.remove('App.spec')
     elif args.nuitka:
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
-        os.system('nuitka '
+        if 0 != os.system('nuitka '
                   '--quiet '
                   '--standalone '
                   '--assume-yes-for-downloads '
@@ -97,8 +105,10 @@ if args.build or args.all:
                   '--windows-icon-from-ico="app/assets/logo.ico" '
                   '--output-filename="App" '
                   'app/__main__.py '
-                  + ('--onefile ' if args.onefile else ' '))
+                  + ('--onefile ' if args.onefile else ' ')):
+            logging.error('Failed to build app via nuitka.')
+            exit(1)
     else:
-        print('No builder specified. Use --pyinstaller or --nuitka.')
+        logging.error('No builder specified. Use --pyinstaller or --nuitka.')
         exit(1)
-    print('Build complete.')
+    logging.info('Build complete.')

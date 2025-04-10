@@ -6,7 +6,7 @@
             "type": "debugpy",
             "request": "launch",
             "module": "app",
-            "preLaunchTask": "Build RC"
+            "preLaunchTask": "Build rc"
         }
     ]
 }
