@@ -4,167 +4,208 @@ import sys
 import logging
 import json
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-# check working directory
-# if 'app' is not in the current working directory, exit
-if not os.path.exists('app'):
-    logging.error('Please run this script from the app directory.')
-    exit(1)
+class Build:
+    args = None
+    cache = None
 
-# check using python virtual environment
-if sys.prefix == sys.base_prefix:
-    logging.error(f'sys.prefix is {sys.prefix}.')
-    logging.error(f'sys.base_prefix is {sys.base_prefix}.')
-    logging.error('Please run this script from a python virtual environment.')
-    exit(1)
+    def init(self):
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        # check working directory
+        # if 'app' is not in the current working directory, exit
+        if not os.path.exists('app'):
+            logging.error('Please run this script from the app directory.')
+            exit(1)
 
-# parse command line arguments
-# --help: show this help message
-parser = argparse.ArgumentParser(description='Build the app.')
-# --ui: only convert ui files to python files
-# --build: only build the app
-# --all: convert ui files and build the app
-mode_group = parser.add_mutually_exclusive_group(required=True)
-mode_group.add_argument('--rc', action='store_true', help='Convert rc files to python files')
-mode_group.add_argument('--build', action='store_true', help='Build the app')
-mode_group.add_argument('--all', action='store_true', help='Convert rc files and build the app')
-# --pyinstaller: use pyinstaller to build the app
-# --nuitka: use nuitka to build the app
-builder_group = parser.add_mutually_exclusive_group()
-builder_group.add_argument('--pyinstaller', action='store_true', help='Use pyinstaller to build the app')
-builder_group.add_argument('--nuitka', action='store_true', help='Use nuitka to build the app')
-# --onefile: create a single executable file
-# --onedir: create a directory with the executable and all dependencies
-package_format_group = parser.add_mutually_exclusive_group()
-package_format_group.add_argument('--onefile', action='store_true', help='Create a single executable file')
-package_format_group.add_argument('--onedir', action='store_true',
-                                  help='Create a directory with the executable and all dependencies')
+        # check using python virtual environment
+        if sys.prefix == sys.base_prefix:
+            logging.error(f'sys.prefix is {sys.prefix}.')
+            logging.error(f'sys.base_prefix is {sys.base_prefix}.')
+            logging.error('Please run this script from a python virtual environment.')
+            exit(1)
 
-parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches.', required=False)
+        # parse command line arguments
+        # --help: show this help message
+        parser = argparse.ArgumentParser(description='Build the app.')
+        # --ui: only convert ui files to python files
+        # --build: only build the app
+        # --all: convert ui files and build the app
+        mode_group = parser.add_mutually_exclusive_group(required=True)
+        mode_group.add_argument('--rc', action='store_true', help='Convert rc files to python files')
+        mode_group.add_argument('--build', action='store_true', help='Build the app')
+        mode_group.add_argument('--all', action='store_true', help='Convert rc files and build the app')
+        # --pyinstaller: use pyinstaller to build the app
+        # --nuitka: use nuitka to build the app
+        builder_group = parser.add_mutually_exclusive_group()
+        builder_group.add_argument('--pyinstaller', action='store_true', help='Use pyinstaller to build the app')
+        builder_group.add_argument('--nuitka', action='store_true', help='Use nuitka to build the app')
+        # --onefile: create a single executable file
+        # --onedir: create a directory with the executable and all dependencies
+        package_format_group = parser.add_mutually_exclusive_group()
+        package_format_group.add_argument('--onefile', action='store_true', help='Create a single executable file')
+        package_format_group.add_argument('--onedir', action='store_true',
+                                          help='Create a directory with the executable and all dependencies')
 
-# do parse
-args = parser.parse_args()
+        parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches.', required=False)
 
-logging.info(args)
+        # do parse
+        self.args = parser.parse_args()
 
-if args.rc or args.all:
-    # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
-    # if ui folder does not exist, skip it
-    if not os.path.exists('app/ui'):
-        logging.info('No ui folder found, skipping ui conversion.')
-    # if app/resources folder does not exist, create it
-    if not os.path.exists('app/resources'):
-        os.makedirs('app/resources')
+    def load_cache(self):
+        # load cache
+        if not self.args.no_cache:
+            if not os.path.exists('.cache'):
+                os.makedirs('.cache')
+            if os.path.exists('.cache/assets.json'):
+                logging.info('Cache found.')
+                with open('.cache/assets.json', 'r') as f:
+                    self.cache = json.load(f)
+            if not self.cache:
+                logging.info('No cache found.')
 
-    # check caches
-    cache = {}
-    if not args.no_cache:
-        if not os.path.exists('.cache'):
-            os.makedirs('.cache')
-        if os.path.exists('.cache/assets.json'):
-            logging.info('Cache found.')
-            with open('.cache/assets.json', 'r') as f:
-                cache = json.load(f)
-        if not cache:
-            logging.info('No cache found.')
+    def build_ui(self):
+        if self.args.rc or self.args.all:
+            # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
+            # if ui folder does not exist, skip it
+            if not os.path.exists('app/ui'):
+                logging.info('No ui folder found, skipping ui conversion.')
+            # if app/resources folder does not exist, create it
+            if not os.path.exists('app/resources'):
+                os.makedirs('app/resources')      
 
-    logging.info('Converting ui files to python files...')
-    if not args.no_cache or 'ui' in cache:
-        ui_cache = cache['ui']
-    else:
-        ui_cache = {}
-    for root, dirs, files in os.walk('app/ui'):
-        for file in files:
-            if not file.endswith('.ui'):
-                continue
-            input_file = os.path.join(root, file)
-            if not args.no_cache and ui_cache and input_file in ui_cache:
-                if ui_cache[input_file] == os.path.getmtime(input_file):
-                    logging.info(f'{input_file} is up to date.')
-                    continue
-            ui_cache[input_file] = os.path.getmtime(input_file)
-            logging.info(f'{input_file} is outdated. Need reconvert.')
-            output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
-            if 0 != os.system(f'pyside6-uic {input_file} -o {output_file}'):
-                logging.error('Failed to convert ui file.')
-                exit(1)
-            logging.info(f'Converted {input_file} to {output_file}.')
-
-    # if app/assets.qrc does not exist, skip it
-    if os.path.exists('app/assets.qrc'):
-        logging.info('Converting resource files to python files...')
-        if not args.no_cache and 'assets' in cache:
-            assets_cache = cache['assets']
-        else:
-            assets_cache = {}
-        if not os.path.exists('app/resources'):
-            os.makedirs('app/resources')
-
-        need_rebuild = False
-        for root, dirs, files in os.walk('app/assets'):
-            for file in files:
-                input_file = os.path.join(root, file)
-                if not args.no_cache and assets_cache and input_file in assets_cache:
-                    if round(assets_cache[input_file], 3) == round(os.path.getmtime(input_file), 3):
-                        logging.info(f'{input_file} is up to date.')
+            logging.info('Converting ui files to python files...')
+            if self.args.no_cache:
+                ui_cache = {}
+            elif 'ui' in self.cache:
+                ui_cache = self.cache['ui']
+            else:
+                ui_cache = {}
+            for root, dirs, files in os.walk('app/ui'):
+                for file in files:
+                    if not file.endswith('.ui'):
                         continue
-                assets_cache[input_file] = os.path.getmtime(input_file)
-                logging.info(f'{input_file} is outdated.')
+                    input_file = os.path.join(root, file)
+                    if input_file in ui_cache:
+                        if ui_cache[input_file] == os.path.getmtime(input_file):
+                            logging.info(f'{input_file} is up to date.')
+                            continue
+                    ui_cache[input_file] = os.path.getmtime(input_file)
+                    logging.info(f'{input_file} is outdated. Need reconvert.')
+                    output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
+                    if 0 != os.system(f'pyside6-uic {input_file} -o {output_file}'):
+                        logging.error('Failed to convert ui file.')
+                        exit(1)
+                    logging.info(f'Converted {input_file} to {output_file}.')
+            self.cache['ui'] = ui_cache
+
+
+    def build_assets(self):
+        # if app/assets.qrc does not exist, skip it
+        if os.path.exists('app/assets.qrc'):
+            logging.info('Converting resource files to python files...')
+            if self.args.no_cache:
+                assets_cache = {}
+            elif 'assets' in self.cache:
+                assets_cache = self.cache['assets']
+            else:
+                assets_cache = {}
+
+            if self.args.no_cache:
+                assets_json = ""
+            elif 'assets_json' in self.cache:
+                assets_json = self.cache['assets_json']
+            else:
+                assets_json = ""
+
+            if not os.path.exists('app/resources'):
+                os.makedirs('app/resources')
+
+            need_rebuild = False
+            for root, dirs, files in os.walk('app/assets'):
+                for file in files:
+                    input_file = os.path.join(root, file)
+                    if input_file in assets_cache:
+                        if assets_cache[input_file] == os.path.getmtime(input_file):
+                            logging.info(f'{input_file} is up to date.')
+                            continue
+                    assets_cache[input_file] = os.path.getmtime(input_file)
+                    logging.info(f'{input_file} is outdated.')
+                    need_rebuild = True
+            if assets_json != os.path.getmtime('app/assets.qrc'):
+                assets_json = os.path.getmtime('app/assets.qrc')
+                logging.info(f'assets.json is outdated.')
                 need_rebuild = True
 
-        if args.no_cache or need_rebuild:
-            if 0 != os.system('pyside6-rcc app/assets.qrc -o app/resources/resource.py'):
-                logging.error('Failed to convert resource file.')
-                exit(1)
-            logging.info('Converted app/assets.qrc to app/resources/resource.py.')
-        else:
-            logging.info('Assets is up to date.')
+            if self.args.no_cache:
+                need_rebuild = True
 
+            if need_rebuild:
+                if 0 != os.system('pyside6-rcc app/assets.qrc -o app/resources/resource.py'):
+                    logging.error('Failed to convert resource file.')
+                    exit(1)
+                logging.info('Converted app/assets.qrc to app/resources/resource.py.')
+            else:
+                logging.info('Assets is up to date.')
+
+            self.cache['assets_json'] = assets_json
+            self.cache['assets'] = assets_cache
+
+    def save_cache(self):
         # save cache
-        cache['assets'] = assets_cache
-        cache['ui'] = ui_cache
         with open('.cache/assets.json', 'w') as f:
-            json.dump(cache, f, indent=4)
+            json.dump(self.cache, f, indent=4)
         logging.info('Cache saved.')
 
-if args.build or args.all:
-    logging.info('Building the app...')
-    if args.pyinstaller:
-        # call pyinstaller to build the app
-        # include all files in app package and exclude the ui files
-        if 0 != os.system('pyinstaller '
-                  '--noconfirm '
-                  '--log-level=WARN '
-                  '--windowed '
-                  '--distpath "build" '
-                  '--workpath "build/work" '
-                  '--icon "app/assets/logo.ico" '
-                  'app/__main__.py '
-                  '--name App '
-                  + ('--onefile ' if args.onefile else '--onedir ')):
-            logging.error('Failed to build app via pyinstaller.')
-            exit(1)
-        # remove *.spec file
-        if os.path.exists('App.spec'):
-            os.remove('App.spec')
-    elif args.nuitka:
-        # call nuitka to build the app
-        # include all files in app package and exclude the ui files
-        if 0 != os.system('nuitka '
-                  '--quiet '
-                  '--standalone '
-                  '--assume-yes-for-downloads '
-                  '--windows-console-mode=disable '
-                  '--plugin-enable=pyside6 '
-                  '--output-dir=build_nuitka '
-                  '--follow-imports '
-                  '--windows-icon-from-ico="app/assets/logo.ico" '
-                  '--output-filename="App" '
-                  'app/__main__.py '
-                  + ('--onefile ' if args.onefile else ' ')):
-            logging.error('Failed to build app via nuitka.')
-            exit(1)
-    else:
-        logging.error('No builder specified. Use --pyinstaller or --nuitka.')
-        exit(1)
-    logging.info('Build complete.')
+    def build(self):
+        if self.args.build or self.args.all:
+            logging.info('Building the app...')
+            if self.args.pyinstaller:
+                # call pyinstaller to build the app
+                # include all files in app package and exclude the ui files
+                if 0 != os.system('pyinstaller '
+                          '--noconfirm '
+                          '--log-level=WARN '
+                          '--windowed '
+                          '--distpath "build" '
+                          '--workpath "build/work" '
+                          '--icon "app/assets/logo.ico" '
+                          'app/__main__.py '
+                          '--name App '
+                          + ('--onefile ' if self.args.onefile else '--onedir ')):
+                    logging.error('Failed to build app via pyinstaller.')
+                    exit(1)
+                # remove *.spec file
+                if os.path.exists('App.spec'):
+                    os.remove('App.spec')
+            elif self.args.nuitka:
+                # call nuitka to build the app
+                # include all files in app package and exclude the ui files
+                if 0 != os.system('nuitka '
+                          '--quiet '
+                          '--standalone '
+                          '--assume-yes-for-downloads '
+                          '--windows-console-mode=disable '
+                          '--plugin-enable=pyside6 '
+                          '--output-dir=build_nuitka '
+                          '--follow-imports '
+                          '--windows-icon-from-ico="app/assets/logo.ico" '
+                          '--output-filename="App" '
+                          'app/__main__.py '
+                          + ('--onefile ' if self.args.onefile else ' ')):
+                    logging.error('Failed to build app via nuitka.')
+                    exit(1)
+            else:
+                logging.error('No builder specified. Use --pyinstaller or --nuitka.')
+                exit(1)
+            logging.info('Build complete.')
+
+    def run(self):
+        self.init()
+        self.load_cache()
+        self.build_ui()
+        self.build_assets()
+        self.save_cache()
+        self.build()
+
+if __name__ == '__main__':
+    builder = Build()
+    builder.run()
