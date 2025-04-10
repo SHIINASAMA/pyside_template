@@ -6,7 +6,7 @@ import json
 
 class Build:
     args = None
-    cache = None
+    cache = {}
 
     def init(self):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -51,70 +51,62 @@ class Build:
         self.args = parser.parse_args()
 
     def load_cache(self):
-        # load cache
-        if not self.args.no_cache:
-            if not os.path.exists('.cache'):
-                os.makedirs('.cache')
-            if os.path.exists('.cache/assets.json'):
-                logging.info('Cache found.')
-                with open('.cache/assets.json', 'r') as f:
-                    self.cache = json.load(f)
-            if not self.cache:
-                logging.info('No cache found.')
+        """load cache from .cache/assets.json"""
+        if not os.path.exists('.cache'):
+            os.makedirs('.cache')
+        if os.path.exists('.cache/assets.json'):
+            logging.info('Cache found.')
+            with open('.cache/assets.json', 'r') as f:
+                self.cache = json.load(f)
+        if not self.cache:
+            logging.info('No cache found.')
 
     def build_ui(self):
-        if self.args.rc or self.args.all:
-            # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
-            # if ui folder does not exist, skip it
-            if not os.path.exists('app/ui'):
-                logging.info('No ui folder found, skipping ui conversion.')
-            # if app/resources folder does not exist, create it
-            if not os.path.exists('app/resources'):
-                os.makedirs('app/resources')      
+        """use pyside6-uic compile *.ui files"""
+        # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
+        # if ui folder does not exist, skip it
+        if not os.path.exists('app/ui'):
+            logging.info('No ui folder found, skipping ui conversion.')
+        # if app/resources folder does not exist, create it
+        if not os.path.exists('app/resources'):
+            os.makedirs('app/resources')      
 
-            logging.info('Converting ui files to python files...')
-            if self.args.no_cache:
-                ui_cache = {}
-            elif 'ui' in self.cache:
-                ui_cache = self.cache['ui']
-            else:
-                ui_cache = {}
-            for root, dirs, files in os.walk('app/ui'):
-                for file in files:
-                    if not file.endswith('.ui'):
+        logging.info('Converting ui files to python files...')
+        if 'ui' in self.cache:
+            ui_cache = self.cache['ui']
+        else:
+            ui_cache = {}
+        for root, dirs, files in os.walk('app/ui'):
+            for file in files:
+                if not file.endswith('.ui'):
+                    continue
+                input_file = os.path.join(root, file)
+                if input_file in ui_cache:
+                    if ui_cache[input_file] == os.path.getmtime(input_file):
+                        logging.info(f'{input_file} is up to date.')
                         continue
-                    input_file = os.path.join(root, file)
-                    if input_file in ui_cache:
-                        if ui_cache[input_file] == os.path.getmtime(input_file):
-                            logging.info(f'{input_file} is up to date.')
-                            continue
-                    ui_cache[input_file] = os.path.getmtime(input_file)
-                    logging.info(f'{input_file} is outdated. Need reconvert.')
-                    output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
-                    if 0 != os.system(f'pyside6-uic {input_file} -o {output_file}'):
-                        logging.error('Failed to convert ui file.')
-                        exit(1)
-                    logging.info(f'Converted {input_file} to {output_file}.')
-            self.cache['ui'] = ui_cache
-
+                ui_cache[input_file] = os.path.getmtime(input_file)
+                logging.info(f'{input_file} is outdated. Need reconvert.')
+                output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
+                if 0 != os.system(f'pyside6-uic {input_file} -o {output_file}'):
+                    logging.error('Failed to convert ui file.')
+                    exit(1)
+                logging.info(f'Converted {input_file} to {output_file}.')
+        self.cache['ui'] = ui_cache
 
     def build_assets(self):
         # if app/assets.qrc does not exist, skip it
         if os.path.exists('app/assets.qrc'):
             logging.info('Converting resource files to python files...')
-            if self.args.no_cache:
-                assets_cache = {}
-            elif 'assets' in self.cache:
+            if 'assets' in self.cache:
                 assets_cache = self.cache['assets']
             else:
                 assets_cache = {}
 
-            if self.args.no_cache:
-                assets_json = ""
-            elif 'assets_json' in self.cache:
+            if 'assets_json' in self.cache:
                 assets_json = self.cache['assets_json']
             else:
-                assets_json = ""
+                assets_json = ''
 
             if not os.path.exists('app/resources'):
                 os.makedirs('app/resources')
@@ -156,55 +148,57 @@ class Build:
         logging.info('Cache saved.')
 
     def build(self):
-        if self.args.build or self.args.all:
-            logging.info('Building the app...')
-            if self.args.pyinstaller:
-                # call pyinstaller to build the app
-                # include all files in app package and exclude the ui files
-                if 0 != os.system('pyinstaller '
-                          '--noconfirm '
-                          '--log-level=WARN '
-                          '--windowed '
-                          '--distpath "build" '
-                          '--workpath "build/work" '
-                          '--icon "app/assets/logo.ico" '
-                          'app/__main__.py '
-                          '--name App '
-                          + ('--onefile ' if self.args.onefile else '--onedir ')):
-                    logging.error('Failed to build app via pyinstaller.')
-                    exit(1)
-                # remove *.spec file
-                if os.path.exists('App.spec'):
-                    os.remove('App.spec')
-            elif self.args.nuitka:
-                # call nuitka to build the app
-                # include all files in app package and exclude the ui files
-                if 0 != os.system('nuitka '
-                          '--quiet '
-                          '--standalone '
-                          '--assume-yes-for-downloads '
-                          '--windows-console-mode=disable '
-                          '--plugin-enable=pyside6 '
-                          '--output-dir=build_nuitka '
-                          '--follow-imports '
-                          '--windows-icon-from-ico="app/assets/logo.ico" '
-                          '--output-filename="App" '
-                          'app/__main__.py '
-                          + ('--onefile ' if self.args.onefile else ' ')):
-                    logging.error('Failed to build app via nuitka.')
-                    exit(1)
-            else:
-                logging.error('No builder specified. Use --pyinstaller or --nuitka.')
+        logging.info('Building the app...')
+        if self.args.pyinstaller:
+            # call pyinstaller to build the app
+            # include all files in app package and exclude the ui files
+            if 0 != os.system('pyinstaller '
+                      '--noconfirm '
+                      '--log-level=WARN '
+                      '--windowed '
+                      '--distpath "build" '
+                      '--workpath "build/work" '
+                      '--icon "app/assets/logo.ico" '
+                      'app/__main__.py '
+                      '--name App '
+                      + ('--onefile ' if self.args.onefile else '--onedir ')):
+                logging.error('Failed to build app via pyinstaller.')
                 exit(1)
-            logging.info('Build complete.')
+            # remove *.spec file
+            if os.path.exists('App.spec'):
+                os.remove('App.spec')
+        elif self.args.nuitka:
+            # call nuitka to build the app
+            # include all files in app package and exclude the ui files
+            if 0 != os.system('nuitka '
+                      '--quiet '
+                      '--standalone '
+                      '--assume-yes-for-downloads '
+                      '--windows-console-mode=disable '
+                      '--plugin-enable=pyside6 '
+                      '--output-dir=build_nuitka '
+                      '--follow-imports '
+                      '--windows-icon-from-ico="app/assets/logo.ico" '
+                      '--output-filename="App" '
+                      'app/__main__.py '
+                      + ('--onefile ' if self.args.onefile else ' ')):
+                logging.error('Failed to build app via nuitka.')
+                exit(1)
+        else:
+            logging.error('No builder specified. Use --pyinstaller or --nuitka.')
+            exit(1)
+        logging.info('Build complete.')
 
     def run(self):
         self.init()
-        self.load_cache()
-        self.build_ui()
-        self.build_assets()
+        if not self.args.no_cache:
+            self.load_cache()
+        if self.args.rc or self.args.all:
+            self.build_ui()
+            self.build_assets()
         self.save_cache()
-        self.build()
+        if self.args.build or self.args.all:
+            self.build()
 
 if __name__ == '__main__':
     builder = Build()

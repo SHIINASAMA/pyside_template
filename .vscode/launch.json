@@ -14,9 +14,7 @@
             "request": "launch",
             "program": "build.py",
             "args": [
-                "--all",
-                "--pyinstaller",
-                "--onefile"
+                "--rc"
             ]
         }
     ]
