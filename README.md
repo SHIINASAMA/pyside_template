@@ -4,6 +4,9 @@ Easy to use template for PySide6 projects.
 This template is designed to help you get started with PySide6 quickly and easily.
 It includes a basic project structure, a build script, and a requirements file.
 
+Even if some company computers are underpowered, they're still usable in most cases. 
+You just need to install Python 3.11 and do some simple virtual environment setup.
+
 ## Main Dependencies
 
 - PySide6
@@ -23,6 +26,7 @@ It includes a basic project structure, a build script, and a requirements file.
 | build.py            | Build script for the project                       |
 | requirements.txt    | List of dependencies for the project               |
 | setup_via_mirror.py | Setup script for the project via mirror (optional) |
+| .cache/assets.json  | Build Caches                                       |
 | build/              | Build Destination Directory if use Pyinstaller     |
 | build_nuitka/       | Build Destination Directory if use Nuitka          |
 
