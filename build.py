@@ -45,8 +45,8 @@ class Build:
         package_format_group.add_argument('--onedir', action='store_true',
                                           help='Create a directory with the executable and all dependencies')
 
-        parser.add_argument('--msvc', action='store_true', help="Select the msvc as backend(nuitka).", required=False)
-        parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches.', required=False)
+        parser.add_argument('--msvc', action='store_true', help="Select the msvc as backend(nuitka)", required=False)
+        parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches', required=False)
 
         # do parse
         self.args = parser.parse_args()

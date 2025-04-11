@@ -56,8 +56,8 @@ python ./build.py -h
 Help message example:
 
 ```
-> python ./build.py -h
-usage: build.py [-h] (--rc | --build | --all) [--pyinstaller | --nuitka] [--onefile | --onedir]
+> python build.py -h
+usage: build.py [-h] (--rc | --build | --all) [--pyinstaller | --nuitka] [--onefile | --onedir] [--msvc] [--no-cache]
 
 Build the app.
 
@@ -70,4 +70,6 @@ options:
   --nuitka       Use nuitka to build the app
   --onefile      Create a single executable file
   --onedir       Create a directory with the executable and all dependencies
+  --msvc         Select the msvc as backend(nuitka)
+  --no-cache     Ignore existing caches
 ```
