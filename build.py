@@ -45,6 +45,7 @@ class Build:
         package_format_group.add_argument('--onedir', action='store_true',
                                           help='Create a directory with the executable and all dependencies')
 
+        parser.add_argument('--msvc', action='store_true', help="Select the msvc as backend(nuitka).", required=False)
         parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches.', required=False)
 
         # do parse
@@ -150,44 +151,53 @@ class Build:
     def build(self):
         logging.info('Building the app...')
         if self.args.pyinstaller:
-            # call pyinstaller to build the app
-            # include all files in app package and exclude the ui files
-            if 0 != os.system('pyinstaller '
-                      '--noconfirm '
-                      '--log-level=WARN '
-                      '--windowed '
-                      '--distpath "build" '
-                      '--workpath "build/work" '
-                      '--icon "app/assets/logo.ico" '
-                      'app/__main__.py '
-                      '--name App '
-                      + ('--onefile ' if self.args.onefile else '--onedir ')):
-                logging.error('Failed to build app via pyinstaller.')
-                exit(1)
-            # remove *.spec file
-            if os.path.exists('App.spec'):
-                os.remove('App.spec')
+            self.build_via_pyinstaller()
         elif self.args.nuitka:
-            # call nuitka to build the app
-            # include all files in app package and exclude the ui files
-            if 0 != os.system('nuitka '
-                      '--quiet '
-                      '--standalone '
-                      '--assume-yes-for-downloads '
-                      '--windows-console-mode=disable '
-                      '--plugin-enable=pyside6 '
-                      '--output-dir=build_nuitka '
-                      '--follow-imports '
-                      '--windows-icon-from-ico="app/assets/logo.ico" '
-                      '--output-filename="App" '
-                      'app/__main__.py '
-                      + ('--onefile ' if self.args.onefile else ' ')):
-                logging.error('Failed to build app via nuitka.')
-                exit(1)
+            self.build_via_nuitka()
         else:
             logging.error('No builder specified. Use --pyinstaller or --nuitka.')
             exit(1)
         logging.info('Build complete.')
+
+    def build_via_pyinstaller(self):
+        # call pyinstaller to build the app
+        # include all files in app package and exclude the ui files
+        if self.args.msvc:
+            logging.warning('Ignoring `--msvc` option for pyinstaller.')
+        if 0 != os.system('pyinstaller '
+                  '--noconfirm '
+                  '--log-level=WARN '
+                  '--windowed '
+                  '--distpath "build" '
+                  '--workpath "build/work" '
+                  '--icon "app/assets/logo.ico" '
+                  'app/__main__.py '
+                  '--name App '
+                  + ('--onefile ' if self.args.onefile else '--onedir ')):
+            logging.error('Failed to build app via pyinstaller.')
+            exit(1)
+        # remove *.spec file
+        if os.path.exists('App.spec'):
+            os.remove('App.spec')
+
+    def build_via_nuitka(self):
+        # call nuitka to build the app
+        # include all files in app package and exclude the ui files
+        if 0 != os.system('nuitka '
+                  '--quiet '
+                  '--standalone '
+                  '--assume-yes-for-downloads '
+                  '--windows-console-mode=disable '
+                  '--plugin-enable=pyside6 '
+                  '--output-dir=build_nuitka '
+                  '--follow-imports '
+                  '--windows-icon-from-ico="app/assets/logo.ico" '
+                  '--output-filename="App" '
+                  'app/__main__.py '
+                  + ('--onefile ' if self.args.onefile else ' ')
+                  + ('--msvc=latest') if self.args.msvc else ' '):
+            logging.error('Failed to build app via nuitka.')
+            exit(1)
 
     def run(self):
         self.init()
