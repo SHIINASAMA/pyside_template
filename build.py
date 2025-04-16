@@ -194,6 +194,7 @@ class Build:
                   '--windows-icon-from-ico="app/assets/logo.ico" '
                   '--output-filename="App" '
                   'app/__main__.py '
+                  + '--jobs={} '.format(os.cpu_count())
                   + ('--onefile ' if self.args.onefile else ' ')
                   + ('--msvc=latest') if self.args.msvc else ' '):
             logging.error('Failed to build app via nuitka.')
