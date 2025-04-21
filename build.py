@@ -185,7 +185,6 @@ class Build:
         # include all files in app package and exclude the ui files
         if 0 != os.system('nuitka '
                   '--quiet '
-                  '--standalone '
                   '--assume-yes-for-downloads '
                   '--windows-console-mode=disable '
                   '--plugin-enable=pyside6 '
@@ -195,8 +194,8 @@ class Build:
                   '--output-filename="App" '
                   'app/__main__.py '
                   + '--jobs={} '.format(os.cpu_count())
-                  + ('--onefile ' if self.args.onefile else ' ')
-                  + ('--msvc=latest') if self.args.msvc else ' '):
+                  + ('--onefile ' if self.args.onefile else '--standalone ')
+                  + ('--msvc=latest ' if self.args.msvc else ' ')):
             logging.error('Failed to build app via nuitka.')
             exit(1)
 
