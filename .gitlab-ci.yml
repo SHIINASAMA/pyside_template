@@ -9,7 +9,8 @@ build:
     - python build.py --all --pyinstaller --onefile
     # - python build.py --all --nuitka --onefile
   rules:
-    - changes:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
         - app/**
         - requirements.txt
         - build.py
