@@ -3,6 +3,7 @@ import os
 import sys
 import logging
 import json
+import shutil
 
 class Build:
     args = None
@@ -183,12 +184,12 @@ class Build:
     def build_via_nuitka(self):
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
-        if 0 != os.system('nuitka '
+        if 0 == os.system('nuitka '
                   '--quiet '
                   '--assume-yes-for-downloads '
                   '--windows-console-mode=disable '
                   '--plugin-enable=pyside6 '
-                  '--output-dir=build_nuitka '
+                  '--output-dir=build '
                   '--follow-imports '
                   '--windows-icon-from-ico="app/assets/logo.ico" '
                   '--output-filename="App" '
@@ -196,6 +197,11 @@ class Build:
                   + '--jobs={} '.format(os.cpu_count())
                   + ('--onefile ' if self.args.onefile else '--standalone ')
                   + ('--msvc=latest ' if self.args.msvc else ' ')):
+            if not self.args.onefile:
+                if os.path.exists('build/App'):
+                    shutil.rmtree('build/App')
+                shutil.move('build/__main__.dist', 'build/App')
+        else:
             logging.error('Failed to build app via nuitka.')
             exit(1)
 
