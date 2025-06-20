@@ -88,7 +88,7 @@ class Build:
                         logging.info(f'{input_file} is up to date.')
                         continue
                 ui_cache[input_file] = os.path.getmtime(input_file)
-                logging.info(f'{input_file} is outdated. Need reconvert.')
+                logging.info(f'{input_file} is outdated.')
                 output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
                 if 0 != os.system(f'pyside6-uic {input_file} -o {output_file}'):
                     logging.error('Failed to convert ui file.')
