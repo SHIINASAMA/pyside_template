@@ -2,56 +2,12 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build rc",
+            "label": "Build Resources",
             "type": "shell",
             "command": "python",
             "args": [
                 "build.py",
                 "--rc"
-            ]
-        },
-        {
-            "label": "Package onefile via pyinstaller",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "build.py",
-                "--all",
-                "--pyinstaller",
-                "--onefile"
-            ]
-        },
-        {
-            "label": "Package onedir via pyinstaller",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "build.py",
-                "--all",
-                "--pyinstaller",
-                "--onedir"
-            ]
-        },
-        {
-            "label": "Package onefile via nuitka",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "build.py",
-                "--all",
-                "--nuitka",
-                "--onefile"
-            ]
-        },
-        {
-            "label": "Package onedir via nuitka",
-            "type": "shell",
-            "command": "python",
-            "args": [
-                "build.py",
-                "--all",
-                "--nuitka",
-                "--onedir"
             ]
         }
     ]

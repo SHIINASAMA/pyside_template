@@ -6,7 +6,8 @@
             "type": "debugpy",
             "request": "launch",
             "module": "app",
-            "preLaunchTask": "Build rc"
+            "envFile": "${workspaceFolder}/.env",
+            "preLaunchTask": "Build Resources"
         },
         {
             "name": "Debug build.py",
