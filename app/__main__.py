@@ -1,4 +1,5 @@
 import sys
+from PySide6.QtAsyncio import run
 from PySide6.QtWidgets import QApplication
 from app.main_window import MainWindow
 
@@ -11,4 +12,4 @@ if __name__ == '__main__':
     qdarktheme.setup_theme("auto")
     main_window = MainWindow()
     main_window.show()
-    sys.exit(app.exec())
+    run()

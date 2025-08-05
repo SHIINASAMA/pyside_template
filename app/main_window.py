@@ -1,3 +1,4 @@
+import asyncio
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMainWindow, QMessageBox
 from app.resources.main_window_ui import Ui_MainWindow
@@ -15,4 +16,7 @@ class MainWindow(QMainWindow):
 
 
     def click_push_button(self):
-        QMessageBox.information(self, "Hello", "Hello World!")
+        async def async_task():
+            await asyncio.sleep(1)
+            QMessageBox.information(self, "Hello", "Hello World!")
+        asyncio.ensure_future(async_task())
