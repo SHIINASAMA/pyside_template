@@ -44,7 +44,7 @@ without relying on the provided <kbd>requirements.txt</kbd>.
 This approach offers greater flexibility.
 
 ```bash
-pip install PySide6 darkdetect pyqtdarktheme nuitka pyinstaller
+pip install PySide6 darkdetect qasync pyqtdarktheme nuitka pyinstaller
 ```
 
 ## Project Structure
