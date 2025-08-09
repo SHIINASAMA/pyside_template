@@ -3,16 +3,15 @@ build:
   tags:
     - windows
   script:
-    - python -m venv venv
-    - ./venv/Scripts/Activate.ps1
-    - pip install -r requirements.txt
-    - python build.py --all --pyinstaller --onefile
-    # - python build.py --all --nuitka --onefile
+    - uv sync
+    - uv run build.py --all --pyinstaller --onefile
+    # - uv run build.py --all --nuitka --onefile
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - app/**
-        - requirements.txt
+        - pyproject.toml
+        - uv.lock
         - build.py
         - .gitlab-ci.yml
   artifacts:

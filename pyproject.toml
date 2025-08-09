@@ -1,0 +1,17 @@
+[project]
+name = "pyside-template"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pyqtdarktheme>=2.1.0",
+    "pyside6>=6.6.3.1",
+    "qasync>=0.27.1",
+]
+
+[dependency-groups]
+dev = [
+    "nuitka>=2.7.12",
+    "pyinstaller>=6.15.0",
+]
