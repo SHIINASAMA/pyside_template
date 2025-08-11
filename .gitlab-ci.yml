@@ -4,8 +4,7 @@ build:
     - windows
   script:
     - uv sync
-    - uv run build.py --all --pyinstaller --onefile
-    # - uv run build.py --all --nuitka --onefile
+    - uv run build.py --all --onefile
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:

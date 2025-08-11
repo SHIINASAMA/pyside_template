@@ -41,7 +41,7 @@ uv -m app
 Using QtDesigner to create UI files. The UI files are must have located in the `ui` folder.
 
 ```bash
-pyside6-designer app/ui/main_window.ui
+uv run pyside6-designer app/ui/main_window.ui
 ```
 
 How to build and package the project. Run the following command to get the help message:
@@ -54,7 +54,7 @@ Help message example:
 
 ```
 > uv run build.py -h
-usage: build.py [-h] (--rc | --build | --all) [--pyinstaller | --nuitka] [--onefile | --onedir] [--msvc] [--no-cache]
+usage: build.py [-h] (--rc | --build | --all) [--onefile | --onedir] [--msvc] [--no-cache]
 
 Build the app.
 
@@ -63,8 +63,6 @@ options:
   --rc           Convert rc files to python files
   --build        Build the app
   --all          Convert rc files and build the app
-  --pyinstaller  Use pyinstaller to build the app
-  --nuitka       Use nuitka to build the app
   --onefile      Create a single executable file
   --onedir       Create a directory with the executable and all dependencies
   --msvc         Select the msvc as backend(nuitka)

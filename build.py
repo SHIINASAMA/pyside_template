@@ -4,10 +4,15 @@ import sys
 import logging
 import json
 import shutil
+import time
+
 
 class Build:
-    args = None
-    cache = {}
+    def __init__(self):
+        self.args = None
+        self.cache = {}
+        self.no_follow_import_to = []
+        self.no_include_qt_plugins = []
 
     def init(self):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -34,11 +39,6 @@ class Build:
         mode_group.add_argument('--rc', action='store_true', help='Convert rc files to python files')
         mode_group.add_argument('--build', action='store_true', help='Build the app')
         mode_group.add_argument('--all', action='store_true', help='Convert rc files and build the app')
-        # --pyinstaller: use pyinstaller to build the app
-        # --nuitka: use nuitka to build the app
-        builder_group = parser.add_mutually_exclusive_group()
-        builder_group.add_argument('--pyinstaller', action='store_true', help='Use pyinstaller to build the app')
-        builder_group.add_argument('--nuitka', action='store_true', help='Use nuitka to build the app')
         # --onefile: create a single executable file
         # --onedir: create a directory with the executable and all dependencies
         package_format_group = parser.add_mutually_exclusive_group()
@@ -49,8 +49,18 @@ class Build:
         parser.add_argument('--msvc', action='store_true', help="Select the msvc as backend(nuitka)", required=False)
         parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches', required=False)
 
+        parser.add_argument('backend_args', nargs=argparse.REMAINDER, help='The backend\'s args.')
+
         # do parse
         self.args = parser.parse_args()
+        if self.args.backend_args and self.args.backend_args[0] == "--":
+            self.args.backend_args = self.args.backend_args[1:]
+
+        if os.path.exists('build_options.json'):
+            logging.info('Loading build_options.json')
+            json_data = json.load(open('build_options.json'))
+            self.no_follow_import_to = json_data.get('no-follow-import-to', [])
+            self.no_include_qt_plugins = json_data.get('no-include-qt-plugins', [])
 
     def load_cache(self):
         """load cache from .cache/assets.json"""
@@ -71,7 +81,7 @@ class Build:
             logging.info('No ui folder found, skipping ui conversion.')
         # if app/resources folder does not exist, create it
         if not os.path.exists('app/resources'):
-            os.makedirs('app/resources')      
+            os.makedirs('app/resources')
 
         logging.info('Converting ui files to python files...')
         if 'ui' in self.cache:
@@ -149,60 +159,52 @@ class Build:
             json.dump(self.cache, f, indent=4)
         logging.info('Cache saved.')
 
+    @staticmethod
+    def filelist(root_dir: str, filelist_name: str):
+        with open(filelist_name, "w", encoding="utf-8") as f:
+            for current_path, dirs, files in os.walk(root_dir, topdown=False):
+                for file in files:
+                    relative_path = os.path.relpath(os.path.join(current_path, file), root_dir)
+                    logging.info(relative_path)
+                    f.write(relative_path + "\n")
+                relative_path = os.path.relpath(os.path.join(current_path, ""), root_dir)
+                if relative_path == ".":
+                    continue
+                logging.info(relative_path)
+                f.write(relative_path + "\n")
+
     def build(self):
-        logging.info('Building the app...')
-        if self.args.pyinstaller:
-            self.build_via_pyinstaller()
-        elif self.args.nuitka:
-            self.build_via_nuitka()
-        else:
-            logging.error('No builder specified. Use --pyinstaller or --nuitka.')
-            exit(1)
-        logging.info('Build complete.')
-
-    def build_via_pyinstaller(self):
-        # call pyinstaller to build the app
-        # include all files in app package and exclude the ui files
-        if self.args.msvc:
-            logging.warning('Ignoring `--msvc` option for pyinstaller.')
-        if 0 != os.system('pyinstaller '
-                  '--noconfirm '
-                  '--log-level=WARN '
-                  '--windowed '
-                  '--distpath "build" '
-                  '--workpath "build/work" '
-                  '--icon "app/assets/logo.ico" '
-                  'app/__main__.py '
-                  '--name App '
-                  + ('--onefile ' if self.args.onefile else '--onedir ')):
-            logging.error('Failed to build app via pyinstaller.')
-            exit(1)
-        # remove *.spec file
-        if os.path.exists('App.spec'):
-            os.remove('App.spec')
-
-    def build_via_nuitka(self):
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
-        if 0 == os.system('nuitka '
-                  '--quiet '
-                  '--assume-yes-for-downloads '
-                  '--windows-console-mode=disable '
-                  '--plugin-enable=pyside6 '
-                  '--output-dir=build '
-                  '--follow-imports '
-                  '--windows-icon-from-ico="app/assets/logo.ico" '
-                  '--output-filename="App" '
-                  'app/__main__.py '
-                  + '--jobs={} '.format(os.cpu_count())
-                  + ('--onefile ' if self.args.onefile else '--standalone ')
-                  + ('--msvc=latest ' if self.args.msvc else ' ')):
+        start = time.perf_counter()
+        logging.info('Building the app...')
+        rt = os.system(
+            'nuitka '
+            '--quiet '
+            '--assume-yes-for-downloads '
+            '--windows-console-mode=disable '
+            '--plugin-enable=pyside6 '
+            '--output-dir=build '
+            '--windows-icon-from-ico="app/assets/logo.ico" '
+            '--output-filename="App" '
+            'app/__main__.py '
+            + '--jobs={} '.format(os.cpu_count())
+            + ('--onefile ' if self.args.onefile else '--standalone ')
+            + ('--msvc=latest ' if self.args.msvc else ' ')
+            + ('--nofollow-import-to=' + ",".join(self.no_follow_import_to) if self.no_follow_import_to else ' ')
+            + ('--noinclude-qt-plugins=' + ",".join(self.no_include_qt_plugins) if self.no_include_qt_plugins else ' ')
+            + (" ".join(self.args.backend_args)))
+        end = time.perf_counter()
+        if rt == 0:
+            logging.info(f'Build complete in {end - start:.3f}s.')
             if not self.args.onefile:
                 if os.path.exists('build/App'):
                     shutil.rmtree('build/App')
                 shutil.move('build/__main__.dist', 'build/App')
+                logging.info("Generate the filelist.")
+                Build.filelist('build/App', 'build/App/filelist.txt')
         else:
-            logging.error('Failed to build app via nuitka.')
+            logging.error(f'Failed to build app in {end - start:.3f}s.')
             exit(1)
 
     def run(self):
@@ -215,6 +217,7 @@ class Build:
         self.save_cache()
         if self.args.build or self.args.all:
             self.build()
+
 
 if __name__ == '__main__':
     builder = Build()

@@ -13,5 +13,4 @@ dependencies = [
 [dependency-groups]
 dev = [
     "nuitka>=2.7.12",
-    "pyinstaller>=6.15.0",
 ]
