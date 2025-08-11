@@ -11,7 +11,6 @@ You just need to install uv and Python 3.8.
 
 - PySide6
 - qasync
-- Pyinstaller (Optional)
 - Nuitka (Optional)
 - PyQtDarkTheme (Optional)
 
