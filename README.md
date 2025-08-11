@@ -26,6 +26,7 @@ You just need to install uv and Python 3.8.
 | app/resources/*.py | Generated Python files from UI and QRC files |
 | pyproject.toml     | Project builds and settings                  |
 | build.py           | Build script for the project                 |
+| build_options.json | Build universal options                      |
 | .cache/assets.json | Build Caches                                 |
 | build/             | Build Destination Directory                  |
 
