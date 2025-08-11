@@ -57,7 +57,7 @@ class Build:
             self.args.backend_args = self.args.backend_args[1:]
 
         if os.path.exists('build_options.json'):
-            logging.info('Loading build_options.json')
+            logging.info('Loading build_options.json.')
             json_data = json.load(open('build_options.json'))
             self.no_follow_import_to = json_data.get('no-follow-import-to', [])
             self.no_include_qt_plugins = json_data.get('no-include-qt-plugins', [])
