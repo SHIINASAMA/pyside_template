@@ -4,8 +4,9 @@
         {
             "label": "Build Resources",
             "type": "shell",
-            "command": "python",
+            "command": "uv",
             "args": [
+                "run",
                 "build.py",
                 "--rc"
             ]

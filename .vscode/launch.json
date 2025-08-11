@@ -8,15 +8,6 @@
             "module": "app",
             "envFile": "${workspaceFolder}/.env",
             "preLaunchTask": "Build Resources"
-        },
-        {
-            "name": "Debug build.py",
-            "type": "debugpy",
-            "request": "launch",
-            "program": "build.py",
-            "args": [
-                "--rc"
-            ]
         }
     ]
 }
