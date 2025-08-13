@@ -53,17 +53,19 @@ Help message example:
 
 ```
 > uv run build.py -h
-usage: build.py [-h] (--rc | --build | --all) [--onefile | --onedir] [--msvc] [--no-cache]
+usage: build.py [-h] (--rc | --build | --all) [--onefile | --onedir] [--no-cache] ...
 
 Build the app.
 
-options:
-  -h, --help     show this help message and exit
-  --rc           Convert rc files to python files
-  --build        Build the app
-  --all          Convert rc files and build the app
-  --onefile      Create a single executable file
-  --onedir       Create a directory with the executable and all dependencies
-  --msvc         Select the msvc as backend(nuitka)
-  --no-cache     Ignore existing caches
+positional arguments:
+  backend_args  Additional arguments for the build backend, e.g. -- --product-version=1.0.0
+
+optional arguments:
+  -h, --help    show this help message and exit
+  --rc          Convert rc files to python files
+  --build       Build the app
+  --all         Convert rc files and build the app
+  --onefile     Create a single executable file
+  --onedir      Create a directory with the executable and all dependencies
+  --no-cache    Ignore existing cache
 ```

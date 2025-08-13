@@ -1,6 +1,5 @@
 import argparse
 import os
-import sys
 import logging
 import json
 import shutil
@@ -41,7 +40,8 @@ class Build:
 
         parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches', required=False)
 
-        parser.add_argument('backend_args', nargs=argparse.REMAINDER, help='The backend\'s args.')
+        parser.add_argument('backend_args', nargs=argparse.REMAINDER,
+                            help='Additional arguments for the build backend, e.g. -- --product-version=1.0.0')
 
         # do parse
         self.args = parser.parse_args()
