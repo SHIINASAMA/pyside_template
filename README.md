@@ -30,42 +30,34 @@ You just need to install uv and Python 3.8.
 
 ## Command
 
-Setup development environment and run the project.
+- Setup development environment and run the project.
 
-```bash
-uv sync
-uv -m app
-```
+    ```bash
+    uv sync
+    uv -m app
+    ```
 
-Using QtDesigner to create UI files. The UI files are must have located in the `ui` folder.
+- Using QtDesigner to create UI files. The UI files are must have located in the `ui` folder.
 
-```bash
-uv run pyside6-designer app/ui/main_window.ui
-```
+    ```bash
+    uv run pyside6-designer app/ui/main_window.ui
+    ```
 
-How to build and package the project. Run the following command to get the help message:
+- How to build and package the project. Run the following command to get the help message:
 
-```bash
-uv run ./build.py -h
-```
+    ```bash
+    uv run ./build.py -h
+    ```
 
-Help message example:
+- Run app via command line: (Will build the project)
 
-```
-> uv run build.py -h
-usage: build.py [-h] (--rc | --build | --all) [--onefile | --onedir] [--no-cache] ...
+    ```bash
+    uv run ./build.py --all --onedir --run
+    ```
 
-Build the app.
+  Or use your environment file to run the app: (Does not build the project)
 
-positional arguments:
-  backend_args  Additional arguments for the build backend, e.g. -- --product-version=1.0.0
-
-optional arguments:
-  -h, --help    show this help message and exit
-  --rc          Convert rc files to python files
-  --build       Build the app
-  --all         Convert rc files and build the app
-  --onefile     Create a single executable file
-  --onedir      Create a directory with the executable and all dependencies
-  --no-cache    Ignore existing cache
-```
+    ```bash
+    uv run ./build.py --rc --onedir
+    uv run --env-file .env -- python -m app
+    ```
