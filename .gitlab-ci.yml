@@ -17,5 +17,4 @@ build:
     name: "build-${CI_COMMIT_SHA}"
     paths:
       - build/App.exe
-      # - build_nuitka/App.exe
     expire_in: 30 days

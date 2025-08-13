@@ -1,7 +1,0 @@
-{
-  "no-follow-import-to": [
-    "unittest"
-  ],
-  "no-include-qt-plugins": [
-  ]
-}

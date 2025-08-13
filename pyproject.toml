@@ -13,4 +13,9 @@ dependencies = [
 [dependency-groups]
 dev = [
     "nuitka>=2.7.12",
+    "toml>=0.10.2"
 ]
+
+[tool.build]
+# Nuitka build options
+nofollow-import-to = ["unittest"]

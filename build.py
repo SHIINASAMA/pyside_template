@@ -5,28 +5,21 @@ import logging
 import json
 import shutil
 import time
+import toml
 
 
 class Build:
     def __init__(self):
         self.args = None
         self.cache = {}
-        self.no_follow_import_to = []
-        self.no_include_qt_plugins = []
+        self.opt_from_toml = ""
 
     def init(self):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
         # check working directory
         # if 'app' is not in the current working directory, exit
         if not os.path.exists('app'):
-            logging.error('Please run this script from the app directory.')
-            exit(1)
-
-        # check using python virtual environment
-        if sys.prefix == sys.base_prefix:
-            logging.error(f'sys.prefix is {sys.prefix}.')
-            logging.error(f'sys.base_prefix is {sys.base_prefix}.')
-            logging.error('Please run this script from a python virtual environment.')
+            logging.error('Please run this script from the project root directory.')
             exit(1)
 
         # parse command line arguments
@@ -46,7 +39,6 @@ class Build:
         package_format_group.add_argument('--onedir', action='store_true',
                                           help='Create a directory with the executable and all dependencies')
 
-        parser.add_argument('--msvc', action='store_true', help="Select the msvc as backend(nuitka)", required=False)
         parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches', required=False)
 
         parser.add_argument('backend_args', nargs=argparse.REMAINDER, help='The backend\'s args.')
@@ -56,11 +48,19 @@ class Build:
         if self.args.backend_args and self.args.backend_args[0] == "--":
             self.args.backend_args = self.args.backend_args[1:]
 
-        if os.path.exists('build_options.json'):
-            logging.info('Loading build_options.json.')
-            json_data = json.load(open('build_options.json'))
-            self.no_follow_import_to = json_data.get('no-follow-import-to', [])
-            self.no_include_qt_plugins = json_data.get('no-include-qt-plugins', [])
+        with open("pyproject.toml") as f:
+            data = toml.load(f)
+        config = data.get("tool", {}).get("build", {})
+        for k, v in config.items():
+            if isinstance(v, list) and v:
+                cmd = f"--{k}={','.join(v)} "
+                self.opt_from_toml += cmd
+            if isinstance(v, str) and v != "":
+                cmd = f"--{k}={v} "
+                self.opt_from_toml += cmd
+            if type(v) is bool and v:
+                cmd = f"--{k} "
+                self.opt_from_toml += cmd
 
     def load_cache(self):
         """load cache from .cache/assets.json"""
@@ -161,39 +161,42 @@ class Build:
 
     @staticmethod
     def filelist(root_dir: str, filelist_name: str):
-        with open(filelist_name, "w", encoding="utf-8") as f:
-            for current_path, dirs, files in os.walk(root_dir, topdown=False):
-                for file in files:
-                    relative_path = os.path.relpath(os.path.join(current_path, file), root_dir)
-                    logging.info(relative_path)
-                    f.write(relative_path + "\n")
-                relative_path = os.path.relpath(os.path.join(current_path, ""), root_dir)
-                if relative_path == ".":
-                    continue
+        paths = []
+        for current_path, dirs, files in os.walk(root_dir, topdown=False):
+            for file in files:
+                relative_path = os.path.relpath(os.path.join(current_path, file), root_dir)
                 logging.info(relative_path)
-                f.write(relative_path + "\n")
+                paths.append(relative_path)
+            relative_path = os.path.relpath(os.path.join(current_path, ""), root_dir)
+            if relative_path != ".":
+                logging.info(relative_path)
+                paths.append(relative_path)
+
+        with open(filelist_name, "w", encoding="utf-8") as f:
+            f.write("\n".join(paths))
+            f.write("\n")
 
     def build(self):
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
         start = time.perf_counter()
         logging.info('Building the app...')
-        rt = os.system(
-            'nuitka '
-            '--quiet '
-            '--assume-yes-for-downloads '
-            '--windows-console-mode=disable '
-            '--plugin-enable=pyside6 '
-            '--output-dir=build '
-            '--windows-icon-from-ico="app/assets/logo.ico" '
-            '--output-filename="App" '
-            'app/__main__.py '
-            + '--jobs={} '.format(os.cpu_count())
-            + ('--onefile ' if self.args.onefile else '--standalone ')
-            + ('--msvc=latest ' if self.args.msvc else ' ')
-            + ('--nofollow-import-to=' + ",".join(self.no_follow_import_to) if self.no_follow_import_to else ' ')
-            + ('--noinclude-qt-plugins=' + ",".join(self.no_include_qt_plugins) if self.no_include_qt_plugins else ' ')
-            + (" ".join(self.args.backend_args)))
+        cmd = ('nuitka '
+               '--quiet '
+               '--assume-yes-for-downloads '
+               '--windows-console-mode=disable '
+               '--plugin-enable=pyside6 '
+               '--output-dir=build '
+               '--follow-imports '
+               '--windows-icon-from-ico="app/assets/logo.ico" '
+               '--output-filename="App" '
+               'app/__main__.py '
+               + '--jobs={} '.format(os.cpu_count())
+               + ('--onefile ' if self.args.onefile else '--standalone ')
+               + self.opt_from_toml
+               + (" ".join(self.args.backend_args)))
+        logging.info(cmd)
+        rt = os.system(cmd)
         end = time.perf_counter()
         if rt == 0:
             logging.info(f'Build complete in {end - start:.3f}s.')
