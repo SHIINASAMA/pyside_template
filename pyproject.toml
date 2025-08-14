@@ -12,10 +12,20 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "glom>=24.11.0",
     "nuitka>=2.7.12",
-    "toml>=0.10.2"
+    "toml>=0.10.2",
 ]
 
 [tool.build]
 # Nuitka build options
+# --output-dir and --output-filename are configured for CI, DO NOT CHANGE!
+quiet=true
+assume-yes-for-downloads=true
+plugin-enable=["pyside6"]
 nofollow-import-to = ["unittest"]
+
+[tool.build.win32]
+# Nuitka build options for {sys.platform}
+windows-console-mode="disable"
+windows-icon-from-ico="app/assets/logo.ico"

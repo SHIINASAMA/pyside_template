@@ -3,8 +3,10 @@ import os
 import logging
 import json
 import shutil
+import sys
 import time
 import toml
+import glom
 
 
 class Build:
@@ -50,7 +52,9 @@ class Build:
 
         with open("pyproject.toml") as f:
             data = toml.load(f)
-        config = data.get("tool", {}).get("build", {})
+        config = glom.glom(data, "tool.build", default={})
+        platform_config = glom.glom(data, f"tool.build.{sys.platform}", default={})
+        config.update(platform_config)
         for k, v in config.items():
             if isinstance(v, list) and v:
                 cmd = f"--{k}={','.join(v)} "
@@ -182,13 +186,7 @@ class Build:
         start = time.perf_counter()
         logging.info('Building the app...')
         cmd = ('nuitka '
-               '--quiet '
-               '--assume-yes-for-downloads '
-               '--windows-console-mode=disable '
-               '--plugin-enable=pyside6 '
                '--output-dir=build '
-               '--follow-imports '
-               '--windows-icon-from-ico="app/assets/logo.ico" '
                '--output-filename="App" '
                'app/__main__.py '
                + '--jobs={} '.format(os.cpu_count())
@@ -206,6 +204,7 @@ class Build:
                 shutil.move('build/__main__.dist', 'build/App')
                 logging.info("Generate the filelist.")
                 Build.filelist('build/App', 'build/App/filelist.txt')
+                logging.info("Filelist has been generated.")
         else:
             logging.error(f'Failed to build app in {end - start:.3f}s.')
             exit(1)
