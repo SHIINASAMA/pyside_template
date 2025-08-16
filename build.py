@@ -78,84 +78,111 @@ class Build:
             logging.info('No cache found.')
 
     def build_ui(self):
-        """use pyside6-uic compile *.ui files"""
-        # foreach file in app/ui, and convert it to a .py file using pyside6-uic to app/ui_resources
-        # if ui folder does not exist, skip it
-        if not os.path.exists('app/ui'):
-            logging.info('No ui folder found, skipping ui conversion.')
-        # if app/resources folder does not exist, create it
-        if not os.path.exists('app/resources'):
-            os.makedirs('app/resources')
+        """Compile *.ui files into Python files using pyside6-uic, preserving directory structure."""
+        ui_dir = 'app/ui'
+        res_dir = 'app/resources'
 
-        logging.info('Converting ui files to python files...')
-        if 'ui' in self.cache:
-            ui_cache = self.cache['ui']
-        else:
-            ui_cache = {}
-        for root, dirs, files in os.walk('app/ui'):
+        # Skip if ui directory does not exist
+        if not os.path.exists(ui_dir):
+            logging.info('No ui folder found, skipping ui conversion.')
+            return
+
+        # Ensure the resources root directory exists
+        os.makedirs(res_dir, exist_ok=True)
+
+        logging.info('Converting ui files to Python files...')
+        ui_cache = self.cache.get('ui', {})
+
+        for root, dirs, files in os.walk(ui_dir):
             for file in files:
                 if not file.endswith('.ui'):
                     continue
+
                 input_file = os.path.join(root, file)
-                if input_file in ui_cache:
-                    if ui_cache[input_file] == os.path.getmtime(input_file):
-                        logging.info(f'{input_file} is up to date.')
-                        continue
-                ui_cache[input_file] = os.path.getmtime(input_file)
-                logging.info(f'{input_file} is outdated.')
-                output_file = os.path.join('app/resources', file.replace('.ui', '_ui.py'))
-                if 0 != os.system(f'pyside6-uic {input_file} -o {output_file}'):
-                    logging.error('Failed to convert ui file.')
+                rel_path = os.path.relpath(root, ui_dir)  # relative path under ui/
+                output_dir = os.path.join(res_dir, rel_path)  # mirror the directory structure in resources/
+                os.makedirs(output_dir, exist_ok=True)  # create the directory if not exists
+
+                output_file = os.path.join(output_dir, file.replace('.ui', '_ui.py'))
+
+                # Check cache to avoid unnecessary recompilation
+                mtime = os.path.getmtime(input_file)
+                if input_file in ui_cache and ui_cache[input_file] == mtime:
+                    logging.info(f'{input_file} is up to date.')
+                    continue
+
+                ui_cache[input_file] = mtime
+
+                # Run pyside6-uic (does not create directories automatically)
+                if 0 != os.system(f'pyside6-uic "{input_file}" -o "{output_file}"'):
+                    logging.error(f'Failed to convert {input_file}.')
                     exit(1)
-                logging.info(f'Converted {input_file} to {output_file}.')
+
+                logging.info(f'Converted {input_file} → {output_file}')
+
         self.cache['ui'] = ui_cache
 
     def build_assets(self):
-        # if app/assets.qrc does not exist, skip it
-        if os.path.exists('app/assets.qrc'):
-            logging.info('Converting resource files to python files...')
-            if 'assets' in self.cache:
-                assets_cache = self.cache['assets']
-            else:
-                assets_cache = {}
+        """Generate assets.qrc from files in app/assets and compile it with pyside6-rcc."""
+        assets_dir = 'app/assets'
+        qrc_file = 'app/assets.qrc'
+        res_dir = 'app/resources'
+        py_res_file = os.path.join(res_dir, 'resource.py')
 
-            if 'assets_json' in self.cache:
-                assets_json = self.cache['assets_json']
-            else:
-                assets_json = ''
+        # Skip if assets directory does not exist
+        if not os.path.exists(assets_dir):
+            logging.info('No assets folder found, skipping assets conversion.')
+            return
 
-            if not os.path.exists('app/resources'):
-                os.makedirs('app/resources')
+        if not os.path.exists(res_dir):
+            os.makedirs(res_dir)
 
-            need_rebuild = False
-            for root, dirs, files in os.walk('app/assets'):
-                for file in files:
-                    input_file = os.path.join(root, file)
-                    if input_file in assets_cache:
-                        if assets_cache[input_file] == os.path.getmtime(input_file):
-                            logging.info(f'{input_file} is up to date.')
-                            continue
-                    assets_cache[input_file] = os.path.getmtime(input_file)
-                    logging.info(f'{input_file} is outdated.')
-                    need_rebuild = True
-            if assets_json != os.path.getmtime('app/assets.qrc'):
-                assets_json = os.path.getmtime('app/assets.qrc')
-                logging.info(f'assets.json is outdated.')
+        logging.info('Converting assets to Python resources...')
+
+        assets_cache = self.cache.get('assets', {})
+        need_rebuild = False
+
+        # Traverse assets/ and update cache
+        all_assets = []
+        for root, dirs, files in os.walk(assets_dir):
+            for file in files:
+                input_file = os.path.join(root, file)
+                rel_path = os.path.relpath(input_file, 'app')  # qrc requires path relative to app/
+                all_assets.append(rel_path)
+
+                mtime = os.path.getmtime(input_file)
+                if input_file in assets_cache and assets_cache[input_file] == mtime:
+                    logging.info(f'{input_file} is up to date.')
+                    continue
+                assets_cache[input_file] = mtime
+                logging.info(f'{input_file} is outdated.')
                 need_rebuild = True
 
-            if self.args.no_cache:
-                need_rebuild = True
+        # Force rebuild if cache is disabled
+        if self.args.no_cache:
+            need_rebuild = True
 
-            if need_rebuild:
-                if 0 != os.system('pyside6-rcc app/assets.qrc -o app/resources/resource.py'):
-                    logging.error('Failed to convert resource file.')
-                    exit(1)
-                logging.info('Converted app/assets.qrc to app/resources/resource.py.')
-            else:
-                logging.info('Assets is up to date.')
+        if need_rebuild:
+            # Generate assets.qrc dynamically
+            with open(qrc_file, 'w', encoding='utf-8') as f:
+                f.write('<!DOCTYPE RCC>\n')
+                f.write('<RCC version="1.0">\n')
+                f.write('  <qresource>\n')
+                for asset in all_assets:
+                    f.write(f'    <file>{asset}</file>\n')
+                f.write('  </qresource>\n')
+                f.write('</RCC>\n')
+            logging.info(f'Generated {qrc_file}.')
 
-            self.cache['assets_json'] = assets_json
-            self.cache['assets'] = assets_cache
+            # Compile qrc file to Python resource
+            if 0 != os.system(f'pyside6-rcc {qrc_file} -o {py_res_file}'):
+                logging.error('Failed to convert assets.qrc.')
+                exit(1)
+            logging.info(f'Converted {qrc_file} to {py_res_file}.')
+        else:
+            logging.info('Assets are up to date.')
+
+        self.cache['assets'] = assets_cache
 
     def save_cache(self):
         # save cache
