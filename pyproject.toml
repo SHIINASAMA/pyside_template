@@ -29,3 +29,9 @@ nofollow-import-to = ["unittest"]
 # Nuitka build options for {sys.platform}
 windows-console-mode="disable"
 windows-icon-from-ico="app/assets/logo.ico"
+
+[tool.i18n]
+# Default language is en_US where defined in *.ui files
+languages = [
+    "zh_CN"
+]
