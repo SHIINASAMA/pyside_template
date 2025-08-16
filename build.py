@@ -3,6 +3,7 @@ import os
 import logging
 import json
 import shutil
+import subprocess
 import sys
 import time
 import toml
@@ -213,11 +214,10 @@ class Build:
             logging.info('Generating %s ...', ts_file)
 
             # Use pyside6-lupdate to recursively scan ui_dir and generate ts
-            cmd = f'pyside6-lupdate "{ui_dir}" -ts "{ts_file}"'
+            cmd = f'pyside6-lupdate -recursive -extensions ui "{ui_dir}"  -ts "{ts_file}"'
 
             # Run the command
             if 0 != os.system(cmd):
-                logging.error('Failed to generate translation file: %s', ts_file)
                 exit(1)
             i18n_cache[lang] = os.path.getmtime(ts_file)
 
@@ -295,6 +295,20 @@ class Build:
             f.write("\n".join(paths))
             f.write("\n")
 
+    @staticmethod
+    def get_last_tag(default="0.0.0.0") -> str:
+        """Get the last git tag as version, or return default if not found."""
+        try:
+            tag = subprocess.check_output(
+                ["git", "describe", "--tags", "--abbrev=0"],
+                stderr=subprocess.DEVNULL,
+                text=True
+            ).strip()
+        except subprocess.CalledProcessError:
+            return default
+
+        return tag.split("-")[0] if tag else default
+
     def build(self):
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
@@ -336,6 +350,8 @@ class Build:
             self.build_assets()
         self.save_cache()
         if self.args.build or self.args.all:
+            if sys.platform == 'win32':
+                self.opt_from_toml += f"--product-version={Build.get_last_tag()} "
             self.build()
 
 

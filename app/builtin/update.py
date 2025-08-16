@@ -1,0 +1,188 @@
+import asyncio
+import enum
+import os
+import shutil
+import subprocess
+import sys
+from urllib.parse import urlparse
+
+import packaging.version as Version0
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget
+from httpx import AsyncClient
+from qasync import asyncSlot
+
+from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
+from app.builtin.asyncio import to_thread
+
+
+class _ReleaseType(enum.Enum):
+    STABLE = "stable"
+    BETA = "beta"
+
+
+class _Version(Version0.Version):
+    def __init__(self, version_string: str):
+        version_part = version_string.split('-')
+        super().__init__(version_part[0])
+        if len(version_part) == 1:
+            self.release_type = _ReleaseType.STABLE
+            return
+        if version_part[1] == "beta":
+            self.release_type = _ReleaseType.BETA
+        elif version_part[1] == "stable":
+            self.release_type = _ReleaseType.STABLE
+        else:
+            raise RuntimeError(f"Unknown release type: {version_part[1]}")
+
+    def __str__(self):
+        return f"{super().__str__()}-{self.release_type.value}"
+
+
+class _UpdateWidget(QWidget):
+    def __init__(self, parent, updater):
+        super().__init__(parent)
+        self.updater = updater
+        self.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.ui = Ui_UpdateWidget()
+        self.ui.setupUi(self)
+
+        self.ui.progressBar.setRange(100, 100)
+        self.ui.label.setText(self.tr("Found new version: {}").format(self.updater.remote_version))
+        self.ui.textBrowser.setMarkdown(self.updater.description)
+
+        path = urlparse(self.updater.download_url).path
+        self.filename = os.path.basename(path)
+
+        self.ui.cancel_btn.clicked.connect(self.on_cancel)
+        self.ui.update_btn.clicked.connect(self.on_update)
+
+    def on_cancel(self):
+        self.close()
+
+    @asyncSlot()
+    async def on_update(self):
+        self.ui.cancel_btn.setEnabled(False)
+        self.ui.update_btn.setEnabled(False)
+        self.ui.label.setText(self.tr("Downloading new version..."))
+        await self.download()
+        self.ui.progressBar.setRange(0, 0)
+
+        self.ui.label.setText(self.tr("Extracting new version..."))
+        await to_thread(self.extract)
+        subprocess.run(
+            ['Package/App.exe', "--copy-self"],
+            creationflags=subprocess.DETACHED_PROCESS
+        )
+        sys.exit(0)
+
+    async def copy_files_to_update(self):
+        """Copy itself to .. to replace the old version."""
+        self.ui.cancel_btn.setEnabled(False)
+        self.ui.update_btn.setEnabled(False)
+        self.ui.label.setText(self.tr("Copying new version..."))
+        src = ".."
+        dst = "../.."
+
+        def task():
+            for item in os.listdir(src):
+                s = os.path.join(src, item)
+                d = os.path.join(dst, item)
+                if os.path.isdir(s):
+                    shutil.copytree(s, d, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(s, d)
+
+        await to_thread(task)
+        subprocess.run(
+            [f'{os.path.abspath(dst)}/App.exe', "--updated"],
+            creationflags=subprocess.DETACHED_PROCESS
+        )
+        sys.exit(0)
+
+    async def download(self):
+        async with self.updater.client.stream("GET", self.updater.download_url) as r:
+            r.raise_for_status()
+            total_size = int(r.headers.get("content-length", 0))
+            downloaded = 0
+
+            with open(self.filename, "wb") as f:
+                async for chunk in r.aiter_bytes(8192):
+                    f.write(chunk)
+                    downloaded += len(chunk)
+
+                    percent = int(downloaded * 100 / total_size)
+                    self.ui.progressBar.setValue(percent)
+
+    def extract(self):
+        if self.filename.endswith(".zip"):
+            import zipfile
+            with zipfile.ZipFile(self.filename, 'r') as zip_ref:
+                zip_ref.extractall(os.path.dirname(self.filename))
+        elif self.filename.endswith(".tar.gz") or self.filename.endswith(".tgz"):
+            import tarfile
+            with tarfile.open(self.filename, 'r:gz') as tar_ref:
+                tar_ref.extractall(os.path.dirname(self.filename))
+        else:
+            raise RuntimeError(f"Unsupported file format: {self.filename}")
+
+
+class Updater:
+
+    def __init__(self, release_type: _ReleaseType):
+        self.client = AsyncClient()
+        self.remote_version = None
+        self.description = ""
+        self.download_url = ""
+        self.release_type = release_type
+
+    async def get_latest_release_via_gitlab(self, base_url: str, project_name: str):
+        url = f"{base_url}/api/v4/projects/?search={project_name}"
+        r = await self.client.get(url)
+        r.raise_for_status()
+        project = r.json()[0]
+        project_id = project['id']
+
+        url = f"{base_url}/api/v4/projects/{project_id}/releases"
+        headers = {}
+        params = {"per_page": 1}
+        r = await self.client.get(url, headers=headers, params=params)
+        r.raise_for_status()
+        latest_release = r.json()[0]
+        self.remote_version = _Version(latest_release['tag_name'])
+        self.description = latest_release['description']
+        self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"
+
+    def get_current_version(self) -> _Version:
+        if sys.platform == "win32":
+            return self.get_version_win32(sys.executable)
+        else:
+            raise RuntimeError(f"Unknown platform: {sys.platform}")
+
+    @staticmethod
+    def get_version_win32(filename: str) -> _Version:
+        import ctypes
+        from ctypes import wintypes
+        size = ctypes.windll.version.GetFileVersionInfoSizeW(filename, None)
+        if not size:
+            return None
+
+        res = ctypes.create_string_buffer(size)
+        ctypes.windll.version.GetFileVersionInfoW(filename, 0, size, res)
+
+        lplpBuffer = ctypes.c_void_p()
+        puLen = wintypes.UINT()
+        ctypes.windll.version.VerQueryValueW(res, "\\", ctypes.byref(lplpBuffer), ctypes.byref(puLen))
+
+        ffi = ctypes.cast(lplpBuffer, ctypes.POINTER(ctypes.c_uint16 * (puLen.value // 2))).contents
+        ms = ffi[5], ffi[4]
+        ls = ffi[7], ffi[6]
+        return _Version(f"{ms[0]}.{ms[1]}.{ls[0]}.{ls[1]}")
+
+    async def check_for_updates(self, parent, base_url: str, project_name: str):
+        await self.get_latest_release_via_gitlab(base_url, project_name)
+        current_version = self.get_current_version()
+        if (self.release_type == self.remote_version.release_type
+                and self.remote_version > current_version):
+            _UpdateWidget(parent, self).show()

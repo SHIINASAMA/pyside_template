@@ -5,6 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
+    "httpx>=0.28.1",
+    "packaging>=25.0",
     "pyqtdarktheme>=2.1.0",
     "pyside6>=6.6.3.1",
     "qasync>=0.27.1",
@@ -19,16 +21,17 @@ dev = [
 
 [tool.build]
 # Nuitka build options
-# --output-dir and --output-filename are configured for CI, DO NOT CHANGE!
-quiet=true
-assume-yes-for-downloads=true
-plugin-enable=["pyside6"]
+# Some options are configured for CI and build.py, DO NOT CHANGE:
+# --output-dir, --output-filename, --product-version
+quiet = true
+assume-yes-for-downloads = true
+plugin-enable = ["pyside6"]
 nofollow-import-to = ["unittest"]
 
 [tool.build.win32]
 # Nuitka build options for {sys.platform}
-windows-console-mode="disable"
-windows-icon-from-ico="app/assets/logo.ico"
+windows-console-mode = "disable"
+windows-icon-from-ico = "app/assets/logo.ico"
 
 [tool.i18n]
 # Default language is en_US where defined in *.ui files
