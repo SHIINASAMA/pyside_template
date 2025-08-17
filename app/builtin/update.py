@@ -3,6 +3,7 @@ import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 from urllib.parse import urlparse
 
 import packaging.version as Version0
@@ -76,15 +77,38 @@ class UpdateWidget(QWidget):
         )
         sys.exit(0)
 
-    async def copy_files_to_update(self):
-        """Copy itself to .. to replace the old version."""
+    async def clean_and_copy_files(self):
+        """
+        1. Remove old files in the parent directory via ../filelist.txt.
+        2. Copy itself to parent directory to replace the old version.
+        """
         self.ui.cancel_btn.setEnabled(False)
         self.ui.update_btn.setEnabled(False)
-        self.ui.label.setText(self.tr("Copying new version..."))
+        self.ui.label.setText(self.tr("Applying new version..."))
+
+        # 1
+        filelist_path = Path("..") / "filelist.txt"
+        if filelist_path.exists():
+            with filelist_path.open("r", encoding="utf-8") as f:
+                old_files = [line.strip() for line in f if line.strip()]
+
+            def remove_task():
+                for rel_path in old_files:
+                    target = Path("..") / rel_path
+                    try:
+                        if target.is_dir():
+                            shutil.rmtree(target)
+                        elif target.is_file():
+                            target.unlink()
+                    except FileNotFoundError:
+                        pass
+
+            await to_thread(remove_task)
+
+        # 2
         src = ".."
         dst = "../.."
-
-        def task():
+        def copy_task():
             for item in os.listdir(src):
                 s = os.path.join(src, item)
                 d = os.path.join(dst, item)
@@ -93,7 +117,7 @@ class UpdateWidget(QWidget):
                 else:
                     shutil.copy2(s, d)
 
-        await to_thread(task)
+        await to_thread(copy_task)
         subprocess.run(
             [f'{os.path.abspath(dst)}/App.exe', "--updated"],
             creationflags=subprocess.DETACHED_PROCESS

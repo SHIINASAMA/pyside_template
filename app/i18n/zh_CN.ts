@@ -58,9 +58,9 @@
         <translation type="unfinished">正在解压文件...</translation>
     </message>
     <message>
-        <location filename="../builtin/update.py" line="83"/>
-        <source>Copying new version...</source>
-        <translation type="unfinished">正在更新文件...</translation>
+        <location filename="../builtin/update.py" line="86"/>
+        <source>Applying new version...</source>
+        <translation type="unfinished">正在应用新版本更改...</translation>
     </message>
 </context>
 </TS>
