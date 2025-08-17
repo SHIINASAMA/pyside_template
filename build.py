@@ -8,14 +8,19 @@ import sys
 import time
 import toml
 import glom
+from pathlib import Path
 
 
 class Build:
     def __init__(self):
         self.args = None
+        self.source_list = []
+        self.ui_list = []
+        self.asset_list = []
+        self.i18n_list = []
+        self.lang_list = []
         self.cache = {}
         self.opt_from_toml = ""
-        self.lang_list = []
 
     def init(self):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -25,7 +30,63 @@ class Build:
             logging.error('Please run this script from the project root directory.')
             exit(1)
 
-        # parse command line arguments
+        self.parse_args()
+        if self.args.debug:
+            logging.info('Debug mode enabled.')
+            logging.getLogger().setLevel(logging.DEBUG)
+        self.glob_files()
+        self.load_pyproject()
+
+    def load_pyproject(self):
+        with open("pyproject.toml") as f:
+            data = toml.load(f)
+        config = glom.glom(data, "tool.build", default={})
+        platform_config = glom.glom(data, f"tool.build.{sys.platform}", default={})
+        config.update(platform_config)
+        for k, v in config.items():
+            if isinstance(v, list) and v:
+                cmd = f"--{k}={','.join(v)} "
+                self.opt_from_toml += cmd
+            if isinstance(v, str) and v != "":
+                cmd = f"--{k}={v} "
+                self.opt_from_toml += cmd
+            if type(v) is bool and v:
+                cmd = f"--{k} "
+                self.opt_from_toml += cmd
+        self.lang_list = glom.glom(data, "tool.build.i18n.languages", default=[])
+
+    def glob_files(self):
+        root = Path("app")
+        assets_dir = root / "assets"
+        i18n_dir = root / "i18n"
+        exclude_dirs = [
+            root / "resources",
+        ]
+
+        for path in root.rglob("*"):
+            if any(ex in path.parents for ex in exclude_dirs):
+                continue
+
+            if assets_dir in path.parents and os.path.isfile(path):
+                self.asset_list.append(path)
+                continue
+
+            if i18n_dir in path.parents and os.path.isfile(path):
+                self.i18n_list.append(path)
+                continue
+
+            if path.suffix == ".py":
+                self.source_list.append(path)
+            elif path.suffix == ".ui":
+                self.ui_list.append(path)
+
+        logging.debug("Source list: %s", [str(x) for x in self.source_list])
+        logging.debug("UI list: %s", [str(x) for x in self.ui_list])
+        logging.debug("Asset list: %s", [str(x) for x in self.asset_list])
+        logging.debug("I18n list: %s", [str(x) for x in self.i18n_list])
+
+    def parse_args(self):
+        """parse command line arguments"""
         # --help: show this help message
         parser = argparse.ArgumentParser(description='Build the app.')
         # --ui: only convert ui files to python files
@@ -46,30 +107,16 @@ class Build:
 
         parser.add_argument('--no-cache', action='store_true', help='Ignore existing caches', required=False)
 
+        parser.add_argument('--debug', action='store_true',
+                            help='Enable debug mode, which will output more information during the build process')
+
         parser.add_argument('backend_args', nargs=argparse.REMAINDER,
-                            help='Additional arguments for the build backend, e.g. -- --product-version=1.0.0')
+                            help='Additional arguments for the build backend, e.g. -- --xxx=xxx')
 
         # do parse
         self.args = parser.parse_args()
         if self.args.backend_args and self.args.backend_args[0] == "--":
             self.args.backend_args = self.args.backend_args[1:]
-
-        with open("pyproject.toml") as f:
-            data = toml.load(f)
-        config = glom.glom(data, "tool.build", default={})
-        platform_config = glom.glom(data, f"tool.build.{sys.platform}", default={})
-        config.update(platform_config)
-        for k, v in config.items():
-            if isinstance(v, list) and v:
-                cmd = f"--{k}={','.join(v)} "
-                self.opt_from_toml += cmd
-            if isinstance(v, str) and v != "":
-                cmd = f"--{k}={v} "
-                self.opt_from_toml += cmd
-            if type(v) is bool and v:
-                cmd = f"--{k} "
-                self.opt_from_toml += cmd
-        self.lang_list = glom.glom(data, "tool.i18n.languages", default=[])
 
     def load_cache(self):
         """load cache from .cache/assets.json"""
@@ -84,48 +131,46 @@ class Build:
 
     def build_ui(self):
         """Compile *.ui files into Python files using pyside6-uic, preserving directory structure."""
-        ui_dir = 'app/ui'
-        res_dir = 'app/resources'
+        ui_dir = Path("app/ui")
+        res_dir = Path("app/resources")
 
-        # Skip if ui directory does not exist
-        if not os.path.exists(ui_dir):
-            logging.info('No ui folder found, skipping ui conversion.')
+        if not self.ui_list:
+            logging.info("No ui files found, skipping ui conversion.")
             return
 
-        # Ensure the resources root directory exists
-        os.makedirs(res_dir, exist_ok=True)
+        res_dir.mkdir(parents=True, exist_ok=True)
+        logging.info("Converting ui files to Python files...")
+        ui_cache = self.cache.get("ui", {})
 
-        logging.info('Converting ui files to Python files...')
-        ui_cache = self.cache.get('ui', {})
+        for input_file in self.ui_list:
+            try:
+                rel_path = input_file.parent.relative_to(ui_dir)
+            except ValueError:
+                # input_file is not under app/ui, skip it
+                continue
 
-        for root, dirs, files in os.walk(ui_dir):
-            for file in files:
-                if not file.endswith('.ui'):
-                    continue
+            output_dir = res_dir / rel_path
+            output_dir.mkdir(parents=True, exist_ok=True)
 
-                input_file = os.path.join(root, file)
-                rel_path = os.path.relpath(root, ui_dir)  # relative path under ui/
-                output_dir = os.path.join(res_dir, rel_path)  # mirror the directory structure in resources/
-                os.makedirs(output_dir, exist_ok=True)  # create the directory if not exists
+            output_file = output_dir / (input_file.stem + "_ui.py")
 
-                output_file = os.path.join(output_dir, file.replace('.ui', '_ui.py'))
+            # Check cache to avoid unnecessary recompilation
+            mtime = input_file.stat().st_mtime
+            if str(input_file) in ui_cache and ui_cache[str(input_file)] == mtime:
+                logging.info(f"{input_file} is up to date.")
+                continue
 
-                # Check cache to avoid unnecessary recompilation
-                mtime = os.path.getmtime(input_file)
-                if input_file in ui_cache and ui_cache[input_file] == mtime:
-                    logging.info(f'{input_file} is up to date.')
-                    continue
+            ui_cache[str(input_file)] = mtime
 
-                ui_cache[input_file] = mtime
+            # Run pyside6-uic
+            cmd = f'pyside6-uic "{input_file}" -o "{output_file}"'
+            if 0 != os.system(cmd):
+                logging.error(f"Failed to convert {input_file}.")
+                exit(1)
 
-                # Run pyside6-uic (does not create directories automatically)
-                if 0 != os.system(f'pyside6-uic "{input_file}" -o "{output_file}"'):
-                    logging.error(f'Failed to convert {input_file}.')
-                    exit(1)
+            logging.info(f"Converted {input_file} to {output_file}")
 
-                logging.info(f'Converted {input_file} → {output_file}')
-
-        self.cache['ui'] = ui_cache
+        self.cache["ui"] = ui_cache
 
     def build_assets(self):
         """Generate assets.qrc from files in app/assets and compile it with pyside6-rcc."""
@@ -147,21 +192,17 @@ class Build:
         assets_cache = self.cache.get('assets', {})
         need_rebuild = False
 
-        # Traverse assets/ and update cache
         all_assets = []
-        for root, dirs, files in os.walk(assets_dir):
-            for file in files:
-                input_file = os.path.join(root, file)
-                rel_path = os.path.relpath(input_file, 'app')  # qrc requires path relative to app/
-                all_assets.append(rel_path)
-
-                mtime = os.path.getmtime(input_file)
-                if input_file in assets_cache and assets_cache[input_file] == mtime:
-                    logging.info(f'{input_file} is up to date.')
-                    continue
-                assets_cache[input_file] = mtime
-                logging.info(f'{input_file} is outdated.')
-                need_rebuild = True
+        for asset in self.asset_list:
+            rel_path = os.path.relpath(asset, 'app')
+            all_assets.append(str(rel_path))
+            mtime = asset.stat().st_mtime
+            if rel_path in assets_cache and assets_cache[rel_path] == mtime:
+                logging.info(f'{rel_path} is up to date.')
+                continue
+            assets_cache[rel_path] = mtime
+            logging.info(f'{rel_path} is outdated.')
+            need_rebuild = True
 
         # Force rebuild if cache is disabled
         if self.args.no_cache:
@@ -192,85 +233,77 @@ class Build:
     def build_i18n_ts(self):
         """
         Generate translation (.ts) files for all languages in lang_list
-        by scanning the app/ui directory using pyside6-lupdate recursively.
+        by scanning self.ui_list and self.source_list using pyside6-lupdate.
         """
-        ui_dir = 'app/ui'
-        i18n_dir = 'app/i18n'
+        i18n_dir = Path("app/i18n")
+        i18n_dir.mkdir(parents=True, exist_ok=True)
 
-        # Skip if ui directory does not exist
-        if not os.path.exists(ui_dir):
-            logging.info('No ui folder found, skipping i18n generation.')
-            return
+        logging.info("Generating translation (.ts) files for languages: %s", ', '.join(self.lang_list))
 
-        # Ensure i18n output directory exists
-        os.makedirs(i18n_dir, exist_ok=True)
+        i18n_cache = self.cache.get("i18n", {})
 
-        logging.info('Generating translation (.ts) files for languages: %s', ', '.join(self.lang_list))
+        # 合并文件列表，转换为字符串路径
+        files_to_scan = [str(f) for f in self.ui_list + self.source_list]
 
-        i18n_cache = self.cache.get('i18n', {})
-        # Generate ts file for each language
         for lang in self.lang_list:
-            ts_file = os.path.join(i18n_dir, f'{lang}.ts')
-            logging.info('Generating %s ...', ts_file)
+            ts_file = i18n_dir / f"{lang}.ts"
+            logging.info("Generating %s ...", ts_file)
 
-            # Use pyside6-lupdate to recursively scan ui_dir and generate ts
-            cmd = f'pyside6-lupdate -recursive -extensions ui "{ui_dir}"  -ts "{ts_file}"'
+            # 构造命令，将所有文件作为参数传递给 lupdate
+            files_str = " ".join(f'"{f}"' for f in files_to_scan)
+            cmd = f'pyside6-lupdate -silent -locations absolute -extensions ui {files_str} -ts "{ts_file}"'
 
-            # Run the command
             if 0 != os.system(cmd):
+                logging.error("Failed to generate translation file: %s", ts_file)
                 exit(1)
-            i18n_cache[lang] = os.path.getmtime(ts_file)
 
-            logging.info('Generated translation file: %s', ts_file)
-        self.cache['i18n'] = i18n_cache
+            # 更新缓存
+            i18n_cache[lang] = ts_file.stat().st_mtime
+            logging.info("Generated translation file: %s", ts_file)
+
+        self.cache["i18n"] = i18n_cache
 
     def build_i18n(self):
         """
         Compile .ts translation files into .qm files under app/assets/i18n/.
         Only regenerate .qm if the corresponding .ts file has changed.
         """
-        ts_dir = 'app/i18n'
-        qm_dir = 'app/assets/i18n'
+        qm_root = Path("app/assets/i18n")
+        qm_root.mkdir(parents=True, exist_ok=True)
 
-        # Skip if i18n directory does not exist
-        if not os.path.exists(ts_dir):
-            logging.info('No i18n folder found, skipping compilation.')
-            return
-
-        # Ensure output directory exists
-        os.makedirs(qm_dir, exist_ok=True)
-
-        logging.info('Compiling translation files...')
+        logging.info("Compiling translation files...")
 
         # Get cache for i18n
-        i18n_cache = self.cache.get('i18n', {})
+        i18n_cache = self.cache.get("i18n", {})
 
-        # Iterate all ts files
-        for root, dirs, files in os.walk(ts_dir):
-            for file in files:
-                if not file.endswith('.ts'):
-                    continue
-                ts_file = os.path.join(root, file)
-                qm_file = os.path.join(qm_dir, file.replace('.ts', '.qm'))
+        for ts_file in self.i18n_list:
+            try:
+                ts_file = Path(ts_file)
+            except Exception:
+                continue
 
-                # Check modification time cache
-                ts_mtime = os.path.getmtime(ts_file)
-                if ts_file in i18n_cache and i18n_cache[ts_file] == ts_mtime:
-                    logging.info('%s is up to date.', ts_file)
-                    continue
+            qm_file = qm_root / (ts_file.stem + ".qm")
 
-                logging.info('Compiling %s to %s', ts_file, qm_file)
+            # Check modification time cache
+            ts_mtime = ts_file.stat().st_mtime
+            if str(ts_file) in i18n_cache and i18n_cache[str(ts_file)] == ts_mtime:
+                logging.info("%s is up to date.", ts_file)
+                continue
 
-                # Run pyside6-lrelease to compile ts -> qm
-                cmd = f'pyside6-lrelease "{ts_file}" -qm "{qm_file}"'
-                if 0 != os.system(cmd):
-                    logging.error('Failed to compile translation file: %s', ts_file)
-                    exit(1)
+            logging.info("Compiling %s to %s", ts_file, qm_file)
 
-                logging.info('Compiled %s', qm_file)
+            # Run pyside6-lrelease to compile ts -> qm
+            cmd = f'pyside6-lrelease "{ts_file}" -qm "{qm_file}"'
+            if 0 != os.system(cmd):
+                logging.error("Failed to compile translation file: %s", ts_file)
+                exit(1)
 
-                # Update cache
-                i18n_cache[ts_file] = ts_mtime
+            logging.info("Compiled %s", qm_file)
+
+            # Update cache
+            i18n_cache[str(ts_file)] = ts_mtime
+
+        self.cache["i18n"] = i18n_cache
 
     def save_cache(self):
         # save cache

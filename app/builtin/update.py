@@ -1,4 +1,3 @@
-import asyncio
 import enum
 import os
 import shutil
@@ -16,22 +15,22 @@ from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from app.builtin.asyncio import to_thread
 
 
-class _ReleaseType(enum.Enum):
+class ReleaseType(enum.Enum):
     STABLE = "stable"
     BETA = "beta"
 
 
-class _Version(Version0.Version):
+class Version(Version0.Version):
     def __init__(self, version_string: str):
         version_part = version_string.split('-')
         super().__init__(version_part[0])
         if len(version_part) == 1:
-            self.release_type = _ReleaseType.STABLE
+            self.release_type = ReleaseType.STABLE
             return
         if version_part[1] == "beta":
-            self.release_type = _ReleaseType.BETA
+            self.release_type = ReleaseType.BETA
         elif version_part[1] == "stable":
-            self.release_type = _ReleaseType.STABLE
+            self.release_type = ReleaseType.STABLE
         else:
             raise RuntimeError(f"Unknown release type: {version_part[1]}")
 
@@ -39,7 +38,7 @@ class _Version(Version0.Version):
         return f"{super().__str__()}-{self.release_type.value}"
 
 
-class _UpdateWidget(QWidget):
+class UpdateWidget(QWidget):
     def __init__(self, parent, updater):
         super().__init__(parent)
         self.updater = updater
@@ -130,7 +129,7 @@ class _UpdateWidget(QWidget):
 
 class Updater:
 
-    def __init__(self, release_type: _ReleaseType):
+    def __init__(self, release_type: ReleaseType):
         self.client = AsyncClient()
         self.remote_version = None
         self.description = ""
@@ -150,18 +149,18 @@ class Updater:
         r = await self.client.get(url, headers=headers, params=params)
         r.raise_for_status()
         latest_release = r.json()[0]
-        self.remote_version = _Version(latest_release['tag_name'])
+        self.remote_version = Version(latest_release['tag_name'])
         self.description = latest_release['description']
         self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"
 
-    def get_current_version(self) -> _Version:
+    def get_current_version(self) -> Version:
         if sys.platform == "win32":
             return self.get_version_win32(sys.executable)
         else:
             raise RuntimeError(f"Unknown platform: {sys.platform}")
 
     @staticmethod
-    def get_version_win32(filename: str) -> _Version:
+    def get_version_win32(filename: str) -> Version:
         import ctypes
         from ctypes import wintypes
         size = ctypes.windll.version.GetFileVersionInfoSizeW(filename, None)
@@ -178,11 +177,11 @@ class Updater:
         ffi = ctypes.cast(lplpBuffer, ctypes.POINTER(ctypes.c_uint16 * (puLen.value // 2))).contents
         ms = ffi[5], ffi[4]
         ls = ffi[7], ffi[6]
-        return _Version(f"{ms[0]}.{ms[1]}.{ls[0]}.{ls[1]}")
+        return Version(f"{ms[0]}.{ms[1]}.{ls[0]}.{ls[1]}")
 
     async def check_for_updates(self, parent, base_url: str, project_name: str):
         await self.get_latest_release_via_gitlab(base_url, project_name)
         current_version = self.get_current_version()
         if (self.release_type == self.remote_version.release_type
                 and self.remote_version > current_version):
-            _UpdateWidget(parent, self).show()
+            UpdateWidget(parent, self).show()

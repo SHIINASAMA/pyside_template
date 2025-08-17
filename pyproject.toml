@@ -33,8 +33,9 @@ nofollow-import-to = ["unittest"]
 windows-console-mode = "disable"
 windows-icon-from-ico = "app/assets/logo.ico"
 
-[tool.i18n]
-# Default language is en_US where defined in *.ui files
+[tool.build.i18n]
+# Default language is en_US where defined in *.ui and *.py files.
+# Exclude the app/resources/*.py.
 languages = [
     "zh_CN"
 ]
