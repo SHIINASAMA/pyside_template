@@ -1,3 +1,4 @@
+from asyncio import sleep
 import enum
 import os
 import shutil
@@ -13,6 +14,7 @@ from httpx import AsyncClient
 from qasync import asyncSlot
 
 from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
+
 from app.builtin.asyncio import to_thread
 
 
@@ -71,56 +73,10 @@ class UpdateWidget(QWidget):
 
         self.ui.label.setText(self.tr("Extracting new version..."))
         await to_thread(self.extract)
+        # Tell Package/App.exe to copy itself
         subprocess.run(
             ['Package/App.exe', "--copy-self"],
-            creationflags=subprocess.DETACHED_PROCESS
-        )
-        sys.exit(0)
-
-    async def clean_and_copy_files(self):
-        """
-        1. Remove old files in the parent directory via ../filelist.txt.
-        2. Copy itself to parent directory to replace the old version.
-        """
-        self.ui.cancel_btn.setEnabled(False)
-        self.ui.update_btn.setEnabled(False)
-        self.ui.label.setText(self.tr("Applying new version..."))
-
-        # 1
-        filelist_path = Path("..") / "filelist.txt"
-        if filelist_path.exists():
-            with filelist_path.open("r", encoding="utf-8") as f:
-                old_files = [line.strip() for line in f if line.strip()]
-
-            def remove_task():
-                for rel_path in old_files:
-                    target = Path("..") / rel_path
-                    try:
-                        if target.is_dir():
-                            shutil.rmtree(target)
-                        elif target.is_file():
-                            target.unlink()
-                    except FileNotFoundError:
-                        pass
-
-            await to_thread(remove_task)
-
-        # 2
-        src = ".."
-        dst = "../.."
-        def copy_task():
-            for item in os.listdir(src):
-                s = os.path.join(src, item)
-                d = os.path.join(dst, item)
-                if os.path.isdir(s):
-                    shutil.copytree(s, d, dirs_exist_ok=True)
-                else:
-                    shutil.copy2(s, d)
-
-        await to_thread(copy_task)
-        subprocess.run(
-            [f'{os.path.abspath(dst)}/App.exe', "--updated"],
-            creationflags=subprocess.DETACHED_PROCESS
+            creationflags=subprocess.DETACHED_PROCESS | subprocess.SW_HIDE
         )
         sys.exit(0)
 
@@ -209,3 +165,15 @@ class Updater:
         if (self.release_type == self.remote_version.release_type
                 and self.remote_version > current_version):
             UpdateWidget(parent, self).show()
+
+    async def copy_self(self):
+        await sleep(3)
+        # todo delete by ../filelist.txt if it exists
+        # todo Copy current directory to parent directory
+        # Run copied executable with --updated argument
+        new_executable = Path(sys.executable).parent / "App.exe"
+        subprocess.run(
+            [new_executable, "--updated"],
+            creationflags=subprocess.DETACHED_PROCESS
+        )
+        sys.exit(0)
