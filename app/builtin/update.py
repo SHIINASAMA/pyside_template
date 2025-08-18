@@ -1,10 +1,10 @@
-from asyncio import sleep
 import enum
 import os
 import shutil
 import subprocess
 import sys
 from pathlib import Path
+from time import sleep
 from urllib.parse import urlparse
 
 import packaging.version as Version0
@@ -108,13 +108,43 @@ class UpdateWidget(QWidget):
 
 
 class Updater:
+    _copy_self_cmd = "--copy-self"
+    _updated_cmd = "--updated"
+
+    _instance = None
+
+    def __new__(cls, release_type: ReleaseType):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
 
     def __init__(self, release_type: ReleaseType):
-        self.client = AsyncClient()
-        self.remote_version = None
-        self.description = ""
-        self.download_url = ""
-        self.release_type = release_type
+        if not self._initialized:
+            self.client = AsyncClient()
+            self.release_type = release_type
+            self.remote_version = None
+            self.description = ""
+            self.download_url = ""
+
+            self.is_updated = False
+            if Updater._copy_self_cmd in sys.argv:
+                sys.argv.remove(Updater._copy_self_cmd)
+                # wait for last executable to exit
+                Updater.copy_self_and_exit()
+            if Updater._updated_cmd in sys.argv:
+                sys.argv.remove(Updater._updated_cmd)
+                # only store that we have updated
+                self.is_updated = True
+                Updater.clean_old_package()
+
+            self.current_version = self.get_current_version()
+
+            self._initialized = True
+
+    @staticmethod
+    def instance():
+        return Updater._instance
 
     async def get_latest_release_via_gitlab(self, base_url: str, project_name: str):
         url = f"{base_url}/api/v4/projects/?search={project_name}"
@@ -161,19 +191,60 @@ class Updater:
 
     async def check_for_updates(self, parent, base_url: str, project_name: str):
         await self.get_latest_release_via_gitlab(base_url, project_name)
-        current_version = self.get_current_version()
         if (self.release_type == self.remote_version.release_type
-                and self.remote_version > current_version):
+                and self.remote_version > self.current_version):
             UpdateWidget(parent, self).show()
 
-    async def copy_self(self):
-        await sleep(3)
-        # todo delete by ../filelist.txt if it exists
-        # todo Copy current directory to parent directory
+    @staticmethod
+    def copy_self_and_exit():
+        """Copy current executable to parent directory and run it with --updated argument."""
+        # Wait for the last executable to exit
+        sleep(3)
+
+        parent_dir = Path(sys.executable).parent.parent
+        current_dir = Path(sys.executable).parent
+        filelist = parent_dir / "filelist.txt"
+        # delete files by ../filelist.txt if it exists, workdir is parent directory
+        if filelist.exists():
+            with open(filelist, "r", encoding="utf-8") as f:
+                for line in f:
+                    path = line.strip()
+                    if not path:
+                        continue
+                    abs_path = parent_dir / path
+                    try:
+                        if abs_path.is_file():
+                            abs_path.unlink()
+                        elif abs_path.is_dir():
+                            shutil.rmtree(abs_path)
+                    except Exception:
+                        continue
+
+        # Copy current directory to parent directory
+        for item in current_dir.iterdir():
+            target = parent_dir / item.name
+            try:
+                if item.is_file():
+                    shutil.copy2(item, target)
+                elif item.is_dir():
+                    if target.exists():
+                        shutil.rmtree(target)
+                    shutil.copytree(item, target)
+            except Exception:
+                continue
+
         # Run copied executable with --updated argument
-        new_executable = Path(sys.executable).parent / "App.exe"
+        new_executable = Path(sys.executable).parent.parent / "App.exe"
         subprocess.run(
             [new_executable, "--updated"],
             creationflags=subprocess.DETACHED_PROCESS
         )
         sys.exit(0)
+
+    @staticmethod
+    def clean_old_package():
+        """delete "Package" directory"""
+        sleep(3)
+        package_dir = Path(sys.executable).parent / "Package"
+        if package_dir.exists() and package_dir.is_dir():
+            shutil.rmtree(package_dir, ignore_errors=True)
