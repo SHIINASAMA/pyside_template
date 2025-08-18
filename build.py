@@ -242,14 +242,12 @@ class Build:
 
         i18n_cache = self.cache.get("i18n", {})
 
-        # 合并文件列表，转换为字符串路径
         files_to_scan = [str(f) for f in self.ui_list + self.source_list]
 
         for lang in self.lang_list:
             ts_file = i18n_dir / f"{lang}.ts"
             logging.info("Generating %s ...", ts_file)
 
-            # 构造命令，将所有文件作为参数传递给 lupdate
             files_str = " ".join(f'"{f}"' for f in files_to_scan)
             cmd = f'pyside6-lupdate -silent -locations absolute -extensions ui {files_str} -ts "{ts_file}"'
 
@@ -257,7 +255,6 @@ class Build:
                 logging.error("Failed to generate translation file: %s", ts_file)
                 exit(1)
 
-            # 更新缓存
             i18n_cache[lang] = ts_file.stat().st_mtime
             logging.info("Generated translation file: %s", ts_file)
 
