@@ -164,6 +164,12 @@ class Updater:
         self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"
 
     def get_current_version(self) -> Version:
+        # force set version from version.txt if it exists
+        if os.path.exists("version.txt"):
+            with open("version.txt", "r", encoding="utf-8") as f:
+                version_string = f.read().strip()
+                return Version(version_string)
+        # get version from app
         if sys.platform == "win32":
             return self.get_version_win32(sys.executable)
         else:
