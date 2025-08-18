@@ -27,7 +27,7 @@ build:
   artifacts:
     name: "build-${CI_COMMIT_SHA}"
     paths:
-      - build/App.exe
+      - Package
     expire_in: 30 days
 
 upload:
