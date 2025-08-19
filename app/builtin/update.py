@@ -70,6 +70,13 @@ class UpdateWidget(QDialog):
     def on_cancel(self):
         self.close()
 
+    # todo new bug
+    # Exception in callback <TaskStepMethWrapper object at 0x000002D0650AA550>()
+    # handle: <Handle <TaskStepMethWrapper object at 0x000002D0650AA550>()>
+    # Traceback (most recent call last):
+    #   File "C:\Users\kaoru\AppData\Roaming\uv\python\cpython-3.8.20-windows-x86_64-none\lib\asyncio\events.py", line 81, in _run
+    #     self._context.run(self._callback, *self._args)
+    # RuntimeError: Cannot enter into task <Task pending name='Task-4' coro=<UpdateWidget.on_update() running at D:\workspaces\pyside_template\app\builtin\update.py:73> cb=[asyncSlot.<locals>._error_handler() at D:\workspaces\pyside_template\.venv\lib\site-packages\qasync\__init__.py:778]> while another task <Task pending name='Task-2' coro=<MainWindow.delay_task() running at D:\workspaces\pyside_template\app\main_window.py:38>> is being executed.
     @asyncSlot()
     async def on_update(self):
         self.ui.cancel_btn.setEnabled(False)
@@ -85,21 +92,22 @@ class UpdateWidget(QDialog):
             ['Package/App.exe', "--copy-self"],
             creationflags=subprocess.DETACHED_PROCESS | subprocess.SW_HIDE
         )
-        raise SystemExit(0)
+        sys.exit(0)
 
     async def download(self):
-        async with self.updater.client.stream("GET", self.updater.download_url) as r:
-            r.raise_for_status()
-            total_size = int(r.headers.get("content-length", 0))
-            downloaded = 0
+        async with AsyncClient() as client:
+            async with client.stream("GET", self.updater.download_url) as r:
+                r.raise_for_status()
+                total_size = int(r.headers.get("content-length", 0))
+                downloaded = 0
 
-            with open(self.filename, "wb") as f:
-                async for chunk in r.aiter_bytes(8192):
-                    f.write(chunk)
-                    downloaded += len(chunk)
+                with open(self.filename, "wb") as f:
+                    async for chunk in r.aiter_bytes(8192):
+                        f.write(chunk)
+                        downloaded += len(chunk)
 
-                    percent = int(downloaded * 100 / total_size)
-                    self.ui.progressBar.setValue(percent)
+                        percent = int(downloaded * 100 / total_size)
+                        self.ui.progressBar.setValue(percent)
 
     def extract(self):
         if self.filename.endswith(".zip"):
@@ -128,7 +136,6 @@ class Updater:
 
     def __init__(self, release_type: ReleaseType):
         if not self._initialized:
-            self.client = AsyncClient()
             self.release_type = release_type
             self.remote_version = None
             self.description = ""
@@ -154,18 +161,19 @@ class Updater:
         return Updater._instance
 
     async def get_latest_release_via_gitlab(self, base_url: str, project_name: str, timeout: int = 5):
-        url = f"{base_url}/api/v4/projects/?search={project_name}"
-        r = await self.client.get(url, timeout=timeout)
-        r.raise_for_status()
-        project = r.json()[0]
-        project_id = project['id']
+        async with AsyncClient() as client:
+            url = f"{base_url}/api/v4/projects/?search={project_name}"
+            r = await client.get(url, timeout=timeout)
+            r.raise_for_status()
+            project = r.json()[0]
+            project_id = project['id']
 
-        url = f"{base_url}/api/v4/projects/{project_id}/releases"
-        headers = {}
-        params = {"per_page": 1}
-        r = await self.client.get(url, headers=headers, params=params, timeout=timeout)
-        r.raise_for_status()
-        latest_release = r.json()[0]
+            url = f"{base_url}/api/v4/projects/{project_id}/releases"
+            headers = {}
+            params = {"per_page": 1}
+            r = await client.get(url, headers=headers, params=params, timeout=timeout)
+            r.raise_for_status()
+            latest_release = r.json()[0]
         self.remote_version = Version(latest_release['tag_name'])
         self.description = latest_release['description']
         self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"
