@@ -40,6 +40,10 @@ class Version(Version0.Version):
     def __str__(self):
         return f"{super().__str__()}-{self.release_type.value}"
 
+    def get_number_version(self):
+        """Get the version as a tuple of integers."""
+        return super().__str__()
+
 
 class UpdateWidget(QWidget):
     def __init__(self, parent, updater):
