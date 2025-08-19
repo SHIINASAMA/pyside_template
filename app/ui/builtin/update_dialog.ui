@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>UpdateWidget</class>
- <widget class="QWidget" name="UpdateWidget">
+ <class>UpdateDialog</class>
+ <widget class="QDialog" name="UpdateDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -12,11 +12,11 @@
   </property>
   <property name="font">
    <font>
-    <pointsize>14</pointsize>
+    <pointsize>12</pointsize>
    </font>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Updater</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -32,7 +32,7 @@
    <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
-      <number>24</number>
+      <number>0</number>
      </property>
     </widget>
    </item>
@@ -55,6 +55,9 @@
        </property>
        <property name="text">
         <string>Update</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

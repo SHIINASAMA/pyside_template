@@ -6,70 +6,81 @@
     <message>
         <location filename="../ui/main_window.ui" line="14"/>
         <source>MainWindow</source>
-        <translation type="unfinished">主窗体</translation>
+        <translation>主窗体</translation>
     </message>
     <message>
         <location filename="../ui/main_window.ui" line="27"/>
         <source>Check me</source>
-        <translation type="unfinished">点击我</translation>
+        <translation>点击我</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="37"/>
+        <location filename="../main_window.py" line="43"/>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="39"/>
+        <location filename="../main_window.py" line="44"/>
         <source>Failed to check for updates</source>
-        <translation type="unfinished">检查更新失败</translation>
+        <translation>检查更新失败</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="47"/>
+        <location filename="../main_window.py" line="55"/>
         <source>Hello</source>
-        <translation type="unfinished"></translation>
+        <translation>你好</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="48"/>
+        <location filename="../main_window.py" line="56"/>
         <source>Hello World!</source>
         <translation type="unfinished">你好，世界！</translation>
     </message>
 </context>
 <context>
-    <name>UpdateWidget</name>
+    <name>UpdateDialog</name>
     <message>
-        <location filename="../ui/builtin/update_widget.ui" line="19"/>
-        <source>Form</source>
-        <translation type="unfinished"></translation>
+        <location filename="../ui/builtin/update_dialog.ui" line="19"/>
+        <source>Updater</source>
+        <translation>更新器</translation>
     </message>
     <message>
-        <location filename="../ui/builtin/update_widget.ui" line="25"/>
-        <location filename="../builtin/update.py" line="54"/>
+        <location filename="../ui/builtin/update_dialog.ui" line="25"/>
+        <source>Found new version: {}</source>
+        <translation>发现新版本：{}</translation>
+    </message>
+    <message>
+        <location filename="../ui/builtin/update_dialog.ui" line="47"/>
+        <source>Cancel</source>
+        <translation>取消</translation>
+    </message>
+    <message>
+        <location filename="../ui/builtin/update_dialog.ui" line="57"/>
+        <source>Update</source>
+        <translation>更新</translation>
+    </message>
+    <message>
+        <source>Downloading new version...</source>
+        <translation type="vanished">正在下载新版本...</translation>
+    </message>
+    <message>
+        <source>Extracting new version...</source>
+        <translation type="vanished">正在解压文件...</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateWidget</name>
+    <message>
+        <location filename="../builtin/update.py" line="61"/>
         <source>Found new version: {}</source>
         <translation type="unfinished">发现新版本：{}</translation>
     </message>
     <message>
-        <location filename="../ui/builtin/update_widget.ui" line="47"/>
-        <source>Cancel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../ui/builtin/update_widget.ui" line="57"/>
-        <source>Update</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../builtin/update.py" line="70"/>
+        <location filename="../builtin/update.py" line="77"/>
         <source>Downloading new version...</source>
         <translation type="unfinished">正在下载新版本...</translation>
     </message>
     <message>
-        <location filename="../builtin/update.py" line="74"/>
+        <location filename="../builtin/update.py" line="81"/>
         <source>Extracting new version...</source>
         <translation type="unfinished">正在解压文件...</translation>
-    </message>
-    <message>
-        <source>Applying new version...</source>
-        <translation type="obsolete">正在应用新版本更改...</translation>
     </message>
 </context>
 </TS>

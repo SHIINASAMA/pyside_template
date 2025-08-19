@@ -9,12 +9,11 @@ from urllib.parse import urlparse
 
 import packaging.version as Version0
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget
+from PySide6.QtWidgets import QDialog
 from httpx import AsyncClient
 from qasync import asyncSlot
 
-from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
-
+from app.resources.builtin.update_dialog_ui import Ui_UpdateDialog
 from app.builtin.asyncio import to_thread
 
 
@@ -45,16 +44,20 @@ class Version(Version0.Version):
         return super().__str__()
 
 
-class UpdateWidget(QWidget):
+class UpdateWidget(QDialog):
     def __init__(self, parent, updater):
         super().__init__(parent)
         self.updater = updater
-        self.setWindowFlags(Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint)
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.ui = Ui_UpdateWidget()
+        flags = self.windowFlags()
+        flags = flags | Qt.WindowType.Window
+        flags = flags & ~Qt.WindowMaximizeButtonHint
+        flags = flags & ~Qt.WindowMinimizeButtonHint
+        flags = flags & ~Qt.WindowCloseButtonHint
+        self.setWindowFlags(flags)
+        self.setWindowModality(Qt.ApplicationModal)
+        self.ui = Ui_UpdateDialog()
         self.ui.setupUi(self)
 
-        self.ui.progressBar.setRange(100, 100)
         self.ui.label.setText(self.tr("Found new version: {}").format(self.updater.remote_version))
         self.ui.textBrowser.setMarkdown(self.updater.description)
 
@@ -82,7 +85,7 @@ class UpdateWidget(QWidget):
             ['Package/App.exe', "--copy-self"],
             creationflags=subprocess.DETACHED_PROCESS | subprocess.SW_HIDE
         )
-        sys.exit(0)
+        raise SystemExit(0)
 
     async def download(self):
         async with self.updater.client.stream("GET", self.updater.download_url) as r:
@@ -142,7 +145,7 @@ class Updater:
                 self.is_updated = True
                 Updater.clean_old_package()
 
-            self.current_version = self.get_current_version()
+            self.get_current_version()
 
             self._initialized = True
 
@@ -150,9 +153,9 @@ class Updater:
     def instance():
         return Updater._instance
 
-    async def get_latest_release_via_gitlab(self, base_url: str, project_name: str):
+    async def get_latest_release_via_gitlab(self, base_url: str, project_name: str, timeout: int = 5):
         url = f"{base_url}/api/v4/projects/?search={project_name}"
-        r = await self.client.get(url)
+        r = await self.client.get(url, timeout=timeout)
         r.raise_for_status()
         project = r.json()[0]
         project_id = project['id']
@@ -160,22 +163,25 @@ class Updater:
         url = f"{base_url}/api/v4/projects/{project_id}/releases"
         headers = {}
         params = {"per_page": 1}
-        r = await self.client.get(url, headers=headers, params=params)
+        r = await self.client.get(url, headers=headers, params=params, timeout=timeout)
         r.raise_for_status()
         latest_release = r.json()[0]
         self.remote_version = Version(latest_release['tag_name'])
         self.description = latest_release['description']
         self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"
 
-    def get_current_version(self) -> Version:
+    def get_current_version(self):
         # force set version from version.txt if it exists
         if os.path.exists("version.txt"):
             with open("version.txt", "r", encoding="utf-8") as f:
                 version_string = f.read().strip()
-                return Version(version_string)
+            ver = Version(version_string)
+            self.current_version = ver
+            self.release_type = ver.release_type  # set release type from version
+            return
         # get version from app
         if sys.platform == "win32":
-            return self.get_version_win32(sys.executable)
+            self.current_version = self.get_version_win32(sys.executable)
         else:
             raise RuntimeError(f"Unknown platform: {sys.platform}")
 
@@ -199,11 +205,9 @@ class Updater:
         ls = ffi[7], ffi[6]
         return Version(f"{ms[0]}.{ms[1]}.{ls[0]}.{ls[1]}")
 
-    async def check_for_updates(self, parent, base_url: str, project_name: str):
-        await self.get_latest_release_via_gitlab(base_url, project_name)
-        if (self.release_type == self.remote_version.release_type
-                and self.remote_version > self.current_version):
-            UpdateWidget(parent, self).show()
+    def check_for_updates(self):
+        return (self.release_type == self.remote_version.release_type
+                and self.remote_version > self.current_version)
 
     @staticmethod
     def copy_self_and_exit():

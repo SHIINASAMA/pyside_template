@@ -15,7 +15,6 @@ async def main():
 
     main_window = MainWindow()
     main_window.show()
-
     await app_close_event.wait()
 
 
@@ -23,6 +22,9 @@ if __name__ == '__main__':
     # init updater, updater will remove some arguments
     # and do update logic
     updater = Updater(release_type=ReleaseType.STABLE)
+
+    # enable hdpi
+    qdarktheme.enable_hi_dpi()
 
     # init QApplication
     app = QApplication(sys.argv)
