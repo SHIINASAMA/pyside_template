@@ -352,7 +352,7 @@ class Build:
                + ('--onefile ' if self.args.onefile else '--standalone ')
                + self.opt_from_toml
                + (" ".join(self.args.backend_args)))
-        logging.info(cmd)
+        logging.debug(cmd)
         rt = os.system(cmd)
         end = time.perf_counter()
         if rt == 0:

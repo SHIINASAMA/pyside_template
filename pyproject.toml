@@ -26,12 +26,21 @@ dev = [
 quiet = true
 assume-yes-for-downloads = true
 plugin-enable = ["pyside6"]
-nofollow-import-to = ["unittest"]
+nofollow-import-to = [
+    "unittest", 
+    "PySide6.QtAsyncio",
+    "PySide6.QtNetwork", 
+    "PySide6.QtNetworkAuth"
+]
+noinclude-qt-plugins = ["tls"]
 
 [tool.build.win32]
 # Nuitka build options for {sys.platform}
 windows-console-mode = "disable"
 windows-icon-from-ico = "app/assets/logo.ico"
+noinclude-dlls = [
+    "qt6network.dll"
+]
 
 [tool.build.i18n]
 # Default language is en_US where defined in *.ui and *.py files.
