@@ -15,6 +15,7 @@ async def main():
 
     main_window = MainWindow()
     main_window.show()
+    await main_window.async_init()
     await app_close_event.wait()
 
 

@@ -20,13 +20,11 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.ui.pushButton.clicked.connect(self.click_push_button)
 
-        QTimer.singleShot(0, lambda: asyncio.create_task(self.delay_task()))
-
     @asyncClose
     async def closeEvent(self, event):
         pass
 
-    async def delay_task(self):
+    async def async_init(self):
         updater = Updater.instance()
         if not updater.is_updated:
             try:
@@ -35,7 +33,7 @@ class MainWindow(QMainWindow):
                     project_name="pyside_template",
                 )
                 update_widget = UpdateWidget(self, updater)
-                update_widget.exec()
+                update_widget.show()
             except HTTPError:
                 QMessageBox.warning(
                     self,

@@ -9,11 +9,11 @@ from urllib.parse import urlparse
 
 import packaging.version as Version0
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QDialog
+from PySide6.QtWidgets import QWidget
 from httpx import AsyncClient
 from qasync import asyncSlot
 
-from app.resources.builtin.update_dialog_ui import Ui_UpdateDialog
+from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from app.builtin.asyncio import to_thread
 
 
@@ -44,7 +44,7 @@ class Version(Version0.Version):
         return super().__str__()
 
 
-class UpdateWidget(QDialog):
+class UpdateWidget(QWidget):
     def __init__(self, parent, updater):
         super().__init__(parent)
         self.updater = updater
@@ -55,7 +55,7 @@ class UpdateWidget(QDialog):
         flags = flags & ~Qt.WindowCloseButtonHint
         self.setWindowFlags(flags)
         self.setWindowModality(Qt.ApplicationModal)
-        self.ui = Ui_UpdateDialog()
+        self.ui = Ui_UpdateWidget()
         self.ui.setupUi(self)
 
         self.ui.label.setText(self.tr("Found new version: {}").format(self.updater.remote_version))
