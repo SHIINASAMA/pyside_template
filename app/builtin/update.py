@@ -1,3 +1,4 @@
+import asyncio
 import enum
 import os
 import shutil
@@ -8,7 +9,7 @@ from time import sleep
 from urllib.parse import urlparse
 
 import packaging.version as Version0
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import QWidget
 from httpx import AsyncClient
 from qasync import asyncSlot
@@ -45,9 +46,12 @@ class Version(Version0.Version):
 
 
 class UpdateWidget(QWidget):
+    closed = Signal()
+
     def __init__(self, parent, updater):
         super().__init__(parent)
         self.updater = updater
+        self.need_restart = False
         flags = self.windowFlags()
         flags = flags | Qt.WindowType.Window
         flags = flags & ~Qt.WindowMaximizeButtonHint
@@ -67,16 +71,18 @@ class UpdateWidget(QWidget):
         self.ui.cancel_btn.clicked.connect(self.on_cancel)
         self.ui.update_btn.clicked.connect(self.on_update)
 
+    def closeEvent(self, event):
+        self.closed.emit()
+
+    async def show(self):
+        future = asyncio.get_event_loop().create_future()
+        self.closed.connect(lambda: future.set_result(None))
+        super().show()
+        await future
+
     def on_cancel(self):
         self.close()
 
-    # todo new bug
-    # Exception in callback <TaskStepMethWrapper object at 0x000002D0650AA550>()
-    # handle: <Handle <TaskStepMethWrapper object at 0x000002D0650AA550>()>
-    # Traceback (most recent call last):
-    #   File "C:\Users\kaoru\AppData\Roaming\uv\python\cpython-3.8.20-windows-x86_64-none\lib\asyncio\events.py", line 81, in _run
-    #     self._context.run(self._callback, *self._args)
-    # RuntimeError: Cannot enter into task <Task pending name='Task-4' coro=<UpdateWidget.on_update() running at D:\workspaces\pyside_template\app\builtin\update.py:73> cb=[asyncSlot.<locals>._error_handler() at D:\workspaces\pyside_template\.venv\lib\site-packages\qasync\__init__.py:778]> while another task <Task pending name='Task-2' coro=<MainWindow.delay_task() running at D:\workspaces\pyside_template\app\main_window.py:38>> is being executed.
     @asyncSlot()
     async def on_update(self):
         self.ui.cancel_btn.setEnabled(False)
@@ -87,12 +93,8 @@ class UpdateWidget(QWidget):
 
         self.ui.label.setText(self.tr("Extracting new version..."))
         await to_thread(self.extract)
-        # Tell Package/App.exe to copy itself
-        subprocess.run(
-            ['Package/App.exe', "--copy-self"],
-            creationflags=subprocess.DETACHED_PROCESS | subprocess.SW_HIDE
-        )
-        sys.exit(0)
+        self.need_restart = True
+        self.close()
 
     async def download(self):
         async with AsyncClient() as client:
@@ -120,6 +122,8 @@ class UpdateWidget(QWidget):
                 tar_ref.extractall(os.path.dirname(self.filename))
         else:
             raise RuntimeError(f"Unsupported file format: {self.filename}")
+        # remove the downloaded file
+        os.remove(self.filename)
 
 
 class Updater:
@@ -218,11 +222,17 @@ class Updater:
                 and self.remote_version > self.current_version)
 
     @staticmethod
+    def apply_update():
+        subprocess.Popen(
+            ['Package/App.exe', Updater._copy_self_cmd],
+            creationflags=subprocess.DETACHED_PROCESS
+        )
+
+    @staticmethod
     def copy_self_and_exit():
         """Copy current executable to parent directory and run it with --updated argument."""
         # Wait for the last executable to exit
         sleep(3)
-
         parent_dir = Path(sys.executable).parent.parent
         current_dir = Path(sys.executable).parent
         filelist = parent_dir / "filelist.txt"
@@ -257,7 +267,7 @@ class Updater:
 
         # Run copied executable with --updated argument
         new_executable = Path(sys.executable).parent.parent / "App.exe"
-        subprocess.run(
+        subprocess.Popen(
             [new_executable, "--updated"],
             creationflags=subprocess.DETACHED_PROCESS
         )

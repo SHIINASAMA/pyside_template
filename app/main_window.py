@@ -1,10 +1,9 @@
 import asyncio
 
-from PySide6.QtCore import QTimer
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMainWindow, QMessageBox
 from httpx import HTTPError
-from qasync import asyncSlot, asyncClose
+from qasync import asyncSlot
 
 # include the resource file
 import app.resources.resource  # type: ignore
@@ -20,10 +19,6 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.ui.pushButton.clicked.connect(self.click_push_button)
 
-    @asyncClose
-    async def closeEvent(self, event):
-        pass
-
     async def async_init(self):
         updater = Updater.instance()
         if not updater.is_updated:
@@ -33,13 +28,22 @@ class MainWindow(QMainWindow):
                     project_name="pyside_template",
                 )
                 update_widget = UpdateWidget(self, updater)
-                update_widget.show()
+                await update_widget.show()
+                if update_widget.need_restart:
+                    updater.apply_update()
+                    self.close()
             except HTTPError:
                 QMessageBox.warning(
                     self,
                     self.tr("Warning"),
                     self.tr("Failed to check for updates"),
                 )
+        else:
+            QMessageBox.information(
+                self,
+                self.tr("Info"),
+                self.tr("Update completed"),
+            )
 
     @asyncSlot()
     async def click_push_button(self):

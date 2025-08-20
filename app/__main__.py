@@ -1,7 +1,7 @@
 import asyncio
 import sys
 
-from qasync import QApplication, run
+from qasync import QApplication, run, QEventLoop
 from PySide6.QtCore import QTranslator, QLocale
 import qdarktheme
 
