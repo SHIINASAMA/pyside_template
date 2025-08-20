@@ -14,32 +14,32 @@
         <translation>点击我</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="39"/>
+        <location filename="../main_window.py" line="44"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="40"/>
+        <location filename="../main_window.py" line="45"/>
         <source>Failed to check for updates</source>
         <translation>检查更新失败</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="45"/>
+        <location filename="../main_window.py" line="50"/>
         <source>Info</source>
-        <translation type="finished">信息</translation>
+        <translation>信息</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="46"/>
+        <location filename="../main_window.py" line="51"/>
         <source>Update completed</source>
-        <translation type="finished">更新已完成</translation>
+        <translation>更新已完成</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="55"/>
+        <location filename="../main_window.py" line="60"/>
         <source>Hello</source>
         <translation>你好</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="56"/>
+        <location filename="../main_window.py" line="61"/>
         <source>Hello World!</source>
         <translation>你好，世界！</translation>
     </message>
@@ -53,7 +53,7 @@
     </message>
     <message>
         <location filename="../ui/builtin/update_widget.ui" line="25"/>
-        <location filename="../builtin/update.py" line="65"/>
+        <location filename="../builtin/update.py" line="68"/>
         <source>Found new version: {}</source>
         <translation>发现新版本：{}</translation>
     </message>
@@ -68,12 +68,12 @@
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../builtin/update.py" line="90"/>
+        <location filename="../builtin/update.py" line="84"/>
         <source>Downloading new version...</source>
         <translation>正在下载新版本...</translation>
     </message>
     <message>
-        <location filename="../builtin/update.py" line="94"/>
+        <location filename="../builtin/update.py" line="88"/>
         <source>Extracting new version...</source>
         <translation>正在解压文件...</translation>
     </message>

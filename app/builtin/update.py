@@ -1,4 +1,3 @@
-import asyncio
 import enum
 import os
 import shutil
@@ -9,13 +8,13 @@ from time import sleep
 from urllib.parse import urlparse
 
 import packaging.version as Version0
-from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Qt
 from httpx import AsyncClient
 from qasync import asyncSlot
 
 from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from app.builtin.asyncio import to_thread
+from app.builtin.async_widget import AsyncWidget
 
 
 class ReleaseType(enum.Enum):
@@ -45,8 +44,13 @@ class Version(Version0.Version):
         return super().__str__()
 
 
-class UpdateWidget(QWidget):
-    closed = Signal()
+class UpdateWidget(AsyncWidget):
+    """
+    If the update resource is downloaded and extracted successfully,
+    the application can call `Updater.apply_update()` and close itself
+    to restart with the new version.
+    """
+    need_restart: bool
 
     def __init__(self, parent, updater):
         super().__init__(parent)
@@ -58,7 +62,6 @@ class UpdateWidget(QWidget):
         flags = flags & ~Qt.WindowMinimizeButtonHint
         flags = flags & ~Qt.WindowCloseButtonHint
         self.setWindowFlags(flags)
-        self.setWindowModality(Qt.ApplicationModal)
         self.ui = Ui_UpdateWidget()
         self.ui.setupUi(self)
 
@@ -70,15 +73,6 @@ class UpdateWidget(QWidget):
 
         self.ui.cancel_btn.clicked.connect(self.on_cancel)
         self.ui.update_btn.clicked.connect(self.on_update)
-
-    def closeEvent(self, event):
-        self.closed.emit()
-
-    async def show(self):
-        future = asyncio.get_event_loop().create_future()
-        self.closed.connect(lambda: future.set_result(None))
-        super().show()
-        await future
 
     def on_cancel(self):
         self.close()
@@ -217,7 +211,7 @@ class Updater:
         ls = ffi[7], ffi[6]
         return Version(f"{ms[0]}.{ms[1]}.{ls[0]}.{ls[1]}")
 
-    def check_for_updates(self):
+    def check_for_update(self):
         return (self.release_type == self.remote_version.release_type
                 and self.remote_version > self.current_version)
 

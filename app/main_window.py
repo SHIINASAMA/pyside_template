@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMainWindow, QMessageBox
@@ -21,29 +22,34 @@ class MainWindow(QMainWindow):
 
     async def async_init(self):
         updater = Updater.instance()
-        if not updater.is_updated:
-            try:
-                await updater.get_latest_release_via_gitlab(
-                    base_url="https://gitlab.mikumikumi.xyz/",
-                    project_name="pyside_template",
-                )
-                update_widget = UpdateWidget(self, updater)
-                await update_widget.show()
-                if update_widget.need_restart:
-                    updater.apply_update()
-                    self.close()
-            except HTTPError:
-                QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Failed to check for updates"),
-                )
+        if os.getenv("DEBUG", "0") == "1":
+            # Debug mode
+            pass
         else:
-            QMessageBox.information(
-                self,
-                self.tr("Info"),
-                self.tr("Update completed"),
-            )
+            # Production mode
+            if not updater.is_updated:
+                try:
+                    await updater.get_latest_release_via_gitlab(
+                        base_url="https://gitlab.mikumikumi.xyz/",
+                        project_name="pyside_template",
+                    )
+                    update_widget = UpdateWidget(self, updater)
+                    await update_widget.show()
+                    if update_widget.need_restart:
+                        updater.apply_update()
+                        self.close()
+                except HTTPError:
+                    QMessageBox.warning(
+                        self,
+                        self.tr("Warning"),
+                        self.tr("Failed to check for updates"),
+                    )
+            else:
+                QMessageBox.information(
+                    self,
+                    self.tr("Info"),
+                    self.tr("Update completed"),
+                )
 
     @asyncSlot()
     async def click_push_button(self):
