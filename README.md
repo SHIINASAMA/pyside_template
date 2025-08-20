@@ -18,14 +18,13 @@ You just need to install uv and Python 3.8.
 
 | File or Directory  | Description                                  |
 |--------------------|----------------------------------------------|
+| .cache/assets.json | Build Caches                                 |
 | app/               | Source code directory                        |
-| app/assets.qrc     | Qt resources mapping descript file           |
 | app/assets/**      | Qt resources files (images, icons, etc.)     |
-| app/ui/*.ui        | Qt Designer UI files                         |
+| app/ui/**.ui       | Qt Designer UI files                         |
 | app/resources/*.py | Generated Python files from UI and QRC files |
 | pyproject.toml     | Project builds and settings                  |
 | build.py           | Build script for the project                 |
-| .cache/assets.json | Build Caches                                 |
 | build/             | Build Destination Directory                  |
 
 ## Command
