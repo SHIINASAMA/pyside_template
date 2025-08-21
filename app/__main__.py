@@ -1,8 +1,8 @@
 import asyncio
 import sys
 
-from qasync import QApplication, run, QEventLoop
-from PySide6.QtCore import QTranslator, QLocale
+from qasync import QApplication, run
+from PySide6.QtCore import QTranslator, QLocale, QLockFile
 import qdarktheme
 
 from app.main_window import MainWindow
@@ -23,6 +23,11 @@ if __name__ == '__main__':
     # init updater, updater will remove some arguments
     # and do update logic
     updater = Updater(release_type=ReleaseType.STABLE)
+
+    # check if the app is already running
+    lock_file = QLockFile("App.lock")
+    if not lock_file.lock():
+        sys.exit(0)
 
     # enable hdpi
     qdarktheme.enable_hi_dpi()
