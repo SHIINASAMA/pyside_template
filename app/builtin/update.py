@@ -1,4 +1,5 @@
 import enum
+import json
 import os
 import shutil
 import subprocess
@@ -9,12 +10,12 @@ from urllib.parse import urlparse
 
 import packaging.version as Version0
 from PySide6.QtCore import Qt
+from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from httpx import AsyncClient
 from qasync import asyncSlot
 
-from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
-from app.builtin.asyncio import to_thread
 from app.builtin.async_widget import AsyncWidget
+from app.builtin.asyncio import to_thread
 
 
 class ReleaseType(enum.Enum):
@@ -91,7 +92,7 @@ class UpdateWidget(AsyncWidget):
         self.close()
 
     async def download(self):
-        async with AsyncClient() as client:
+        async with AsyncClient(proxy=Updater.instance().proxy) as client:
             async with client.stream("GET", self.updater.download_url) as r:
                 r.raise_for_status()
                 total_size = int(r.headers.get("content-length", 0))
@@ -126,15 +127,19 @@ class Updater:
 
     _instance = None
 
-    def __new__(cls, release_type: ReleaseType):
+    def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self, release_type: ReleaseType):
+    def __init__(self):
         if not self._initialized:
-            self.release_type = release_type
+            # Three attributes can be set by updater.json
+            self.current_version = self._load_current_version()
+            self.release_type = self.current_version.release_type
+            self.proxy = None
+
             self.remote_version = None
             self.description = ""
             self.download_url = ""
@@ -142,24 +147,31 @@ class Updater:
             self.is_updated = False
             if Updater._copy_self_cmd in sys.argv:
                 sys.argv.remove(Updater._copy_self_cmd)
-                # wait for last executable to exit
                 Updater.copy_self_and_exit()
             if Updater._updated_cmd in sys.argv:
                 sys.argv.remove(Updater._updated_cmd)
-                # only store that we have updated
                 self.is_updated = True
                 Updater.clean_old_package()
 
-            self.get_current_version()
-
             self._initialized = True
+
+    def load_from_file_and_override(self, filename: str):
+        """Load updater configuration from a JSON file."""
+        with open(filename, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        version: str = data.get('version', None)
+        if version is not None:
+            self.current_version = Version(version)
+        self.proxy = data.get('proxy', None)
+        self.release_type = ReleaseType(data.get('channel', 'stable'))
 
     @staticmethod
     def instance():
         return Updater._instance
 
-    async def get_latest_release_via_gitlab(self, base_url: str, project_name: str, timeout: int = 5):
-        async with AsyncClient() as client:
+    async def fetch_latest_release_via_gitlab(self, base_url: str, project_name: str, timeout: int = 5):
+        async with AsyncClient(proxy=self.proxy) as client:
             url = f"{base_url}/api/v4/projects/?search={project_name}"
             r = await client.get(url, timeout=timeout)
             r.raise_for_status()
@@ -176,23 +188,15 @@ class Updater:
         self.description = latest_release['description']
         self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"
 
-    def get_current_version(self):
-        # force set version from version.txt if it exists
-        if os.path.exists("version.txt"):
-            with open("version.txt", "r", encoding="utf-8") as f:
-                version_string = f.read().strip()
-            ver = Version(version_string)
-            self.current_version = ver
-            self.release_type = ver.release_type  # set release type from version
-            return
+    def _load_current_version(self):
         # get version from app
         if sys.platform == "win32":
-            self.current_version = self.get_version_win32(sys.executable)
+            return self._load_version_win32(sys.executable)
         else:
             raise RuntimeError(f"Unknown platform: {sys.platform}")
 
     @staticmethod
-    def get_version_win32(filename: str) -> Version:
+    def _load_version_win32(filename: str):
         import ctypes
         from ctypes import wintypes
         size = ctypes.windll.version.GetFileVersionInfoSizeW(filename, None)
@@ -217,6 +221,7 @@ class Updater:
 
     @staticmethod
     def apply_update():
+        """Call Package/App.exe to copy itself to parent directory and run it."""
         subprocess.Popen(
             ['Package/App.exe', Updater._copy_self_cmd],
             creationflags=subprocess.DETACHED_PROCESS,
@@ -271,7 +276,7 @@ class Updater:
 
     @staticmethod
     def clean_old_package():
-        """delete "Package" directory"""
+        """delete Package directory"""
         sleep(3)
         package_dir = Path(sys.executable).parent / "Package"
         if package_dir.exists() and package_dir.is_dir():

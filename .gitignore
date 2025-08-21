@@ -1,4 +1,6 @@
 .idea/
+/App.lock
+/updater.json
 
 ### Python template
 # Byte-compiled / optimized / DLL files

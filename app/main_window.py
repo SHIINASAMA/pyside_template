@@ -1,14 +1,14 @@
 import asyncio
 import os
 
+# include the resource file
+import app.resources.resource  # type: ignore
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMainWindow, QMessageBox
+from app.resources.main_window_ui import Ui_MainWindow
 from httpx import HTTPError
 from qasync import asyncSlot
 
-# include the resource file
-import app.resources.resource  # type: ignore
-from app.resources.main_window_ui import Ui_MainWindow
 from app.builtin.update import Updater, UpdateWidget
 
 
@@ -29,7 +29,7 @@ class MainWindow(QMainWindow):
             # Production mode
             if not updater.is_updated:
                 try:
-                    await updater.get_latest_release_via_gitlab(
+                    await updater.fetch_latest_release_via_gitlab(
                         base_url="https://gitlab.mikumikumi.xyz/",
                         project_name="pyside_template",
                     )

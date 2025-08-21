@@ -1,12 +1,13 @@
 import asyncio
+import os.path
 import sys
 
-from qasync import QApplication, run
-from PySide6.QtCore import QTranslator, QLocale, QLockFile
 import qdarktheme
+from PySide6.QtCore import QTranslator, QLocale, QLockFile
+from qasync import QApplication, run
 
+from app.builtin.update import Updater
 from app.main_window import MainWindow
-from app.builtin.update import Updater, ReleaseType
 
 
 async def main():
@@ -22,12 +23,15 @@ async def main():
 if __name__ == '__main__':
     # init updater, updater will remove some arguments
     # and do update logic
-    updater = Updater(release_type=ReleaseType.STABLE)
+    updater = Updater()
 
     # check if the app is already running
     lock_file = QLockFile("App.lock")
     if not lock_file.lock():
         sys.exit(0)
+
+    if os.path.exists("../updater.json"):
+        updater.load_from_file_and_override("updater.json")
 
     # enable hdpi
     qdarktheme.enable_hi_dpi()
