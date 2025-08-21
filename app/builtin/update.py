@@ -219,7 +219,8 @@ class Updater:
     def apply_update():
         subprocess.Popen(
             ['Package/App.exe', Updater._copy_self_cmd],
-            creationflags=subprocess.DETACHED_PROCESS
+            creationflags=subprocess.DETACHED_PROCESS,
+            env=os.environ.copy()
         )
 
     @staticmethod
@@ -263,7 +264,8 @@ class Updater:
         new_executable = Path(sys.executable).parent.parent / "App.exe"
         subprocess.Popen(
             [new_executable, "--updated"],
-            creationflags=subprocess.DETACHED_PROCESS
+            creationflags=subprocess.DETACHED_PROCESS,
+            env=os.environ.copy()
         )
         sys.exit(0)
 
