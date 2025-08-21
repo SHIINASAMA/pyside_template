@@ -172,18 +172,37 @@ class Updater:
 
     async def fetch_latest_release_via_gitlab(self, base_url: str, project_name: str, timeout: int = 5):
         async with AsyncClient(proxy=self.proxy) as client:
-            url = f"{base_url}/api/v4/projects/?search={project_name}"
-            r = await client.get(url, timeout=timeout)
+            r = await client.get(
+                url=f"{base_url}/api/v4/projects",
+                params={"search": project_name,
+                        "search_namespaces": "true"},
+                timeout=timeout
+            )
             r.raise_for_status()
-            project = r.json()[0]
+            projects = r.json()
+            if not projects:
+                raise FileNotFoundError(f"Project {project_name} not found on GitLab: {base_url}")
+            project = projects[0]
             project_id = project['id']
-
-            url = f"{base_url}/api/v4/projects/{project_id}/releases"
-            headers = {}
-            params = {"per_page": 1}
-            r = await client.get(url, headers=headers, params=params, timeout=timeout)
+            r = await client.get(
+                url=f"{base_url}/api/v4/projects/{project_id}/releases",
+                headers={},
+                params={"per_page": 1},
+                timeout=timeout
+            )
             r.raise_for_status()
-            latest_release = r.json()[0]
+
+        releases = []
+        for release in r.json():
+            version = Version(release['tag_name'])
+            if version.release_type == self.release_type:
+                releases.append(release)
+        latest_release = max(releases, key=lambda x: Version(x['tag_name']), default=None)
+        if latest_release is None:
+            # Does have any release for this channel
+            self.remote_version = Version('0.0.0.0')
+            return
+
         self.remote_version = Version(latest_release['tag_name'])
         self.description = latest_release['description']
         self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"

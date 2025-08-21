@@ -30,7 +30,7 @@ if __name__ == '__main__':
     if not lock_file.lock():
         sys.exit(0)
 
-    if os.path.exists("../updater.json"):
+    if os.path.exists("updater.json"):
         updater.load_from_file_and_override("updater.json")
 
     # enable hdpi

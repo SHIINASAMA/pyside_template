@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
 
     async def async_init(self):
         updater = Updater.instance()
-        if os.getenv("DEBUG", "0") == "1":
+        if os.getenv("DEBUG", "0") == "0":
             # Debug mode
             pass
         else:
@@ -31,13 +31,14 @@ class MainWindow(QMainWindow):
                 try:
                     await updater.fetch_latest_release_via_gitlab(
                         base_url="https://gitlab.mikumikumi.xyz/",
-                        project_name="pyside_template",
+                        project_name="kaoru/pyside_template",
                     )
-                    update_widget = UpdateWidget(self, updater)
-                    await update_widget.show()
-                    if update_widget.need_restart:
-                        updater.apply_update()
-                        self.close()
+                    if updater.check_for_update():
+                        update_widget = UpdateWidget(self, updater)
+                        await update_widget.show()
+                        if update_widget.need_restart:
+                            updater.apply_update()
+                            self.close()
                 except HTTPError:
                     QMessageBox.warning(
                         self,
