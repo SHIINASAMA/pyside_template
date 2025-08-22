@@ -11,8 +11,9 @@ You just need to install uv and Python 3.8.
 
 - PySide6
 - qasync
-- Nuitka (Optional)
-- PyQtDarkTheme (Optional)
+- httpx
+- PyQtDarkTheme
+- Nuitka
 
 ## Project Structure
 
@@ -27,13 +28,22 @@ You just need to install uv and Python 3.8.
 | build.py           | Build script for the project                 |
 | build/             | Build Destination Directory                  |
 
-## Command
+## Project Setup and Usage
 
-- Setup development environment and run the project.
+### IDE/Editor Support
+
+- IDEA (PyCharm, CLion, etc.)
+
+- Microsoft Visual Studio Code
+
+### Command
+
+You also can use the command line to run the project.
+
+- Setup development environment.
 
     ```bash
     uv sync
-    uv -m app
     ```
 
 - Using QtDesigner to create UI files. The UI files are must have located in the `ui` folder.
@@ -59,4 +69,8 @@ You just need to install uv and Python 3.8.
     ```bash
     uv run ./build.py --rc --onedir
     uv run --env-file .env -- python -m app
-    ```
+    ``` 
+
+## Others
+
+- [Release and Product Version Control](docs/publish.md)
