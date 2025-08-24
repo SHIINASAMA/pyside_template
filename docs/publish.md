@@ -47,6 +47,21 @@ Where:
 
 If additional release channels are required, the `Version` class constructor logic must be extended.
 
+## Updater Configuration
+
+Type your configuration in `updater.json`:
+
+```json
+{
+  "version": "0.0.0",
+  "proxy": "http://127.0.0.1:7890",
+  "channel": "beta"
+}
+```
+
+The `version` field will not be automatically updated; it is only used to manually set or override the current version.
+This is typically used for testing purposes.
+
 ## References
 
 - Version parsing and update logic: `app/builtin/updater.py`
