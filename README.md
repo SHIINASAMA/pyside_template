@@ -23,6 +23,7 @@ You just need to install uv and Python 3.8.
 | app/               | Source code directory                        |
 | app/assets/**      | Qt resources files (images, icons, etc.)     |
 | app/ui/**.ui       | Qt Designer UI files                         |
+| app/i18n/*.ts      | Qt I18N's *.ts files                         |
 | app/resources/*.py | Generated Python files from UI and QRC files |
 | pyproject.toml     | Project builds and settings                  |
 | build.py           | Build script for the project                 |
@@ -74,3 +75,4 @@ You also can use the command line to run the project.
 ## Others
 
 - [Release and Product Version Control](docs/publish.md)
+- [Internationalization](docs/i18n.md)
