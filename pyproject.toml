@@ -42,6 +42,12 @@ noinclude-dlls = [
     "qt6network.dll"
 ]
 
+[tool.build.linux]
+linux-icon="app/assets/logo.ico"
+noinclude-dlls = [
+    "libQt6Network.so.6"
+]
+
 [tool.build.i18n]
 # Default language is en_US where defined in *.ui and *.py files.
 # Exclude the app/resources/*.py.

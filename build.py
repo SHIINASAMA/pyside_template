@@ -342,6 +342,12 @@ class Build:
     def build(self):
         # call nuitka to build the app
         # include all files in app package and exclude the ui files
+        if sys.platform != 'win32':
+            path = Path('build/App')
+            if path.exists() and path.is_dir():
+                shutil.rmtree(path)
+            elif path.exists() and path.is_file():
+                path.unlink()
         start = time.perf_counter()
         logging.info('Building the app...')
         cmd = ('nuitka '
