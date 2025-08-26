@@ -9,7 +9,7 @@ class AsyncWidget(QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def closeEvent(self, event):
         self._closed.emit()

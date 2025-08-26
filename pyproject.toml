@@ -10,12 +10,12 @@ dependencies = [
     "pyqtdarktheme>=2.1.0",
     "pyside6>=6.6.3.1",
     "qasync>=0.27.1",
+    "nuitka>=2.7.12"
 ]
 
 [dependency-groups]
 dev = [
     "glom>=24.11.0",
-    "nuitka>=2.7.12",
     "toml>=0.10.2",
 ]
 
@@ -27,9 +27,9 @@ quiet = true
 assume-yes-for-downloads = true
 plugin-enable = ["pyside6"]
 nofollow-import-to = [
-    "unittest", 
+    "unittest",
     "PySide6.QtAsyncio",
-    "PySide6.QtNetwork", 
+    "PySide6.QtNetwork",
     "PySide6.QtNetworkAuth"
 ]
 noinclude-qt-plugins = ["tls"]
@@ -43,7 +43,7 @@ noinclude-dlls = [
 ]
 
 [tool.build.linux]
-linux-icon="app/assets/logo.ico"
+linux-icon = "app/assets/logo.ico"
 noinclude-dlls = [
     "libQt6Network.so.6"
 ]

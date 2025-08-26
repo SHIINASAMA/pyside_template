@@ -1,6 +1,7 @@
 import enum
 import json
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -9,6 +10,7 @@ from time import sleep
 from urllib.parse import urlparse
 
 import packaging.version as Version0
+import nuitka.Options as Options
 from PySide6.QtCore import Qt
 from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from httpx import AsyncClient
@@ -192,47 +194,49 @@ class Updater:
             )
             r.raise_for_status()
 
-        releases = []
-        for release in r.json():
-            version = Version(release['tag_name'])
-            if version.release_type == self.release_type:
-                releases.append(release)
-        latest_release = max(releases, key=lambda x: Version(x['tag_name']), default=None)
-        if latest_release is None:
-            # Does have any release for this channel
-            self.remote_version = Version('0.0.0.0')
-            return
+            releases = []
+            for release in r.json():
+                version = Version(release['tag_name'])
+                if version.release_type == self.release_type:
+                    releases.append(release)
+            latest_release = max(releases, key=lambda x: Version(x['tag_name']), default=None)
+            if latest_release is None:
+                # Does have any release for this channel
+                self.remote_version = Version('0.0.0.0')
+                return
 
-        self.remote_version = Version(latest_release['tag_name'])
-        self.description = latest_release['description']
-        self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/Package.tar.gz"
+            self.remote_version = Version(latest_release['tag_name'])
+            self.description = latest_release['description']
+
+            arch = platform.machine().lower()
+            if arch in ['x86_64', 'amd64']:
+                arch = 'amd64'
+            elif arch in ['aarch64', 'arm64']:
+                arch = 'arm64'
+            else:
+                raise RuntimeError(f"Unknown architecture: {arch}")
+
+            sysname = platform.system().lower()
+            if sysname == 'windows':
+                sysname = 'windows'
+                package_name = f"Package_{arch}_{sysname}.zip"
+            elif sysname == 'darwin':
+                sysname = 'macos'
+                package_name = f"Package_{arch}_{sysname}.tar.gz"
+            elif sysname == 'linux':
+                sysname = 'linux'
+                package_name = f"Package_{arch}_{sysname}.tar.gz"
+            else:
+                raise RuntimeError(f"Unknown system: {sysname}")
+
+            self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/{package_name}"
+
+            r = await client.head(url=self.download_url)
+            r.raise_for_status()
 
     def _load_current_version(self):
         # get version from app
-        if sys.platform == "win32":
-            return self._load_version_win32(sys.executable)
-        else:
-            raise RuntimeError(f"Unknown platform: {sys.platform}")
-
-    @staticmethod
-    def _load_version_win32(filename: str):
-        import ctypes
-        from ctypes import wintypes
-        size = ctypes.windll.version.GetFileVersionInfoSizeW(filename, None)
-        if not size:
-            return None
-
-        res = ctypes.create_string_buffer(size)
-        ctypes.windll.version.GetFileVersionInfoW(filename, 0, size, res)
-
-        lplpBuffer = ctypes.c_void_p()
-        puLen = wintypes.UINT()
-        ctypes.windll.version.VerQueryValueW(res, "\\", ctypes.byref(lplpBuffer), ctypes.byref(puLen))
-
-        ffi = ctypes.cast(lplpBuffer, ctypes.POINTER(ctypes.c_uint16 * (puLen.value // 2))).contents
-        ms = ffi[5], ffi[4]
-        ls = ffi[7], ffi[6]
-        return Version(f"{ms[0]}.{ms[1]}.{ls[0]}.{ls[1]}")
+        return Version(Options.getNuitkaVersion())
 
     def check_for_update(self):
         return (self.release_type == self.remote_version.release_type
@@ -241,11 +245,18 @@ class Updater:
     @staticmethod
     def apply_update():
         """Call Package/App.exe to copy itself to parent directory and run it."""
-        subprocess.Popen(
-            ['Package/App.exe', Updater._copy_self_cmd],
-            creationflags=subprocess.DETACHED_PROCESS,
-            env=os.environ.copy()
-        )
+        if sys.platform == "win32":
+            subprocess.Popen(
+                ['Package/App.exe', Updater._copy_self_cmd],
+                creationflags=subprocess.DETACHED_PROCESS,
+                env=os.environ.copy()
+            )
+        else:
+            subprocess.Popen(
+                ['sh', 'Package/App', Updater._copy_self_cmd],
+                preexec_fn=lambda: os.setsid(),
+                env=os.environ.copy()
+            )
 
     @staticmethod
     def copy_self_and_exit():
@@ -285,12 +296,20 @@ class Updater:
                 continue
 
         # Run copied executable with --updated argument
-        new_executable = Path(sys.executable).parent.parent / "App.exe"
-        subprocess.Popen(
-            [new_executable, "--updated"],
-            creationflags=subprocess.DETACHED_PROCESS,
-            env=os.environ.copy()
-        )
+        if sys.platform == "win32":
+            new_executable = Path(sys.executable).parent.parent / "App.exe"
+            subprocess.Popen(
+                [new_executable, "--updated"],
+                creationflags=subprocess.DETACHED_PROCESS,
+                env=os.environ.copy()
+            )
+        else:
+            new_executable = Path(sys.executable).parent.parent / "App"
+            subprocess.Popen(
+                [new_executable, "--updated"],
+                preexec_fn=lambda: os.setsid(),
+                env=os.environ.copy()
+            )
         sys.exit(0)
 
     @staticmethod

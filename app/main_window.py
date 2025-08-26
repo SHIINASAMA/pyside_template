@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
 
     async def async_init(self):
         updater = Updater.instance()
-        if os.getenv("DEBUG", "0") == "0":
+        if os.getenv("DEBUG", "0") == "1":
             # Debug mode
             pass
         else:
