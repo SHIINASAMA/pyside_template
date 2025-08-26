@@ -37,7 +37,7 @@ build_amd64_windows:
 
 build_amd64_linux:
     extends: .build
-    image: reg.mikumikumi.xyz/mirror/python:slim
+    image: reg.mikumikumi.xyz/mirror/python:3.11.13
     before_script:
       - apt-get update
       - apt-get install -y patchelf
