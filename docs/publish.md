@@ -13,11 +13,6 @@ the build and release process.
 3. **Code Preparation**: In the `fetch_latest_release_via_gitlab` method, fill in the current project's `base_url` and
    `project_name`.
 
-> ⚠️ **Currently only Windows platform is supported.**  
-> GitLab CI’s multi-platform build and release support is limited and will not be officially supported in the future.  
-> For cross-platform requirements, consider using **GitHub Actions** or other CI/CD platforms with native matrix
-> support.
-
 ## Release Workflow
 
 When you push a tag to the remote repository, the CI/CD pipeline will be automatically triggered to build and publish
