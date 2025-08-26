@@ -254,7 +254,7 @@ class Updater:
         else:
             subprocess.Popen(
                 ['sh', 'Package/App', Updater._copy_self_cmd],
-                preexec_fn=lambda: os.setsid(),
+                preexec_fn=os.setpgrp,
                 env=os.environ.copy()
             )
 
@@ -307,7 +307,7 @@ class Updater:
             new_executable = Path(sys.executable).parent.parent / "App"
             subprocess.Popen(
                 [new_executable, "--updated"],
-                preexec_fn=lambda: os.setsid(),
+                preexec_fn=os.setpgrp,
                 env=os.environ.copy()
             )
         sys.exit(0)

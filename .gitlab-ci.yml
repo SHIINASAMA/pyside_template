@@ -37,7 +37,7 @@ build_amd64_windows:
 
 build_amd64_linux:
     extends: .build
-    image: python:3.11.13
+    image: reg.mikumikumi.xyz/mirror/python:slim
     before_script:
       - apt-get update
       - apt-get install -y patchelf
@@ -46,7 +46,7 @@ build_amd64_linux:
 
 upload:
   stage: upload
-  image: curlimages/curl:latest
+  image: reg.mikumikumi.xyz/mirror/curl:latest
   needs:
     - job: build_amd64_windows
       artifacts: true
