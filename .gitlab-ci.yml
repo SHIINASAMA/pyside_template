@@ -6,10 +6,8 @@ stages:
 variables:
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/App/${CI_COMMIT_TAG}"
 
-build:
+.build:
   stage: build
-  tags:
-    - windows
   script:
     - pip install uv
     - uv sync
@@ -27,20 +25,35 @@ build:
   artifacts:
     name: "build-${CI_COMMIT_SHA}"
     paths:
-      - Package
-    expire_in: 30 days
+      - Package_*
+    expire_in: 3 days
+
+build_amd64_windows:
+    extends: .build
+    tags:
+      - windows
+    script:
+      - Compress-Archive -Path .\Package\ -DestinationPath .\Package_amd64_windows.zip -CompressionLevel Optimal
+
+build_amd64_linux:
+    extends: .build
+    image: python:3.11.13
+    script:
+      - tar -czf Package_amd64_linux.tar.gz Package/
 
 upload:
   stage: upload
   image: curlimages/curl:latest
   needs:
-    - job: build
+    - job: build_amd64_windows
+      artifacts: true
+    - job: build_amd64_linux
       artifacts: true
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - tar -czf Package.tar.gz Package/
-    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file Package.tar.gz ${PACKAGE_REGISTRY_URL}/Package.tar.gz'
+    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file Package_amd64_windows.zip ${PACKAGE_REGISTRY_URL}/Package_amd64_windows.zip'
+    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file Package_amd64_linux.tar.gz ${PACKAGE_REGISTRY_URL}/Package_amd64_linux.tar.gz'
 
 release:
   stage: deploy
@@ -57,5 +70,7 @@ release:
     description: 'Auto Release by GitLab Pipeline.'
     assets:
       links:
-        - name: 'Package'
-          url: '${PACKAGE_REGISTRY_URL}/Package.tar.gz'
+        - name: 'Package_amd64_windows'
+          url: '${PACKAGE_REGISTRY_URL}/Package_amd64_windows.zip'
+        - name: 'Package_amd64_linux'
+          url: '${PACKAGE_REGISTRY_URL}/Package_amd64_linux.tar.gz'
