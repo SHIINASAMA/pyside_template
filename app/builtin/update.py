@@ -253,7 +253,7 @@ class Updater:
             )
         else:
             subprocess.Popen(
-                ['sh', 'Package/App', Updater._copy_self_cmd],
+                ['Package/App', Updater._copy_self_cmd],
                 preexec_fn=os.setpgrp,
                 env=os.environ.copy()
             )
