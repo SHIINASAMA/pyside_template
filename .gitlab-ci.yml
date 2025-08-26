@@ -32,13 +32,13 @@ build_amd64_windows:
     extends: .build
     tags:
       - windows
-    script:
+    after_script:
       - Compress-Archive -Path .\Package\ -DestinationPath .\Package_amd64_windows.zip -CompressionLevel Optimal
 
 build_amd64_linux:
     extends: .build
     image: python:3.11.13
-    script:
+    after_script:
       - tar -czf Package_amd64_linux.tar.gz Package/
 
 upload:
