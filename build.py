@@ -172,6 +172,11 @@ class Build:
 
         self.cache["ui"] = ui_cache
 
+    @staticmethod
+    def build_gen_version_py():
+        with open('app/builtin/version.py', 'w', encoding='utf-8') as f:
+            f.write(f'__version__ = "{Build.get_last_tag()}"\n')
+
     def build_assets(self):
         """Generate assets.qrc from files in app/assets and compile it with pyside6-rcc."""
         assets_dir = 'app/assets'
@@ -381,13 +386,12 @@ class Build:
         if self.args.i18n:
             self.build_i18n_ts()
         if self.args.rc or self.args.all:
+            Build.build_gen_version_py()
             self.build_ui()
             self.build_i18n()
             self.build_assets()
         self.save_cache()
         if self.args.build or self.args.all:
-            if sys.platform == 'win32':
-                self.opt_from_toml += f"--product-version={Build.get_last_tag()} "
             self.build()
 
 

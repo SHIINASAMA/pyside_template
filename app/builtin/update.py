@@ -10,12 +10,14 @@ from time import sleep
 from urllib.parse import urlparse
 
 import packaging.version as Version0
-import nuitka.Options as Options
 from PySide6.QtCore import Qt
+from glom import glom
+
 from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from httpx import AsyncClient
 from qasync import asyncSlot
 
+from app.builtin.version import __version__
 from app.builtin.async_widget import AsyncWidget
 from app.builtin.asyncio import to_thread
 
@@ -61,9 +63,9 @@ class UpdateWidget(AsyncWidget):
         self.need_restart = False
         flags = self.windowFlags()
         flags = flags | Qt.WindowType.Window
-        flags = flags & ~Qt.WindowMaximizeButtonHint
-        flags = flags & ~Qt.WindowMinimizeButtonHint
-        flags = flags & ~Qt.WindowCloseButtonHint
+        flags = flags & ~Qt.WindowType.WindowMaximizeButtonHint
+        flags = flags & ~Qt.WindowType.WindowMinimizeButtonHint
+        flags = flags & ~Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(flags)
         self.ui = Ui_UpdateWidget()
         self.ui.setupUi(self)
@@ -138,7 +140,7 @@ class Updater:
     def __init__(self):
         if not self._initialized:
             # Three attributes can be set by updater.json
-            self.current_version = self._load_current_version()
+            self.current_version = Updater._load_current_version()
             self.release_type = self.current_version.release_type
             self.proxy = None
 
@@ -219,24 +221,30 @@ class Updater:
             sysname = platform.system().lower()
             if sysname == 'windows':
                 sysname = 'windows'
-                package_name = f"Package_{arch}_{sysname}.zip"
+                package_name = f"Package_{arch}_{sysname}"
             elif sysname == 'darwin':
                 sysname = 'macos'
-                package_name = f"Package_{arch}_{sysname}.tar.gz"
+                package_name = f"Package_{arch}_{sysname}"
             elif sysname == 'linux':
                 sysname = 'linux'
-                package_name = f"Package_{arch}_{sysname}.tar.gz"
+                package_name = f"Package_{arch}_{sysname}"
             else:
                 raise RuntimeError(f"Unknown system: {sysname}")
 
-            self.download_url = f"{base_url}/api/v4/projects/{project_id}/packages/generic/App/{self.remote_version}/{package_name}"
+            self.download_url = None
+            for link in glom(release, 'assets.links', default={}):
+                if link['name'] == package_name:
+                    self.download_url = link['url']
+            if self.download_url is None:
+                raise FileNotFoundError(f"Package {package_name} not found in release assets.")
 
             r = await client.head(url=self.download_url)
             r.raise_for_status()
 
-    def _load_current_version(self):
-        # get version from app
-        return Version(Options.getNuitkaVersion())
+    @staticmethod
+    def _load_current_version():
+        """Get version from app"""
+        return Version(__version__)
 
     def check_for_update(self):
         return (self.release_type == self.remote_version.release_type
@@ -244,7 +252,11 @@ class Updater:
 
     @staticmethod
     def apply_update():
-        """Call Package/App.exe to copy itself to parent directory and run it."""
+        """
+        Call Package/App.exe to copy itself to parent directory and run it.
+        You must exit the current process after calling this.
+        Because this function be called in GUI thread.
+        """
         if sys.platform == "win32":
             subprocess.Popen(
                 ['Package/App.exe', Updater._copy_self_cmd],
@@ -314,7 +326,7 @@ class Updater:
 
     @staticmethod
     def clean_old_package():
-        """delete Package directory"""
+        """Delete Package directory"""
         sleep(3)
         package_dir = Path(sys.executable).parent / "Package"
         if package_dir.exists() and package_dir.is_dir():

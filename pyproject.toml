@@ -9,13 +9,13 @@ dependencies = [
     "packaging>=25.0",
     "pyqtdarktheme>=2.1.0",
     "pyside6>=6.6.3.1",
-    "qasync>=0.27.1",
-    "nuitka>=2.7.12"
+    "qasync>=0.28.0",
+    "glom>=24.11.0",
 ]
 
 [dependency-groups]
 dev = [
-    "glom>=24.11.0",
+    "nuitka>=2.7.13",
     "toml>=0.10.2",
 ]
 
