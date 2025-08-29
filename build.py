@@ -174,15 +174,15 @@ class Build:
 
     @staticmethod
     def build_gen_version_py():
-        with open('app/builtin/version.py', 'w', encoding='utf-8') as f:
+        with open('app/resources/version.py', 'w', encoding='utf-8') as f:
             f.write(f'__version__ = "{Build.get_last_tag()}"\n')
 
     def build_assets(self):
         """Generate assets.qrc from files in app/assets and compile it with pyside6-rcc."""
-        assets_dir = 'app/assets'
-        qrc_file = 'app/assets.qrc'
-        res_dir = 'app/resources'
-        py_res_file = os.path.join(res_dir, 'resource.py')
+        assets_dir = Path('app/assets')
+        res_dir = Path('app/resources')
+        qrc_file = res_dir / 'assets.qrc'
+        py_res_file = res_dir / 'resource.py'
 
         # Skip if assets directory does not exist
         if not os.path.exists(assets_dir):
@@ -196,17 +196,14 @@ class Build:
 
         assets_cache = self.cache.get('assets', {})
         need_rebuild = False
-
-        all_assets = []
         for asset in self.asset_list:
-            rel_path = os.path.relpath(asset, 'app')
-            all_assets.append(str(rel_path))
             mtime = asset.stat().st_mtime
-            if rel_path in assets_cache and assets_cache[rel_path] == mtime:
-                logging.info(f'{rel_path} is up to date.')
+            asset_key = str(asset)
+            if asset_key in assets_cache and assets_cache[asset_key] == mtime:
+                logging.info(f'{asset} is up to date.')
                 continue
-            assets_cache[rel_path] = mtime
-            logging.info(f'{rel_path} is outdated.')
+            assets_cache[asset_key] = mtime
+            logging.info(f'{asset} is outdated.')
             need_rebuild = True
 
         # Force rebuild if cache is disabled
@@ -219,8 +216,13 @@ class Build:
                 f.write('<!DOCTYPE RCC>\n')
                 f.write('<RCC version="1.0">\n')
                 f.write('  <qresource>\n')
-                for asset in all_assets:
-                    f.write(f'    <file>{asset}</file>\n')
+                for asset in self.asset_list:
+                    posix_path = asset.as_posix()
+                    # remove the leading "app/assets/" from the path
+                    alias = posix_path[len('app/assets/'):]
+                    # rel_path is the path relative to app/resources
+                    rel_path = os.path.relpath(asset, res_dir)
+                    f.write(f'    <file alias="{alias}">{rel_path}</file>\n')
                 f.write('  </qresource>\n')
                 f.write('</RCC>\n')
             logging.info(f'Generated {qrc_file}.')

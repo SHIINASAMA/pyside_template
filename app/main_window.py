@@ -15,7 +15,7 @@ from app.builtin.update import Updater, UpdateWidget
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowIcon(QIcon(':/assets/logo.png'))
+        self.setWindowIcon(QIcon(':/logo.png'))
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.pushButton.clicked.connect(self.click_push_button)

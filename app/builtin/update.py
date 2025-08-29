@@ -12,15 +12,13 @@ from urllib.parse import urlparse
 import packaging.version as Version0
 from PySide6.QtCore import Qt
 from glom import glom
-
-from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from httpx import AsyncClient
 from qasync import asyncSlot
 
-from app.builtin.version import __version__
 from app.builtin.async_widget import AsyncWidget
 from app.builtin.asyncio import to_thread
-
+from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
+from app.resources.version import __version__
 
 class ReleaseType(enum.Enum):
     STABLE = "stable"

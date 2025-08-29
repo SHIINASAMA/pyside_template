@@ -42,7 +42,7 @@ if __name__ == '__main__':
     # i18n
     translator = QTranslator()
     lang_code = QLocale.system().name()
-    translator.load(f":/assets/i18n/{lang_code}.qm")
+    translator.load(f":/i18n/{lang_code}.qm")
     app.installTranslator(translator)
 
     # theme
