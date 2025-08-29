@@ -388,10 +388,10 @@ class Build:
         if self.args.i18n:
             self.build_i18n_ts()
         if self.args.rc or self.args.all:
-            Build.build_gen_version_py()
             self.build_ui()
             self.build_i18n()
             self.build_assets()
+            Build.build_gen_version_py()
         self.save_cache()
         if self.args.build or self.args.all:
             self.build()
