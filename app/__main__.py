@@ -6,6 +6,7 @@ import qdarktheme
 from PySide6.QtCore import QTranslator, QLocale, QLockFile
 from qasync import QApplication, run
 
+from app.builtin.theme_manager import ThemeManager
 from app.builtin.update import Updater
 from app.main_window import MainWindow
 
@@ -46,7 +47,8 @@ if __name__ == '__main__':
     app.installTranslator(translator)
 
     # theme
-    qdarktheme.setup_theme("auto")
+    theme = ThemeManager.instance()
+    theme.use_frameless_window()
 
     # start event loop
     run(main())

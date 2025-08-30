@@ -309,6 +309,19 @@ class Build:
 
         self.cache["i18n"] = i18n_cache
 
+    @staticmethod
+    def build_gen_init_py():
+        """Create __init__.py in every subdirectory if not exists"""
+        root = Path("app/resources")
+        init_file = root / "__init__.py"
+        if not init_file.exists():
+            init_file.touch()
+        for path in root.rglob("*"):
+            if path.is_dir():
+                init_file = path / "__init__.py"
+                if not init_file.exists():
+                    init_file.touch()
+
     def save_cache(self):
         # save cache
         with open('.cache/assets.json', 'w') as f:
@@ -392,6 +405,7 @@ class Build:
             self.build_i18n()
             self.build_assets()
             Build.build_gen_version_py()
+            Build.build_gen_init_py()
         self.save_cache()
         if self.args.build or self.args.all:
             self.build()

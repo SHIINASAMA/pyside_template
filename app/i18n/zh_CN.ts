@@ -4,42 +4,67 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../ui/main_window.ui" line="14"/>
+        <location filename="../main_window.py" line="29"/>
         <source>MainWindow</source>
         <translation>主窗体</translation>
     </message>
     <message>
-        <location filename="../ui/main_window.ui" line="27"/>
+        <location filename="../ui/main_window.ui" line="30"/>
         <source>Check me</source>
         <translation>点击我</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="44"/>
+        <location filename="../ui/main_window.ui" line="43"/>
+        <source>Select a theme</source>
+        <translation>选择主题</translation>
+    </message>
+    <message>
+        <location filename="../ui/main_window.ui" line="60"/>
+        <source>Async task test</source>
+        <translation>异步任务测试</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="23"/>
+        <source>Auto</source>
+        <translation>跟随系统</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="24"/>
+        <source>Dark</source>
+        <translation>深色模式</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="25"/>
+        <source>Light</source>
+        <translation>浅色模式</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="54"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="45"/>
+        <location filename="../main_window.py" line="55"/>
         <source>Failed to check for updates</source>
         <translation>检查更新失败</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="50"/>
+        <location filename="../main_window.py" line="60"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="51"/>
+        <location filename="../main_window.py" line="61"/>
         <source>Update completed</source>
         <translation>更新已完成</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="60"/>
+        <location filename="../main_window.py" line="70"/>
         <source>Hello</source>
         <translation>你好</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="61"/>
+        <location filename="../main_window.py" line="71"/>
         <source>Hello World!</source>
         <translation>你好，世界！</translation>
     </message>
@@ -53,7 +78,7 @@
     </message>
     <message>
         <location filename="../ui/builtin/update_widget.ui" line="25"/>
-        <location filename="../builtin/update.py" line="68"/>
+        <location filename="../builtin/update.py" line="71"/>
         <source>Found new version: {}</source>
         <translation>发现新版本：{}</translation>
     </message>
@@ -68,12 +93,12 @@
         <translation>更新</translation>
     </message>
     <message>
-        <location filename="../builtin/update.py" line="84"/>
+        <location filename="../builtin/update.py" line="87"/>
         <source>Downloading new version...</source>
         <translation>正在下载新版本...</translation>
     </message>
     <message>
-        <location filename="../builtin/update.py" line="88"/>
+        <location filename="../builtin/update.py" line="91"/>
         <source>Extracting new version...</source>
         <translation>正在解压文件...</translation>
     </message>

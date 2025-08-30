@@ -1,24 +1,33 @@
 import asyncio
 import os
 
-# include the resource file
 import app.resources.resource  # type: ignore
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QMainWindow, QMessageBox
+from PySide6.QtWidgets import QMessageBox, QMainWindow
 from app.resources.main_window_ui import Ui_MainWindow
 from httpx import HTTPError
 from qasync import asyncSlot
 
+from app.builtin.theme_manager import ThemeManager
 from app.builtin.update import Updater, UpdateWidget
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowIcon(QIcon(':/logo.png'))
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.ui.pushButton.clicked.connect(self.click_push_button)
+
+        ThemeManager.instance().setup_theme("auto")
+        self.ui.themeComboBox.addItem(self.tr("Auto"), "auto")
+        self.ui.themeComboBox.addItem(self.tr("Dark"), "dark")
+        self.ui.themeComboBox.addItem(self.tr("Light"), "light")
+        self.ui.themeComboBox.currentIndexChanged.connect(self.change_theme)
+        self.ui.themeComboBox.setCurrentIndex(0)
+
+        self.setWindowTitle(self.tr("MainWindow"))
+        self.setWindowIcon(QIcon(':/logo.png'))
 
     async def async_init(self):
         updater = Updater.instance()
@@ -64,3 +73,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton.setEnabled(False)
         await async_task()
         self.ui.pushButton.setEnabled(True)
+
+    def change_theme(self, index):
+        theme = self.ui.themeComboBox.itemData(index)
+        ThemeManager.instance().setup_theme(theme)
