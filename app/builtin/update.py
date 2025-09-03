@@ -1,17 +1,15 @@
 import enum
 import json
 import os
-import platform
 import shutil
 import subprocess
 import sys
+from abc import abstractmethod, ABC
 from pathlib import Path
 from time import sleep
-from urllib.parse import urlparse
 
 import packaging.version as Version0
 from PySide6.QtCore import Qt
-from glom import glom
 from httpx import AsyncClient
 from qasync import asyncSlot
 
@@ -20,9 +18,13 @@ from app.builtin.asyncio import to_thread
 from app.resources.builtin.update_widget_ui import Ui_UpdateWidget
 from app.resources.version import __version__
 
+
 class ReleaseType(enum.Enum):
     STABLE = "stable"
     BETA = "beta"
+    ALPHA = "alpha"
+    DEV = "dev"
+    NIGHTLY = "nightly"
 
 
 class Version(Version0.Version):
@@ -32,10 +34,16 @@ class Version(Version0.Version):
         if len(version_part) == 1:
             self.release_type = ReleaseType.STABLE
             return
-        if version_part[1] == "beta":
-            self.release_type = ReleaseType.BETA
-        elif version_part[1] == "stable":
+        if version_part[1] == "stable":
             self.release_type = ReleaseType.STABLE
+        elif version_part[1] == "beta":
+            self.release_type = ReleaseType.BETA
+        elif version_part[1] == "alpha":
+            self.release_type = ReleaseType.ALPHA
+        elif version_part[1] == "dev":
+            self.release_type = ReleaseType.DEV
+        elif version_part[1] == "nightly":
+            self.release_type = ReleaseType.NIGHTLY
         else:
             raise RuntimeError(f"Unknown release type: {version_part[1]}")
 
@@ -71,9 +79,6 @@ class UpdateWidget(AsyncWidget):
         self.ui.label.setText(self.tr("Found new version: {}").format(self.updater.remote_version))
         self.ui.textBrowser.setMarkdown(self.updater.description)
 
-        path = urlparse(self.updater.download_url).path
-        self.filename = os.path.basename(path)
-
         self.ui.cancel_btn.clicked.connect(self.on_cancel)
         self.ui.update_btn.clicked.connect(self.on_update)
 
@@ -94,13 +99,13 @@ class UpdateWidget(AsyncWidget):
         self.close()
 
     async def download(self):
-        async with AsyncClient(proxy=Updater.instance().proxy) as client:
+        async with self.updater.create_async_client() as client:
             async with client.stream("GET", self.updater.download_url) as r:
                 r.raise_for_status()
                 total_size = int(r.headers.get("content-length", 0))
                 downloaded = 0
 
-                with open(self.filename, "wb") as f:
+                with open(self.updater.filename, "wb") as f:
                     async for chunk in r.aiter_bytes(8192):
                         f.write(chunk)
                         downloaded += len(chunk)
@@ -109,21 +114,21 @@ class UpdateWidget(AsyncWidget):
                         self.ui.progressBar.setValue(percent)
 
     def extract(self):
-        if self.filename.endswith(".zip"):
+        if self.updater.filename.endswith(".zip"):
             import zipfile
-            with zipfile.ZipFile(self.filename, 'r') as zip_ref:
-                zip_ref.extractall(os.path.dirname(self.filename))
-        elif self.filename.endswith(".tar.gz") or self.filename.endswith(".tgz"):
+            with zipfile.ZipFile(self.updater.filename, 'r') as zip_ref:
+                zip_ref.extractall(os.path.dirname(self.updater.filename))
+        elif self.updater.filename.endswith(".tar.gz") or self.updater.filename.endswith(".tgz"):
             import tarfile
-            with tarfile.open(self.filename, 'r:gz') as tar_ref:
-                tar_ref.extractall(os.path.dirname(self.filename))
+            with tarfile.open(self.updater.filename, 'r:gz') as tar_ref:
+                tar_ref.extractall(os.path.dirname(self.updater.filename))
         else:
-            raise RuntimeError(f"Unsupported file format: {self.filename}")
+            raise RuntimeError(f"Unsupported file format: {self.updater.filename}")
         # remove the downloaded file
-        os.remove(self.filename)
+        os.remove(self.updater.filename)
 
 
-class Updater:
+class Updater(ABC):
     _copy_self_cmd = "--copy-self"
     _updated_cmd = "--updated"
 
@@ -142,9 +147,11 @@ class Updater:
             self.release_type = self.current_version.release_type
             self.proxy = None
 
+            # must set in self.fetch()
             self.remote_version = None
             self.description = ""
             self.download_url = ""
+            self.filename = ""
 
             self.is_updated = False
             if Updater._copy_self_cmd in sys.argv:
@@ -168,76 +175,13 @@ class Updater:
         self.proxy = data.get('proxy', None)
         self.release_type = ReleaseType(data.get('channel', 'stable'))
 
-    @staticmethod
-    def instance():
-        return Updater._instance
+    @abstractmethod
+    def create_async_client(self) -> AsyncClient:
+        pass
 
-    async def fetch_latest_release_via_gitlab(self, base_url: str, project_name: str, timeout: int = 5):
-        async with AsyncClient(proxy=self.proxy) as client:
-            r = await client.get(
-                url=f"{base_url}/api/v4/projects",
-                params={"search": project_name,
-                        "search_namespaces": "true"},
-                timeout=timeout
-            )
-            r.raise_for_status()
-            projects = r.json()
-            if not projects:
-                raise FileNotFoundError(f"Project {project_name} not found on GitLab: {base_url}")
-            project = projects[0]
-            project_id = project['id']
-            r = await client.get(
-                url=f"{base_url}/api/v4/projects/{project_id}/releases",
-                headers={},
-                params={"per_page": 1},
-                timeout=timeout
-            )
-            r.raise_for_status()
-
-            releases = []
-            for release in r.json():
-                version = Version(release['tag_name'])
-                if version.release_type == self.release_type:
-                    releases.append(release)
-            latest_release = max(releases, key=lambda x: Version(x['tag_name']), default=None)
-            if latest_release is None:
-                # Does have any release for this channel
-                self.remote_version = Version('0.0.0.0')
-                return
-
-            self.remote_version = Version(latest_release['tag_name'])
-            self.description = latest_release['description']
-
-            arch = platform.machine().lower()
-            if arch in ['x86_64', 'amd64']:
-                arch = 'amd64'
-            elif arch in ['aarch64', 'arm64']:
-                arch = 'arm64'
-            else:
-                raise RuntimeError(f"Unknown architecture: {arch}")
-
-            sysname = platform.system().lower()
-            if sysname == 'windows':
-                sysname = 'windows'
-                package_name = f"Package_{arch}_{sysname}"
-            elif sysname == 'darwin':
-                sysname = 'macos'
-                package_name = f"Package_{arch}_{sysname}"
-            elif sysname == 'linux':
-                sysname = 'linux'
-                package_name = f"Package_{arch}_{sysname}"
-            else:
-                raise RuntimeError(f"Unknown system: {sysname}")
-
-            self.download_url = None
-            for link in glom(release, 'assets.links', default={}):
-                if link['name'] == package_name:
-                    self.download_url = link['url']
-            if self.download_url is None:
-                raise FileNotFoundError(f"Package {package_name} not found in release assets.")
-
-            r = await client.head(url=self.download_url)
-            r.raise_for_status()
+    @abstractmethod
+    async def fetch(self):
+        pass
 
     @staticmethod
     def _load_current_version():

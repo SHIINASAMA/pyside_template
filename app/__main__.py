@@ -7,7 +7,7 @@ from PySide6.QtCore import QTranslator, QLocale, QLockFile
 from qasync import QApplication, run
 
 from app.builtin.theme_manager import ThemeManager
-from app.builtin.update import Updater
+from app.builtin.github_updater import GithubUpdater
 from app.main_window import MainWindow
 
 
@@ -24,7 +24,8 @@ async def main():
 if __name__ == '__main__':
     # init updater, updater will remove some arguments
     # and do update logic
-    updater = Updater()
+    updater = GithubUpdater()
+    updater.project_name = "SHIINASAMA/pyside_template"
 
     # check if the app is already running
     lock_file = QLockFile("App.lock")

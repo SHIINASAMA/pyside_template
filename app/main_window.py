@@ -9,7 +9,7 @@ from httpx import HTTPError
 from qasync import asyncSlot
 
 from app.builtin.theme_manager import ThemeManager
-from app.builtin.update import Updater, UpdateWidget
+from app.builtin.update import UpdateWidget
 
 
 class MainWindow(QMainWindow):
@@ -30,7 +30,8 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(':/logo.png'))
 
     async def async_init(self):
-        updater = Updater.instance()
+        from app.builtin.github_updater import GithubUpdater
+        updater = GithubUpdater.instance()
         if os.getenv("DEBUG", "0") == "1":
             # Debug mode
             pass
@@ -38,10 +39,7 @@ class MainWindow(QMainWindow):
             # Production mode
             if not updater.is_updated:
                 try:
-                    await updater.fetch_latest_release_via_gitlab(
-                        base_url="https://gitlab.mikumikumi.xyz/",
-                        project_name="kaoru/pyside_template",
-                    )
+                    await updater.fetch()
                     if updater.check_for_update():
                         update_widget = UpdateWidget(self, updater)
                         await update_widget.show()
