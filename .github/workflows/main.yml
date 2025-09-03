@@ -1,0 +1,59 @@
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - app/**
+      - pyproject.toml
+      - uv.lock
+      - build.py
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+          - os: windows-latest
+            arch: x64
+
+    runs-on: ${{matrix.os}}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: yezz123/setup-uv@v4
+
+      - name: Before script
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y patchelf
+
+      - name: Setup, install dependencies, build
+        run: |
+          uv sync
+          uv run build.py --all --onedir
+
+      - name: Package artifact (Linux/macOS)
+        if: runner.os != 'Windows'
+        run: |
+          mv ./build/App ./Package
+          zip -r App-${{ matrix.os }}-${{ matrix.arch }}.zip Package/
+
+      - name: Package artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          mv ./build/App ./Package
+          Compress-Archive -Path .\Package\ -DestinationPath App-${{ matrix.os }}-${{ matrix.arch }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: App-${{ matrix.os }}-${{ matrix.arch }}
+          path: ./App-*
