@@ -31,10 +31,12 @@ jobs:
         include:
           - os: ubuntu-latest
             arch: x64
+            name: linux
           - os: windows-latest
             arch: x64
+            name: windows
 
-    runs-on: ${{matrix.os}}
+    runs-on: ${{ matrix.os }}
     needs: check-version
     steps:
       - uses: actions/checkout@v4
@@ -59,7 +61,7 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           mv ./build/App ./Package
-          zip -r App-${{ matrix.os }}-${{ matrix.arch }}.zip Package/
+          zip -r App-${{ matrix.name }}-${{ matrix.arch }}.zip Package/
 
       - name: Package artifact (Windows)
         if: runner.os == 'Windows'
@@ -71,7 +73,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: App-${{ matrix.os }}-${{ matrix.arch }}
+          name: App-${{ matrix.name }}-${{ matrix.arch }}
           path: ./App-*
 
   release:
