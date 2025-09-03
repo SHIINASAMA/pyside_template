@@ -79,9 +79,10 @@ jobs:
       build
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           path: ./release
+          pattern: App-*
       - uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
