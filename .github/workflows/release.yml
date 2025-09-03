@@ -86,7 +86,7 @@ jobs:
         with:
           files: ./release/*
           name: Release ${{ github.ref_name }}
-          body_path: CHANG.md
+          body_path: CHANGE.md
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-dev') || contains(github.ref_name, '-nightly') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
