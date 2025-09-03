@@ -7,7 +7,7 @@ on:
       # Please set tag rules in the repository settings:
       # Settings -> Tags -> Go to rulesets to create a new tag rule
       # The pattern must be: ([0-9]+(\.[0-9]+){1,3})(-(stable|alpha|beta|nightly|dev))?$
-      - *
+      - "*"
   workflow_dispatch:
 
 jobs:
