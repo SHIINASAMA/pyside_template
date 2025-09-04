@@ -9,7 +9,7 @@ from .update import Updater, Version
 
 
 class GitlabUpdater(Updater):
-    base_url: str = ""
+    base_url: str = "https://gitlab.com"
     project_name: str = ""
     timeout = 5
     token = None
@@ -91,8 +91,9 @@ class GitlabUpdater(Updater):
 
             self.download_url = None
             for link in glom(latest_release, 'assets.links', default={}):
-                if link['name'] == package_name:
+                if package_name in link['name']:
                     self.download_url = link['url']
+                    break
             if self.download_url is None:
                 raise FileNotFoundError(f"Package {package_name} not found in release assets.")
 

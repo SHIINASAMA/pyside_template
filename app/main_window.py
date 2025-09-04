@@ -30,8 +30,9 @@ class MainWindow(QMainWindow):
         self.setWindowIcon(QIcon(':/logo.png'))
 
     async def async_init(self):
-        from app.builtin.github_updater import GithubUpdater
-        updater = GithubUpdater.instance()
+        # from app.builtin.github_updater import GithubUpdater
+        from app.builtin.gitlab_updater import GitlabUpdater
+        updater = GitlabUpdater.instance()
         if os.getenv("DEBUG", "0") == "1":
             # Debug mode
             pass

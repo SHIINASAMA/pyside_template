@@ -8,6 +8,7 @@ from qasync import QApplication, run
 
 from app.builtin.theme_manager import ThemeManager
 from app.builtin.github_updater import GithubUpdater
+from app.builtin.gitlab_updater import GitlabUpdater
 from app.main_window import MainWindow
 
 
@@ -24,8 +25,11 @@ async def main():
 if __name__ == '__main__':
     # init updater, updater will remove some arguments
     # and do update logic
-    updater = GithubUpdater()
-    updater.project_name = "SHIINASAMA/pyside_template"
+    # updater = GithubUpdater()
+    # updater.project_name = "SHIINASAMA/pyside_template"
+    updater = GitlabUpdater()
+    updater.base_url = "https://gitlab.mikumikumi.xyz"
+    updater.project_name = "kaoru/pyside_template"
 
     # check if the app is already running
     lock_file = QLockFile("App.lock")
