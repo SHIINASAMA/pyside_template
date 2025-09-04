@@ -1,5 +1,3 @@
-from app.builtin.gitlab_updater import GitlabUpdater
-
 # Release and Product Version Control
 
 This template integrates **GitHub Action/GitLab Pipeline** for automated release. By pushing a Git tag, you can
