@@ -1,17 +1,52 @@
+from app.builtin.gitlab_updater import GitlabUpdater
+
 # Release and Product Version Control
 
-This template integrates **GitLab Pipeline** for automated release. By pushing a Git tag, you can automatically trigger
+This template integrates **GitHub Action/GitLab Pipeline** for automated release. By pushing a Git tag, you can
+automatically trigger
 the build and release process.
 
 ## Prerequisites
 
-1. **GitLab Package Registry Access**: Ensure that the built-in GitLab Package Registry can be accessed by both the
-   application and the Runner.
+### GitLab Pipeline
 
-2. **Runner Configuration**: Verify that the GitLab Runner for the target platform is properly installed and configured.
+1. **Runner Configuration**: Verify that the GitLab Runner for the target platform is properly installed and configured.
 
-3. **Code Preparation**: In the `fetch_latest_release_via_gitlab` method, fill in the current project's `base_url` and
-   `project_name`.
+2. **Code Preparation**: Set `base_url`, `project_name` before call the `GitlabUpdater.fetch()` method.
+
+### GitHub Action
+
+1. **Code Preparation**: Set `project_name` before call the `GithubUpdater.fetch()` method.
+
+### Selfed-Host Services
+
+Manually set the `base_url` and `token`.
+
+e.g.
+
+```python
+# before init QApplication
+def init_updater():
+    from app.builtin.gitlab_updater import GitlabUpdater
+    updater = GitlabUpdater()
+    updater.base_url = "https://gitlab.example.com"
+    updater.project_name = "owner/project"
+
+
+# check updates
+async def check_updates():
+    import sys
+    from app.builtin.update import UpdateWidget
+    from app.builtin.gitlab_updater import GitlabUpdater
+    updater = GitlabUpdater.instance()
+    await updater.fetch()
+    if updater.check_for_update():
+        update_widget = UpdateWidget(None, updater=updater)
+        await update_widget.show()
+        if update_widget.need_restart:
+            updater.apply_update()
+            sys.exit(0)
+```
 
 ## Release Workflow
 
@@ -30,6 +65,10 @@ The tag must follow one of the following formats:
 
 - `x.y.z-beta`
 
+Regex pattern:
+
+> ([0-9]+(\.[0-9]+){1,3})(\-(stable|alpha|beta|nightly|dev))?$
+
 Where:
 
 - **x.y.z** → Semantic Versioning, e.g., `1.2.3`
@@ -37,10 +76,13 @@ Where:
 - **channel** → Release channel (optional). Currently supported values:
 
     - `stable` (stable release)
-
+    - `alpha` (alpha release)
     - `beta` (beta release)
+    - `nightly` (nightly release)
+    - `dev` (dev release)
 
 If additional release channels are required, the `Version` class constructor logic must be extended.
+
 
 ## Updater Configuration
 
@@ -59,7 +101,10 @@ This is typically used for testing purposes.
 
 ## References
 
-- Version parsing and update logic: `app/builtin/updater.py`
+- Version parsing and update logic: `app/builtin/updater.py`, `app/builtin/*_updater.py`
 
-- CI/CD release scripts: `.gitlab-ci.yml` and related scripts
+- CI/CD release scripts: 
+  - `.gitlab-ci.yml`
+  - `.github/workflow/release.yml`
+  - and related scripts
     
