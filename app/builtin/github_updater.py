@@ -81,11 +81,12 @@ class GithubUpdater(Updater):
             for assets in glom(latest_release, 'assets', default={}):
                 if assets['name'] == package_name:
                     self.download_url = assets['browser_download_url']
+                    break
 
             if self.download_url is None:
                 raise FileNotFoundError(f"Package {package_name} not found in release assets.")
 
-            r = await client.head(url=self.download_url)
+            r = await client.head(url=self.download_url, follow_redirects=True)
             r.raise_for_status()
 
             self.filename = package_name

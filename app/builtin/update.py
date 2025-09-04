@@ -100,7 +100,7 @@ class UpdateWidget(AsyncWidget):
 
     async def download(self):
         async with self.updater.create_async_client() as client:
-            async with client.stream("GET", self.updater.download_url) as r:
+            async with client.stream("GET", self.updater.download_url, follow_redirects=True) as r:
                 r.raise_for_status()
                 total_size = int(r.headers.get("content-length", 0))
                 downloaded = 0
