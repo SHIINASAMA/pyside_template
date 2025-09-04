@@ -36,14 +36,19 @@ def init_updater():
 # check updates
 async def check_updates():
     import sys
-    from app.builtin.update import UpdateWidget
+    from app.builtin.update_widget import UpdateWidget
     from app.builtin.gitlab_updater import GitlabUpdater
     updater = GitlabUpdater.instance()
     await updater.fetch()
-    if updater.check_for_update():
-        update_widget = UpdateWidget(None, updater=updater)
+    if updater.check_for_update(): 
+        # If you have a parent, set it as a parameter.
+        update_widget = UpdateWidget(parent=None, updater=updater)
+        # Force update without user confirm
+        # > await update_widget.on_update()
+        # Ask user for update
         await update_widget.show()
         if update_widget.need_restart:
+            # Apply update and restart if update is ready
             updater.apply_update()
             sys.exit(0)
 ```

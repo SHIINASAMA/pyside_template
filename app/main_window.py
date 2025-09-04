@@ -1,15 +1,15 @@
 import asyncio
 import os
 
-import app.resources.resource  # type: ignore
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMessageBox, QMainWindow
-from app.resources.main_window_ui import Ui_MainWindow
 from httpx import HTTPError
 from qasync import asyncSlot
 
+import app.resources.resource  # type: ignore
 from app.builtin.theme_manager import ThemeManager
-from app.builtin.update import UpdateWidget
+from app.builtin.update_widget import UpdateWidget
+from app.resources.main_window_ui import Ui_MainWindow
 
 
 class MainWindow(QMainWindow):
