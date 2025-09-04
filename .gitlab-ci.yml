@@ -62,7 +62,7 @@ build_amd64_linux:
     - apt-get install -y patchelf
   after_script:
     - mkdir release
-    - tar -czf .\release\Package_amd64_linux.tar.gz Package/
+    - tar -czf ./release/Package_amd64_linux.tar.gz Package/
 
 release:
   stage: deploy
@@ -78,5 +78,5 @@ release:
     - glab auth login --job-token $CI_JOB_TOKEN --hostname $CI_SERVER_HOST --api-protocol $CI_SERVER_PROTOCOL
     - GITLAB_HOST=$CI_SERVER_URL
     - >-
-      glab release create $CI_COMMIT_TAG -N "Release ${CI_COMMIT_TAG}" -F CHANGE.md ./release/*
+      glab release create $CI_COMMIT_TAG -n "Release ${CI_COMMIT_TAG}" -F CHANGE.md ./release/*
 
