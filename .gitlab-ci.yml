@@ -1,10 +1,26 @@
 stages:
+  - validate
   - build
-  - upload
   - deploy
 
 variables:
   PACKAGE_REGISTRY_URL: "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/App/${CI_COMMIT_TAG}"
+
+check_version:
+  stage: validate
+  image: reg.mikumikumi.xyz/mirror/alpine:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  before_script:
+    - apk add --no-cache bash
+  script:
+    - bash -c '
+      if [[ ! "$CI_COMMIT_TAG" =~ ^([0-9]+(\.[0-9]+){1,3})(-(stable|alpha|beta|nightly|dev))?$ ]]; then
+      echo "❌ Tag format invalid!"
+      exit 1
+      fi
+      echo "✅ Tag format OK"
+
 
 .build:
   stage: build
@@ -25,28 +41,30 @@ variables:
   artifacts:
     name: "build-${CI_COMMIT_SHA}"
     paths:
-      - Package_*
+      - ./release/Package_*
     expire_in: 3 days
 
 build_amd64_windows:
-    extends: .build
-    tags:
-      - windows
-    after_script:
-      - Compress-Archive -Path .\Package\ -DestinationPath .\Package_amd64_windows.zip -CompressionLevel Optimal
+  extends: .build
+  tags:
+    - windows
+  after_script:
+    - New-Item -Path release -Type Directory
+    - Compress-Archive -Path .\Package\ -DestinationPath .\release\Package_amd64_windows.zip -CompressionLevel Optimal
 
 build_amd64_linux:
-    extends: .build
-    image: reg.mikumikumi.xyz/mirror/python:3.11.13
-    before_script:
-      - apt-get update
-      - apt-get install -y patchelf
-    after_script:
-      - tar -czf Package_amd64_linux.tar.gz Package/
+  extends: .build
+  image: reg.mikumikumi.xyz/mirror/python:3.11.13
+  before_script:
+    - apt-get update
+    - apt-get install -y patchelf
+  after_script:
+    - mkdir release
+    - tar -czf .\release\Package_amd64_linux.tar.gz Package/
 
-upload:
-  stage: upload
-  image: reg.mikumikumi.xyz/mirror/curl:latest
+release:
+  stage: deploy
+  image: reg.mikumikumi.xyz/mirror/glab:latest
   needs:
     - job: build_amd64_windows
       artifacts: true
@@ -55,25 +73,8 @@ upload:
   rules:
     - if: $CI_COMMIT_TAG
   script:
-    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file Package_amd64_windows.zip ${PACKAGE_REGISTRY_URL}/Package_amd64_windows.zip'
-    - 'curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file Package_amd64_linux.tar.gz ${PACKAGE_REGISTRY_URL}/Package_amd64_linux.tar.gz'
+    - glab auth login --job-token $CI_JOB_TOKEN --hostname $CI_SERVER_HOST --api-protocol $CI_SERVER_PROTOCOL
+    - GITLAB_HOST=$CI_SERVER_URL
+    - >-
+      glab release create $CI_COMMIT_TAG -N "Release ${CI_COMMIT_TAG}" -F CHANGE.md ./release/*
 
-release:
-  stage: deploy
-  image: registry.gitlab.com/gitlab-org/release-cli:latest
-  needs:
-    - job: upload
-  rules:
-    - if: $CI_COMMIT_TAG
-  script:
-    - 'true'
-  release:
-    name: 'Release $CI_COMMIT_TAG'
-    tag_name: '$CI_COMMIT_TAG'
-    description: 'Auto Release by GitLab Pipeline.'
-    assets:
-      links:
-        - name: 'Package_amd64_windows'
-          url: '${PACKAGE_REGISTRY_URL}/Package_amd64_windows.zip'
-        - name: 'Package_amd64_linux'
-          url: '${PACKAGE_REGISTRY_URL}/Package_amd64_linux.tar.gz'
