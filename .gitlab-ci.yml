@@ -6,6 +6,8 @@ stages:
 check_version:
   stage: validate
   image: reg.mikumikumi.xyz/mirror/alpine:latest
+  variables:
+    GIT_STRATEGY: none
   rules:
     - if: $CI_COMMIT_TAG
   before_script:
