@@ -357,7 +357,7 @@ class Build:
         except subprocess.CalledProcessError:
             return default
 
-        return tag.split("-")[0] if tag else default
+        return tag if tag else default
 
     def build(self):
         # call nuitka to build the app
