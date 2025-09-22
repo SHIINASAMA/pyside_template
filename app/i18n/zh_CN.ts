@@ -40,6 +40,8 @@
     </message>
     <message>
         <location filename="../main_window.py" line="53"/>
+        <location filename="../main_window.py" line="59"/>
+        <location filename="../main_window.py" line="65"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
@@ -49,22 +51,32 @@
         <translation>检查更新失败</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="59"/>
+        <location filename="../main_window.py" line="60"/>
+        <source>No update files found</source>
+        <translation>未找到更新文件</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="66"/>
+        <source>Excepted unknown error: {}</source>
+        <translation>发生未知错误：{}</translation>
+    </message>
+    <message>
+        <location filename="../main_window.py" line="71"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="60"/>
+        <location filename="../main_window.py" line="72"/>
         <source>Update completed</source>
         <translation>更新已完成</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="69"/>
+        <location filename="../main_window.py" line="81"/>
         <source>Hello</source>
         <translation>你好</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="70"/>
+        <location filename="../main_window.py" line="82"/>
         <source>Hello World!</source>
         <translation>你好，世界！</translation>
     </message>

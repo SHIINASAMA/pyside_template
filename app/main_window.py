@@ -53,6 +53,18 @@ class MainWindow(QMainWindow):
                         self.tr("Warning"),
                         self.tr("Failed to check for updates"),
                     )
+                except FileNotFoundError:
+                    QMessageBox.warning(
+                        self,
+                        self.tr("Warning"),
+                        self.tr("No update files found"),
+                    )
+                except Exception as e:
+                    QMessageBox.warning(
+                        self,
+                        self.tr("Warning"),
+                        self.tr("Excepted unknown error: {}").format(str(e))
+                    )
             else:
                 QMessageBox.information(
                     self,
