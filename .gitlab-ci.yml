@@ -38,15 +38,15 @@ check_version:
       - ./release/Package_*
     expire_in: 3 days
 
-build_amd64_windows:
+build_windows_x64:
   extends: .build
   tags:
     - windows
   after_script:
     - New-Item -Path release -Type Directory
-    - Compress-Archive -Path .\Package\ -DestinationPath .\release\Package_amd64_windows.zip -CompressionLevel Optimal
+    - Compress-Archive -Path .\Package\ -DestinationPath .\release\App-windows-x64.zip -CompressionLevel Optimal
 
-build_amd64_linux:
+build_linux_x64:
   extends: .build
   image: reg.mikumikumi.xyz/mirror/python:3.11.13
   before_script:
@@ -54,7 +54,7 @@ build_amd64_linux:
     - apt-get install -y patchelf
   after_script:
     - mkdir release
-    - tar -czf ./release/Package_amd64_linux.tar.gz Package/
+    - tar -czf ./release/App-linux-x64.tar.gz Package/
 
 # bug: glab issues in private repositories
 # https://gitlab.com/gitlab-org/cli/-/issues/7859
@@ -63,9 +63,9 @@ release:
   stage: release
   image: reg.mikumikumi.xyz/mirror/glab:latest
   needs:
-    - job: build_amd64_windows
+    - job: build_windows_x64
       artifacts: true
-    - job: build_amd64_linux
+    - job: build_linux_x64
       artifacts: true
   rules:
     - if: $CI_COMMIT_TAG

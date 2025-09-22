@@ -70,7 +70,7 @@ class GitlabUpdater(Updater):
 
             arch = platform.machine().lower()
             if arch in ['x86_64', 'amd64']:
-                arch = 'amd64'
+                arch = 'x64'
             elif arch in ['aarch64', 'arm64']:
                 arch = 'arm64'
             else:
@@ -79,15 +79,13 @@ class GitlabUpdater(Updater):
             sysname = platform.system().lower()
             if sysname == 'windows':
                 sysname = 'windows'
-                package_name = f"Package_{arch}_{sysname}"
             elif sysname == 'darwin':
                 sysname = 'macos'
-                package_name = f"Package_{arch}_{sysname}"
             elif sysname == 'linux':
                 sysname = 'linux'
-                package_name = f"Package_{arch}_{sysname}"
             else:
                 raise RuntimeError(f"Unknown system: {sysname}")
+            package_name = f"App-{sysname}-{arch}"
 
             self.download_url = None
             for link in glom(latest_release, 'assets.links', default={}):
