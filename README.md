@@ -14,6 +14,7 @@ You just need to install uv and Python 3.8.
 - httpx
 - PyQtDarkTheme
 - Nuitka
+- pytest
 
 ## Project Structure
 
@@ -27,8 +28,8 @@ You just need to install uv and Python 3.8.
 | app/i18n/*.ts                | Qt I18N's *.ts files                         |
 | app/resources/*.py           | Generated Python files from UI and QRC files |
 | app/ui/**.ui                 | Qt Designer UI files                         |
-| build.py                     | Build script for the project                 |
-| build/                       | Build Destination Directory                  |
+| tool/                        | Build module for the project                 |
+| build/                       | Build destination directory                  |
 | CHANGE.md                    | Release notes for CI/CD                      |
 | pyproject.toml               | Project builds and settings                  |
 
@@ -62,10 +63,10 @@ You also can use the command line to run the project.
     uv run -m tool -h
     ```
 
-- Run app via command line: (Will build the project)
+- Run test in command line: (Will build the project)
 
     ```bash
-    uv run -m tool --all --onedir --run
+    uv run -m tool --test
     ```
 
   Or use your environment file to run the app: (Does not build the project)
