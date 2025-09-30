@@ -63,13 +63,13 @@ You also can use the command line to run the project.
     uv run -m tool -h
     ```
 
-- Run test in command line: (Will build the project)
+- Run test in command line:
 
     ```bash
     uv run -m tool --test
     ```
 
-  Or use your environment file to run the app: (Does not build the project)
+  Or use your environment file to run the app:
 
     ```bash
     uv run -m tool --rc --onedir
