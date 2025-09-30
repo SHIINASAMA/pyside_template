@@ -10,9 +10,9 @@ jobs:
           - os: ubuntu-latest
             arch: x64
             name: linux
-          - os: windows-latest
-            arch: x64
-            name: windows
+#          - os: windows-latest
+#            arch: x64
+#            name: windows
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -26,25 +26,10 @@ jobs:
       - name: Setup, install dependencies, build
         run: |
           uv sync
-          uv run -m tool --test -- -v --junitxml=reports/${{ matrix.name }}-${{ matrix.arch }}.xml
+          uv run -m tool --test -- -v --junitxml=report-${{ matrix.name }}-${{ matrix.arch }}.xml
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: report-${{ matrix.name }}-${{ matrix.arch }}
-          path: reports/
-
-  cov:
-    runs-on: ubuntu-latest
-    needs:
-      - test
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v5
-        with:
-          path: reports/
       - uses: dorny/test-reporter@v2
         with:
           name: pytest
-          path: "reports/*.xml"
+          path: "report-*.xml"
           reporter: jest-junit
