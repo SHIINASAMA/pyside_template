@@ -43,8 +43,8 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           path: reports/
-      - uses: dorny/test-reporter@v1
+      - uses: dorny/test-reporter@v2
         with:
           name: pytest
           path: "reports/*.xml"
-          reporter: pytest
+          reporter: jest-junit
