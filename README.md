@@ -59,19 +59,19 @@ You also can use the command line to run the project.
 - How to build and package the project. Run the following command to get the help message:
 
     ```bash
-    uv run ./build.py -h
+    uv run -m tool -h
     ```
 
 - Run app via command line: (Will build the project)
 
     ```bash
-    uv run ./build.py --all --onedir --run
+    uv run -m tool --all --onedir --run
     ```
 
   Or use your environment file to run the app: (Does not build the project)
 
     ```bash
-    uv run ./build.py --rc --onedir
+    uv run -m tool --rc --onedir
     uv run --env-file .env -- python -m app
     ``` 
 

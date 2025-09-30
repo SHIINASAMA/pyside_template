@@ -22,13 +22,29 @@ check_version:
       echo "✅ Tag format OK"
       EOF
 
+.test:
+  stage: test
+  variables:
+    REPORT_FILE: report-unit.xml
+  rules:
+    - changes:
+      - app/**
+      - tool/**
+  script:
+   - pip install uv
+   - uv sync
+   - uv run -m tool --rc
+   - uv run -m tool --test -- -v --junitxml=${REPORT_FILE}
+  artifacts:
+    reports:
+      junit: report-*.xml
 
 .build:
   stage: build
   script:
     - pip install uv
     - uv sync
-    - uv run build.py --all --onedir
+    - uv run -m tool --all --onedir
     - mv ./build/App ./Package
   rules:
     - if: $CI_COMMIT_TAG
@@ -37,6 +53,18 @@ check_version:
     paths:
       - ./release/App-*
     expire_in: 3 days
+
+test_windows_x64:
+  extends: .test
+  variables:
+    REPORT_FILE: report-window-x64.xml
+  tags:
+    - windows
+
+test_linux_x64:
+  extends: .test
+  variables:
+    REPORT_FILE: report-linux-x64.xml
 
 build_windows_x64:
   extends: .build

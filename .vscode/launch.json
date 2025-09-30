@@ -8,6 +8,17 @@
             "module": "app",
             "envFile": "${workspaceFolder}/.env",
             "preLaunchTask": "Build Resources"
+        },
+        {
+            "name": "Run Test",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "app"
+            ],
+            "envFile": "${workspaceFolder}/.env",
+            "preLaunchTask": "Build Resources"
         }
     ]
 }

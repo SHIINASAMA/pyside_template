@@ -55,7 +55,7 @@ jobs:
       - name: Setup, install dependencies, build
         run: |
           uv sync
-          uv run build.py --all --onedir
+          uv run -m tool --all --onedir
 
       - name: Package artifact (Linux/macOS)
         if: runner.os != 'Windows'
