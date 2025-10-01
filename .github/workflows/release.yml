@@ -55,7 +55,7 @@ jobs:
       - name: Setup, install dependencies, build
         run: |
           uv sync
-          uv run -m tool --all --onedir
+          uv run pyside-cli --all --onedir
 
       - name: Package artifact (Linux/macOS)
         if: runner.os != 'Windows'

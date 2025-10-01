@@ -558,6 +558,22 @@ wheels = [
 ]
 
 [[package]]
+name = "pyside-cli"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "glom" },
+    { name = "nuitka" },
+    { name = "pyside6", version = "6.6.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "pyside6", version = "6.9.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "toml" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3d/d3/0c7f82c56719666a5259d6eb69bb86a49ec15d9c2187844aecdbade4b23d/pyside_cli-0.1.1.tar.gz", hash = "sha256:c3723bac0882f1e1b441e8688407d7f657b8d5241b5c3a733ec71ee4f1a040c1", size = 7477, upload-time = "2025-10-01T07:13:01.973Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/cd/538c22c7e45280a25a914b869254a255eccd6490e895467323d84baf967a/pyside_cli-0.1.1-py3-none-any.whl", hash = "sha256:f328d8c78c8ec46ce2b25796c931b2c3c14e71b6d4d21746747f01455b0c0188", size = 9720, upload-time = "2025-10-01T07:13:00.736Z" },
+]
+
+[[package]]
 name = "pyside-template"
 version = "0.1.0"
 source = { virtual = "." }
@@ -574,6 +590,7 @@ dependencies = [
 [package.dev-dependencies]
 dev = [
     { name = "nuitka" },
+    { name = "pyside-cli" },
     { name = "pytest", version = "8.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pytest", version = "8.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "pytest-benchmark", version = "4.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -598,6 +615,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "nuitka", specifier = ">=2.7.16" },
+    { name = "pyside-cli", specifier = ">=0.1.1" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
