@@ -35,6 +35,16 @@ You just need to install uv and Python 3.8.
 
 ## Project Setup and Usage
 
+### Create your project
+
+I recommend using [**pyside-cli**](https://github.com/SHIINASAMA/pys-cli) 
+to create your project, for example:
+
+```bash
+pip install pyside-cli
+pyside-cli --create your_project
+```
+
 ### IDE/Editor Support
 
 - IDEA (PyCharm, CLion, etc.)
