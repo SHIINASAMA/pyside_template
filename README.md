@@ -9,6 +9,7 @@ You just need to install uv and Python 3.8.
 
 ## Main Dependencies
 
+- pyside-cli
 - PySide6
 - qasync
 - httpx
@@ -28,7 +29,6 @@ You just need to install uv and Python 3.8.
 | app/i18n/*.ts                | Qt I18N's *.ts files                         |
 | app/resources/*.py           | Generated Python files from UI and QRC files |
 | app/ui/**.ui                 | Qt Designer UI files                         |
-| tool/                        | Build module for the project                 |
 | build/                       | Build destination directory                  |
 | CHANGE.md                    | Release notes for CI/CD                      |
 | pyproject.toml               | Project builds and settings                  |
@@ -60,19 +60,19 @@ You also can use the command line to run the project.
 - How to build and package the project. Run the following command to get the help message:
 
     ```bash
-    uv run -m tool -h
+    uv run pyside-cli -h
     ```
 
 - Run test in command line:
 
     ```bash
-    uv run -m tool --test
+    uv run pyside-cli --test
     ```
 
   Or use your environment file to run the app:
 
     ```bash
-    uv run -m tool --rc --onedir
+    uv run pyside-cli --rc --onedir
     uv run --env-file .env -- python -m app
     ``` 
 
