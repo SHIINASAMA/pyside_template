@@ -82,7 +82,7 @@ You also can use the command line to run the project.
   Or use your environment file to run the app:
 
     ```bash
-    uv run pyside-cli --rc --onedir
+    uv run pyside-cli --rc
     uv run --env-file .env -- python -m app
     ``` 
 
