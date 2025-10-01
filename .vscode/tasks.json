@@ -7,8 +7,7 @@
             "command": "uv",
             "args": [
                 "run",
-                "-m",
-                "tool",
+                "pyside-cli",
                 "--rc"
             ]
         }

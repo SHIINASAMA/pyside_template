@@ -15,7 +15,7 @@
     <option name="_new_target" value="&quot;app&quot;" />
     <option name="_new_targetType" value="&quot;PATH&quot;" />
     <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build Resources" run_configuration_type="PythonConfigurationType" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build Resources" run_configuration_type="ShConfigurationType" />
     </method>
   </configuration>
 </component>
