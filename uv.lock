@@ -559,18 +559,15 @@ wheels = [
 
 [[package]]
 name = "pyside-cli"
-version = "0.1.2"
+version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "glom" },
-    { name = "nuitka" },
-    { name = "pyside6", version = "6.6.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "pyside6", version = "6.9.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/18/74/95b28521602734e396712160ad7f88bb2c0b3d28cff5bfab14915449a9f4/pyside_cli-0.1.2.tar.gz", hash = "sha256:96b294bdd928e75606194038ff828a0a63778e32efd49c4916e8d3f4533bf81f", size = 7482, upload-time = "2025-10-01T07:24:31.208Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/03/e616379b046b7397e074d438d739d537cbaf41f9f1a0621be1bd1a4bb8f1/pyside_cli-0.2.0.tar.gz", hash = "sha256:657923bc78362e18e90d8702fd1a5def48e03ad69b90908c7e91bb64cb0a9455", size = 7470, upload-time = "2025-10-04T12:33:57.755Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/71/21/c61511ec8d1978b46150bfe10e374d39b6859c52308e2ecfc32fa7793425/pyside_cli-0.1.2-py3-none-any.whl", hash = "sha256:d978ca852273e6922058959ba8f2d036d2ccbde161a42333e24c4f60c4dc2740", size = 9720, upload-time = "2025-10-01T07:24:30.213Z" },
+    { url = "https://files.pythonhosted.org/packages/16/33/8d3531f0c221f94a90d8e116c0d3fabb88eb3f83fd8c756f968c7d9c9378/pyside_cli-0.2.0-py3-none-any.whl", hash = "sha256:1767937d6c20332ee672a7076b844dcaa164403e5f7c6178232227deef6c775d", size = 9699, upload-time = "2025-10-04T12:33:56.496Z" },
 ]
 
 [[package]]
@@ -613,7 +610,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "nuitka", specifier = ">=2.7.16" },
-    { name = "pyside-cli", specifier = ">=0.1.1" },
+    { name = "pyside-cli", specifier = ">=0.2.0" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },

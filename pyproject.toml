@@ -16,14 +16,14 @@ dependencies = [
 [dependency-groups]
 dev = [
     "nuitka>=2.7.16",
-    "pyside-cli>=0.1.1",
+    "pyside-cli>=0.2.0",
     "pytest>=8.3.5",
     "pytest-benchmark>=4.0.0",
     "pytest-cov>=5.0.0",
     "toml>=0.10.2",
 ]
 
-[tool.build]
+[tool.pyside_cli]
 # Nuitka build options
 # Some options are configured for CI and tool, DO NOT CHANGE:
 # --output-dir, --output-filename, --product-version
@@ -41,7 +41,7 @@ nofollow-import-to = [
 ]
 noinclude-qt-plugins = ["tls"]
 
-[tool.build.win32]
+[tool.pyside_cli.win32]
 # Nuitka build options for {sys.platform}
 windows-console-mode = "disable"
 windows-icon-from-ico = "app/assets/logo.ico"
@@ -49,17 +49,22 @@ noinclude-dlls = [
     "qt6network.dll"
 ]
 
-[tool.build.linux]
+[tool.pyside_cli.linux]
 linux-icon = "app/assets/logo.ico"
 noinclude-dlls = [
     "libQt6Network.so.6"
 ]
 
-[tool.build.i18n]
+[tool.pyside_cli.i18n]
 # Default language is en_US where defined in *.ui and *.py files.
 # Exclude the app/resources/*.py.
 languages = [
     "zh_CN"
+]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "app/test"
 ]
 
 [project.scripts]
