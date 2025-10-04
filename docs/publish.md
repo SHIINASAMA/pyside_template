@@ -4,6 +4,10 @@ This template integrates **GitHub Action/GitLab Pipeline** for automated release
 automatically trigger
 the build and release process.
 
+> [!NOTE]
+> If you want to release a wheel package, 
+> you need to update the `project.version` field in pyproject.toml before creating a Git tag.
+
 ## Prerequisites
 
 ### GitLab Pipeline
