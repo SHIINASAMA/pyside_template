@@ -23,7 +23,7 @@ dev = [
     "toml>=0.10.2",
 ]
 
-[tool.pyside_cli]
+[tool.pyside-cli]
 # Nuitka build options
 # Some options are configured for CI and tool, DO NOT CHANGE:
 # --output-dir, --output-filename, --product-version
@@ -41,7 +41,7 @@ nofollow-import-to = [
 ]
 noinclude-qt-plugins = ["tls"]
 
-[tool.pyside_cli.win32]
+[tool.pyside-cli.win32]
 # Nuitka build options for {sys.platform}
 windows-console-mode = "disable"
 windows-icon-from-ico = "app/assets/logo.ico"
@@ -49,13 +49,13 @@ noinclude-dlls = [
     "qt6network.dll"
 ]
 
-[tool.pyside_cli.linux]
+[tool.pyside-cli.linux]
 linux-icon = "app/assets/logo.ico"
 noinclude-dlls = [
     "libQt6Network.so.6"
 ]
 
-[tool.pyside_cli.i18n]
+[tool.pyside-cli.i18n]
 # Default language is en_US where defined in *.ui and *.py files.
 # Exclude the app/resources/*.py.
 languages = [
