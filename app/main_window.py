@@ -38,39 +38,44 @@ class MainWindow(QMainWindow):
             pass
         else:
             # Production mode
-            if not updater.is_updated:
-                try:
-                    await updater.fetch()
-                    if updater.check_for_update():
-                        update_widget = UpdateWidget(self, updater)
-                        await update_widget.show()
-                        if update_widget.need_restart:
-                            updater.apply_update()
-                            self.close()
-                except HTTPError:
-                    QMessageBox.warning(
-                        self,
-                        self.tr("Warning"),
-                        self.tr("Failed to check for updates"),
-                    )
-                except FileNotFoundError:
-                    QMessageBox.warning(
-                        self,
-                        self.tr("Warning"),
-                        self.tr("No update files found"),
-                    )
-                except Exception as e:
-                    QMessageBox.warning(
-                        self,
-                        self.tr("Warning"),
-                        self.tr("Excepted unknown error: {}").format(str(e))
-                    )
-            else:
-                QMessageBox.information(
+            await self.check_update(updater)
+
+    async def check_update(self, updater):
+        if not updater.is_enable:
+            return
+        if not updater.is_updated:
+            try:
+                await updater.fetch()
+                if updater.check_for_update():
+                    update_widget = UpdateWidget(self, updater)
+                    await update_widget.show()
+                    if update_widget.need_restart:
+                        updater.apply_update()
+                        self.close()
+            except HTTPError:
+                QMessageBox.warning(
                     self,
-                    self.tr("Info"),
-                    self.tr("Update completed"),
+                    self.tr("Warning"),
+                    self.tr("Failed to check for updates"),
                 )
+            except FileNotFoundError:
+                QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("No update files found"),
+                )
+            except Exception as e:
+                QMessageBox.warning(
+                    self,
+                    self.tr("Warning"),
+                    self.tr("Excepted unknown error: {}").format(str(e))
+                )
+        else:
+            QMessageBox.information(
+                self,
+                self.tr("Info"),
+                self.tr("Update completed"),
+            )
 
     @asyncSlot()
     async def click_push_button(self):
