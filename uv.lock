@@ -559,15 +559,15 @@ wheels = [
 
 [[package]]
 name = "pyside-cli"
-version = "0.2.0"
+version = "0.2.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "glom" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/78/03/e616379b046b7397e074d438d739d537cbaf41f9f1a0621be1bd1a4bb8f1/pyside_cli-0.2.0.tar.gz", hash = "sha256:657923bc78362e18e90d8702fd1a5def48e03ad69b90908c7e91bb64cb0a9455", size = 7470, upload-time = "2025-10-04T12:33:57.755Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0c/e8/dfc7f9d53f70377d7d28726c924abdf0c125737c1863a78660a64a8c9cd2/pyside_cli-0.2.1.tar.gz", hash = "sha256:c9e846bc4236613ddd7f435eae7662da83bdf277f1d2309b12730f645e09e076", size = 7455, upload-time = "2025-10-04T16:28:57.4Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/16/33/8d3531f0c221f94a90d8e116c0d3fabb88eb3f83fd8c756f968c7d9c9378/pyside_cli-0.2.0-py3-none-any.whl", hash = "sha256:1767937d6c20332ee672a7076b844dcaa164403e5f7c6178232227deef6c775d", size = 9699, upload-time = "2025-10-04T12:33:56.496Z" },
+    { url = "https://files.pythonhosted.org/packages/82/cb/ac8f931c8c14d27076b3583e9a8b87213bc5979ed4ce1354b3f2dc7e9b83/pyside_cli-0.2.1-py3-none-any.whl", hash = "sha256:80c72cda1ea894d4136a16339cdc6b87ddd0a11dd46a44cc2a37632159b18393", size = 9697, upload-time = "2025-10-04T16:28:55.829Z" },
 ]
 
 [[package]]
@@ -610,7 +610,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "nuitka", specifier = ">=2.7.16" },
-    { name = "pyside-cli", specifier = ">=0.2.0" },
+    { name = "pyside-cli", specifier = ">=0.2.1" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
