@@ -50,8 +50,9 @@ class Version(Version0.Version):
 
 
 class Updater(ABC):
-    _copy_self_cmd = "--copy-self"
-    _updated_cmd = "--updated"
+    _copy_self_cmd = "--updater-copy-self"
+    _updated_cmd = "--updater-updated"
+    _disable_cmd = "--updater-disable"
 
     _instance = None
 
@@ -75,6 +76,7 @@ class Updater(ABC):
             self.filename = ""
 
             self.is_updated = False
+            self.is_enable = True
             if Updater._copy_self_cmd in sys.argv:
                 sys.argv.remove(Updater._copy_self_cmd)
                 Updater.copy_self_and_exit()
@@ -82,6 +84,9 @@ class Updater(ABC):
                 sys.argv.remove(Updater._updated_cmd)
                 self.is_updated = True
                 Updater.clean_old_package()
+            if Updater._disable_cmd in sys.argv:
+                sys.argv.remove(Updater._disable_cmd)
+                self.is_enable = False
 
             self._initialized = True
 

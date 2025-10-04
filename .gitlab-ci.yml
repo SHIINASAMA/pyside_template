@@ -6,13 +6,11 @@ stages:
 
 check_version:
   stage: validate
-  image: reg.mikumikumi.xyz/mirror/alpine:latest
+  image: reg.mikumikumi.xyz/mirror/bash:latest
   variables:
     GIT_STRATEGY: none
   rules:
     - if: $CI_COMMIT_TAG
-  before_script:
-    - apk add --no-cache bash
   script:
     - |
       bash -eo pipefail <<'EOF'
@@ -68,6 +66,24 @@ test_linux_x64:
   variables:
     REPORT_FILE: report-linux-x64.xml
 
+build_whl:
+  stage: build
+  image: reg.mikumikumi.xyz/mirror/python:3.11.13
+  script:
+    - pip install uv
+    - uv sync
+    - uv run pyside-cli --rc
+    - uv build --no-sources
+    - mkdir release
+    - mv dist/*.whl release
+  rules:
+    - if: $CI_COMMIT_TAG
+  artifacts:
+    name: "build-${CI_COMMIT_SHA}"
+    paths:
+      - ./release/*.whl
+    expire_in: 3 days
+
 build_windows_x64:
   extends: .build
   tags:
@@ -93,6 +109,8 @@ release:
   stage: release
   image: reg.mikumikumi.xyz/mirror/glab:latest
   needs:
+    - job: build_whl
+      artifacts: true
     - job: build_windows_x64
       artifacts: true
     - job: build_linux_x64

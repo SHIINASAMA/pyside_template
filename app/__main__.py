@@ -6,14 +6,14 @@ import qdarktheme
 from PySide6.QtCore import QTranslator, QLocale, QLockFile
 from qasync import QApplication, run
 
-from app.builtin.theme_manager import ThemeManager
-from app.builtin.github_updater import GithubUpdater
 from app.builtin.gitlab_updater import GitlabUpdater
+from app.builtin.theme_manager import ThemeManager
 from app.main_window import MainWindow
 
 
-async def main():
+async def task():
     app_close_event = asyncio.Event()
+    app = QApplication.instance()
     app.aboutToQuit.connect(app_close_event.set)
 
     main_window = MainWindow()
@@ -22,7 +22,7 @@ async def main():
     await app_close_event.wait()
 
 
-if __name__ == '__main__':
+def main(enable_updater: bool = True):
     # init updater, updater will remove some arguments
     # and do update logic
     # updater = GithubUpdater()
@@ -30,6 +30,7 @@ if __name__ == '__main__':
     updater = GitlabUpdater()
     updater.base_url = "https://gitlab.mikumikumi.xyz"
     updater.project_name = "kaoru/pyside_template"
+    updater.is_enable = enable_updater
 
     # check if the app is already running
     lock_file = QLockFile("App.lock")
@@ -56,4 +57,14 @@ if __name__ == '__main__':
     theme.use_frameless_window()
 
     # start event loop
-    run(main())
+    run(task())
+
+
+def main_no_updater():
+    main(
+        enable_updater=False
+    )
+
+
+if __name__ == '__main__':
+    main()

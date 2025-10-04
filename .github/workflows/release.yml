@@ -76,6 +76,29 @@ jobs:
           name: App-${{ matrix.name }}-${{ matrix.arch }}
           path: ./App-*
 
+  build_whl:
+    runs-on: ubuntu-latest
+    needs: check-version
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: yezz123/setup-uv@v4
+
+      - name: Setup, install dependencies, build
+        run: |
+          uv sync
+          uv run pyside-cli --rc
+          uv build --no-sources
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Python wheel package
+          path: ./dist/*.whl
+
   release:
     runs-on: ubuntu-latest
     needs:
@@ -85,7 +108,6 @@ jobs:
       - uses: actions/download-artifact@v5
         with:
           path: ./release
-          pattern: App-*
       - uses: softprops/action-gh-release@v2
         if: github.ref_type == 'tag'
         with:
