@@ -62,11 +62,11 @@ wheels = [
 
 [[package]]
 name = "certifi"
-version = "2025.8.3"
+version = "2025.10.5"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/dc/67/960ebe6bf230a96cda2e0abcf73af550ec4f090005363542f0765df162e0/certifi-2025.8.3.tar.gz", hash = "sha256:e564105f78ded564e3ae7c923924435e1daa7463faeab5bb932bc53ffae63407", size = 162386, upload-time = "2025-08-03T03:07:47.08Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4c/5b/b6ce21586237c77ce67d01dc5507039d444b630dd76611bbca2d8e5dcd91/certifi-2025.10.5.tar.gz", hash = "sha256:47c09d31ccf2acf0be3f701ea53595ee7e0b8fa08801c6624be771df09ae7b43", size = 164519, upload-time = "2025-10-05T04:12:15.808Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e5/48/1549795ba7742c948d2ad169c1c8cdbae65bc450d6cd753d124b17c8cd32/certifi-2025.8.3-py3-none-any.whl", hash = "sha256:f6c12493cfb1b06ba2ff328595af9350c65d6644968e5d3a2ffd78699af217a5", size = 161216, upload-time = "2025-08-03T03:07:45.777Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/37/af0d2ef3967ac0d6113837b44a4f0bfe1328c2b9763bd5b1744520e5cfed/certifi-2025.10.5-py3-none-any.whl", hash = "sha256:0f212c2744a9bb6de0c56639a6f68afe01ecd92d91f14ae897c4fe7bbeeef0de", size = 163286, upload-time = "2025-10-05T04:12:14.03Z" },
 ]
 
 [[package]]
@@ -559,15 +559,15 @@ wheels = [
 
 [[package]]
 name = "pyside-cli"
-version = "0.2.1"
+version = "0.2.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "glom" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/0c/e8/dfc7f9d53f70377d7d28726c924abdf0c125737c1863a78660a64a8c9cd2/pyside_cli-0.2.1.tar.gz", hash = "sha256:c9e846bc4236613ddd7f435eae7662da83bdf277f1d2309b12730f645e09e076", size = 7455, upload-time = "2025-10-04T16:28:57.4Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/59/b9/6946b44a0a9d57924050c055228abe52f0d0917537c5667920baccbe6262/pyside_cli-0.2.2.tar.gz", hash = "sha256:2c29534ea2e06e32492ff553a1a51a0944cd8a95de039fb815fca0fd46586247", size = 8205, upload-time = "2025-10-05T09:33:12.087Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/82/cb/ac8f931c8c14d27076b3583e9a8b87213bc5979ed4ce1354b3f2dc7e9b83/pyside_cli-0.2.1-py3-none-any.whl", hash = "sha256:80c72cda1ea894d4136a16339cdc6b87ddd0a11dd46a44cc2a37632159b18393", size = 9697, upload-time = "2025-10-04T16:28:55.829Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/46/9d94ab36d7076dc0ccbbaff9a706c0b92e5e8c4fef3cd81d9934e98fd03e/pyside_cli-0.2.2-py3-none-any.whl", hash = "sha256:8c5c47ae161f34d87770c840718acf6fea3d07e5ae96a0cb31b376d1ccc4d717", size = 10544, upload-time = "2025-10-05T09:33:10.886Z" },
 ]
 
 [[package]]
@@ -610,7 +610,7 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [
     { name = "nuitka", specifier = ">=2.7.16" },
-    { name = "pyside-cli", specifier = ">=0.2.1" },
+    { name = "pyside-cli", specifier = ">=0.2.2" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
