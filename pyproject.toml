@@ -8,14 +8,14 @@ dependencies = [
     "httpx>=0.28.1",
     "packaging>=25.0",
     "pyqtdarktheme>=2.1.0",
-    "pyside6>=6.6.3.1",
     "qasync>=0.28.0",
     "glom>=24.11.0",
+    "pyside6==6.4.3",
 ]
 
 [dependency-groups]
 dev = [
-    "nuitka>=2.7.16",
+    "nuitka>=2.8.0",
     "pyside-cli>=0.2.2",
     "pytest>=8.3.5",
     "pytest-benchmark>=4.0.0",
@@ -43,7 +43,7 @@ noinclude-qt-plugins = ["tls"]
 
 [tool.pyside-cli.win32]
 # Nuitka build options for {sys.platform}
-windows-console-mode = "disable"
+# windows-console-mode = "disable"
 windows-icon-from-ico = "app/assets/logo.ico"
 noinclude-dlls = [
     "qt6network.dll"
