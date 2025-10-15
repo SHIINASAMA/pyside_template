@@ -39,44 +39,44 @@
         <translation>浅色模式</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="53"/>
-        <location filename="../main_window.py" line="59"/>
-        <location filename="../main_window.py" line="65"/>
+        <location filename="../main_window.py" line="58"/>
+        <location filename="../main_window.py" line="64"/>
+        <location filename="../main_window.py" line="70"/>
         <source>Warning</source>
         <translation>警告</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="54"/>
+        <location filename="../main_window.py" line="59"/>
         <source>Failed to check for updates</source>
         <translation>检查更新失败</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="60"/>
+        <location filename="../main_window.py" line="65"/>
         <source>No update files found</source>
         <translation>未找到更新文件</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="66"/>
+        <location filename="../main_window.py" line="71"/>
         <source>Excepted unknown error: {}</source>
         <translation>发生未知错误：{}</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="71"/>
+        <location filename="../main_window.py" line="76"/>
         <source>Info</source>
         <translation>信息</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="72"/>
+        <location filename="../main_window.py" line="77"/>
         <source>Update completed</source>
         <translation>更新已完成</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="81"/>
+        <location filename="../main_window.py" line="86"/>
         <source>Hello</source>
         <translation>你好</translation>
     </message>
     <message>
-        <location filename="../main_window.py" line="82"/>
+        <location filename="../main_window.py" line="87"/>
         <source>Hello World!</source>
         <translation>你好，世界！</translation>
     </message>
