@@ -90,3 +90,4 @@ You also can use the command line to run the project.
 
 - [Release and Product Version Control](docs/publish.md)
 - [Internationalization](docs/i18n.md)
+- [Windows 7 Compatibility](docs/windows7.md)
