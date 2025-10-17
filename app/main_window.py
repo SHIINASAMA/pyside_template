@@ -7,7 +7,7 @@ from httpx import HTTPError
 from qasync import asyncSlot
 
 import app.resources.resource  # type: ignore
-# from app.builtin.theme_manager import ThemeManager
+from app.builtin.theme_manager import ThemeManager, is_old_system
 from app.builtin.update_widget import UpdateWidget
 from app.resources.main_window_ui import Ui_MainWindow
 
@@ -20,11 +20,13 @@ class MainWindow(QMainWindow):
         self.ui.pushButton.clicked.connect(self.click_push_button)
 
         # ThemeManager.instance().setup_theme("auto")
-        self.ui.themeComboBox.addItem(self.tr("Auto"), "auto")
-        self.ui.themeComboBox.addItem(self.tr("Dark"), "dark")
+        if not is_old_system():
+            self.ui.themeComboBox.addItem(self.tr("Auto"), "auto")
         self.ui.themeComboBox.addItem(self.tr("Light"), "light")
+        self.ui.themeComboBox.addItem(self.tr("Dark"), "dark")
         self.ui.themeComboBox.currentIndexChanged.connect(self.change_theme)
         self.ui.themeComboBox.setCurrentIndex(0)
+        self.change_theme(0)
 
         self.setWindowTitle(self.tr("MainWindow"))
         self.setWindowIcon(QIcon(':/logo.png'))
@@ -91,6 +93,6 @@ class MainWindow(QMainWindow):
         self.ui.pushButton.setEnabled(True)
 
     def change_theme(self, index):
-        # theme = self.ui.themeComboBox.itemData(index)
-        # ThemeManager.instance().setup_theme(theme)
+        theme = self.ui.themeComboBox.itemData(index)
+        ThemeManager.instance().setup_theme(theme)
         pass

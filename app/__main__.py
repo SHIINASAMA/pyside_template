@@ -2,12 +2,11 @@ import asyncio
 import os.path
 import sys
 
-import qdarktheme
 from PySide6.QtCore import QTranslator, QLocale, QLockFile
 from qasync import QApplication, run
 
 from app.builtin.gitlab_updater import GitlabUpdater
-# from app.builtin.theme_manager import ThemeManager
+from app.builtin.theme_manager import ThemeManager, enable_hi_dpi
 from app.main_window import MainWindow
 
 
@@ -41,7 +40,7 @@ def main(enable_updater: bool = True):
         updater.load_from_file_and_override("updater.json")
 
     # enable hdpi
-    # qdarktheme.enable_hi_dpi()
+    enable_hi_dpi()
 
     # init QApplication
     app = QApplication(sys.argv)
@@ -53,8 +52,7 @@ def main(enable_updater: bool = True):
     app.installTranslator(translator)
 
     # theme
-    # theme = ThemeManager.instance()
-    # theme.use_frameless_window()
+    theme = ThemeManager.instance()
 
     # start event loop
     run(task())
