@@ -44,7 +44,7 @@ noinclude-qt-plugins = ["tls"]
 
 [tool.pyside-cli.win32]
 # Nuitka build options for {sys.platform}
-# windows-console-mode = "disable"
+windows-console-mode = "disable"
 windows-icon-from-ico = "app/assets/logo.ico"
 noinclude-dlls = [
     "qt6network.dll"
