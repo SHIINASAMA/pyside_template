@@ -133,6 +133,15 @@ wheels = [
 ]
 
 [[package]]
+name = "darkdetect"
+version = "0.7.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/2e/346667de53b48417e6237efd9d076d6530c413666fcbc381adbfeff21ce7/darkdetect-0.7.1.tar.gz", hash = "sha256:47be3cf5134432ddb616bbffc927237718407914993c82809983e7ccebf49013", size = 6976, upload-time = "2022-07-18T21:10:27.64Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/63/bd/b31abc8fcaab163e0b9501020309dd9094b47d609035a23e6ec0a0a8ba10/darkdetect-0.7.1-py2.py3-none-any.whl", hash = "sha256:3efe69f8ecd5f1b7f4fbb0d1d93f656b0e493c45cc49222380ffe2a529cbc866", size = 8199, upload-time = "2022-07-18T21:10:26.178Z" },
+]
+
+[[package]]
 name = "face"
 version = "24.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -331,18 +340,31 @@ wheels = [
 ]
 
 [[package]]
+name = "pyqtdarktheme-fork"
+version = "2.3.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "darkdetect" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2b/e4/6da580769cd9b669bdcffd5fa5caf5834e1dd55d5a03fa66f5380bc40488/pyqtdarktheme_fork-2.3.4.tar.gz", hash = "sha256:2a5fab9d2122e52f772a7088e87be1fc0af767346e5fa0b1333e6813ebb2116c", size = 41623, upload-time = "2025-01-03T17:19:21.662Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/48/f5/a16f1f72b1cd024013ba68b28396b3be989df9acd3d1428796a7922dd81e/pyqtdarktheme_fork-2.3.4-py3-none-any.whl", hash = "sha256:a1682eb0aa0f1f03cb6a081c5d58f0d30dcd862f3f7398f0773a3ba6aa25cb2a", size = 54397, upload-time = "2025-01-03T17:19:19.078Z" },
+]
+
+[[package]]
 name = "pyside-cli"
-version = "0.3.1"
+version = "0.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama" },
     { name = "colorlog" },
     { name = "glom" },
+    { name = "singleton-decorator" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ee/b5/1efc9b7a0f3a577adee5c7ef3654d342f570e044c85887aa2cafdcb85f83/pyside_cli-0.3.1.tar.gz", hash = "sha256:76faf81f28342a76f3decd4d82de29eb94d62a78adeafe69a0909720a30acbae", size = 9923, upload-time = "2025-10-17T16:50:45.196Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/46/67/73cdb1bf2db7226ec859465a4f09e9171c2ebbd93ac436c8ab8e0b471c9d/pyside_cli-0.3.2.tar.gz", hash = "sha256:ff5a2a18069c02c4a03b3fdbc2f8d6a486e64154fcc5d5d91bdf88d8472e0d8c", size = 10938, upload-time = "2025-12-07T09:19:05.417Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/89/37/bed159db27a00cb1c77d07f0234666f8071eb774e433bc30301b577cbfc7/pyside_cli-0.3.1-py3-none-any.whl", hash = "sha256:9e40f41837ec2b974611f78826137604a1bc1381adb42944a0c8ffc852df2caa", size = 12985, upload-time = "2025-10-17T16:50:43.54Z" },
+    { url = "https://files.pythonhosted.org/packages/4c/a6/e81868674a9aaabb955fdf20aa63779fa945557f682f0d10376224996ae0/pyside_cli-0.3.2-py3-none-any.whl", hash = "sha256:32dc6a6fddb55a36ab9167569131644ef2e6ce05446bde6e69366e5ed30662f0", size = 14062, upload-time = "2025-12-07T09:19:04.117Z" },
 ]
 
 [[package]]
@@ -353,6 +375,7 @@ dependencies = [
     { name = "glom" },
     { name = "httpx" },
     { name = "packaging" },
+    { name = "pyqtdarktheme-fork" },
     { name = "pyside6" },
     { name = "qasync" },
     { name = "singleton-decorator" },
@@ -374,6 +397,7 @@ requires-dist = [
     { name = "glom", specifier = ">=24.11.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "packaging", specifier = ">=25.0" },
+    { name = "pyqtdarktheme-fork", specifier = ">=2.3.4" },
     { name = "pyside6", specifier = ">=6.1.3" },
     { name = "qasync", specifier = ">=0.28.0" },
     { name = "singleton-decorator", specifier = ">=1.0.0" },
@@ -383,7 +407,7 @@ requires-dist = [
 dev = [
     { name = "nuitka", specifier = ">=2.8.1" },
     { name = "pyinstaller", specifier = ">=6.16.0" },
-    { name = "pyside-cli", specifier = ">=0.3.1" },
+    { name = "pyside-cli", specifier = ">=0.3.2" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
@@ -440,7 +464,7 @@ wheels = [
 
 [[package]]
 name = "pytest"
-version = "9.0.1"
+version = "9.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama", marker = "sys_platform == 'win32'" },
@@ -449,9 +473,9 @@ dependencies = [
     { name = "pluggy" },
     { name = "pygments" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/07/56/f013048ac4bc4c1d9be45afd4ab209ea62822fb1598f40687e6bf45dcea4/pytest-9.0.1.tar.gz", hash = "sha256:3e9c069ea73583e255c3b21cf46b8d3c56f6e3a1a8f6da94ccb0fcf57b9d73c8", size = 1564125, upload-time = "2025-11-12T13:05:09.333Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d1/db/7ef3487e0fb0049ddb5ce41d3a49c235bf9ad299b6a25d5780a89f19230f/pytest-9.0.2.tar.gz", hash = "sha256:75186651a92bd89611d1d9fc20f0b4345fd827c41ccd5c299a868a05d70edf11", size = 1568901, upload-time = "2025-12-06T21:30:51.014Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0b/8b/6300fb80f858cda1c51ffa17075df5d846757081d11ab4aa35cef9e6258b/pytest-9.0.1-py3-none-any.whl", hash = "sha256:67be0030d194df2dfa7b556f2e56fb3c3315bd5c8822c6951162b92b32ce7dad", size = 373668, upload-time = "2025-11-12T13:05:07.379Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/ab/b3226f0bd7cdcf710fbede2b3548584366da3b19b5021e74f5bde2a8fa3f/pytest-9.0.2-py3-none-any.whl", hash = "sha256:711ffd45bf766d5264d487b917733b453d917afd2b0ad65223959f59089f875b", size = 374801, upload-time = "2025-12-06T21:30:49.154Z" },
 ]
 
 [[package]]

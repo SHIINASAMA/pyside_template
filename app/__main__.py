@@ -6,6 +6,7 @@ from PySide6.QtCore import QTranslator, QLocale, QLockFile
 from qasync import QApplication, run
 
 from app.builtin.gitlab_updater import GitlabUpdater
+from app.builtin.locale import detect_system_ui_language
 from app.main_window import MainWindow
 from qdarktheme import enable_hi_dpi
 
@@ -48,7 +49,7 @@ def main(enable_updater: bool = True):
 
     # i18n
     translator = QTranslator()
-    lang_code = QLocale.system().name()
+    lang_code = detect_system_ui_language()
     translator.load(f":/i18n/{lang_code}.qm")
     app.installTranslator(translator)
 
