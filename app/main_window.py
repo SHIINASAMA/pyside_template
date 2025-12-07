@@ -7,9 +7,9 @@ from httpx import HTTPError
 from qasync import asyncSlot
 
 import app.resources.resource  # type: ignore
-from app.builtin.theme_manager import ThemeManager
 from app.builtin.update_widget import UpdateWidget
 from app.resources.main_window_ui import Ui_MainWindow
+from qdarktheme import setup_theme
 
 
 class MainWindow(QMainWindow):
@@ -50,7 +50,7 @@ class MainWindow(QMainWindow):
                 await updater.fetch()
                 if updater.check_for_update():
                     update_widget = UpdateWidget(self, updater)
-                    await update_widget.show()
+                    await update_widget.async_show()
                     if update_widget.need_restart:
                         updater.apply_update()
                         self.close()
@@ -91,4 +91,4 @@ class MainWindow(QMainWindow):
 
     def change_theme(self, index):
         theme = self.ui.themeComboBox.itemData(index)
-        ThemeManager().setup_theme(theme)
+        setup_theme(theme)

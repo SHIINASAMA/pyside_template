@@ -9,7 +9,6 @@ dependencies = [
     "packaging>=25.0",
     "qasync>=0.28.0",
     "glom>=24.11.0",
-    "pyqtdarktheme>=0.1.6",
     "pyside6>=6.1.3",
     "singleton-decorator>=1.0.0",
 ]

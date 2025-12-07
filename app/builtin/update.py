@@ -54,39 +54,32 @@ class Updater(ABC):
     _updated_cmd = "--updater-updated"
     _disable_cmd = "--updater-disable"
 
-    _instance = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
+    current_version :Version
 
     def __init__(self):
-        if not self._initialized:
-            # Three attributes can be set by updater.json
-            self.current_version = Updater._load_current_version()
-            self.release_type = self.current_version.release_type
-            self.proxy = None
+        # Three attributes can be set by updater.json
+        self.current_version = Updater._load_current_version()
+        self.release_type = self.current_version.release_type
+        self.proxy = None
 
-            # must set in self.fetch()
-            self.remote_version = None
-            self.description = ""
-            self.download_url = ""
-            self.filename = ""
+        # must set in self.fetch()
+        self.remote_version = None
+        self.description = ""
+        self.download_url = ""
+        self.filename = ""
 
-            self.is_updated = False
-            self.is_enable = True
-            if Updater._copy_self_cmd in sys.argv:
-                sys.argv.remove(Updater._copy_self_cmd)
-                Updater.copy_self_and_exit()
-            if Updater._updated_cmd in sys.argv:
-                sys.argv.remove(Updater._updated_cmd)
-                self.is_updated = True
-                Updater.clean_old_package()
-            if Updater._disable_cmd in sys.argv:
-                sys.argv.remove(Updater._disable_cmd)
-                self.is_enable = False
+        self.is_updated = False
+        self.is_enable = True
+        if Updater._copy_self_cmd in sys.argv:
+            sys.argv.remove(Updater._copy_self_cmd)
+            Updater.copy_self_and_exit()
+        if Updater._updated_cmd in sys.argv:
+            sys.argv.remove(Updater._updated_cmd)
+            self.is_updated = True
+            Updater.clean_old_package()
+        if Updater._disable_cmd in sys.argv:
+            sys.argv.remove(Updater._disable_cmd)
+            self.is_enable = False
 
             self._initialized = True
 
@@ -115,6 +108,7 @@ class Updater(ABC):
         return Version(__version__)
 
     def check_for_update(self):
+        assert(self.remote_version is Version)
         return (self.release_type == self.remote_version.release_type
                 and self.remote_version > self.current_version)
 

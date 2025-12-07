@@ -6,13 +6,14 @@ from PySide6.QtCore import QTranslator, QLocale, QLockFile
 from qasync import QApplication, run
 
 from app.builtin.gitlab_updater import GitlabUpdater
-from app.builtin.theme_manager import ThemeManager, enable_hi_dpi
 from app.main_window import MainWindow
+from qdarktheme import enable_hi_dpi
 
 
 async def task():
     app_close_event = asyncio.Event()
     app = QApplication.instance()
+    assert(app is QApplication)
     app.aboutToQuit.connect(app_close_event.set)
 
     main_window = MainWindow()
@@ -51,18 +52,13 @@ def main(enable_updater: bool = True):
     translator.load(f":/i18n/{lang_code}.qm")
     app.installTranslator(translator)
 
-    # theme
-    theme = ThemeManager()
-
     # start event loop
     run(task())
 
 
 def main_no_updater():
-    main(
-        enable_updater=False
-    )
+    main(enable_updater=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
