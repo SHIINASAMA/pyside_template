@@ -7,7 +7,7 @@ from httpx import HTTPError
 from qasync import asyncSlot
 
 import app.resources.resource  # type: ignore
-from app.builtin.theme_manager import ThemeManager, is_old_system
+from app.builtin.theme_manager import ThemeManager
 from app.builtin.update_widget import UpdateWidget
 from app.resources.main_window_ui import Ui_MainWindow
 
@@ -20,8 +20,7 @@ class MainWindow(QMainWindow):
         self.ui.pushButton.clicked.connect(self.click_push_button)
 
         # ThemeManager.instance().setup_theme("auto")
-        if not is_old_system():
-            self.ui.themeComboBox.addItem(self.tr("Auto"), "auto")
+        self.ui.themeComboBox.addItem(self.tr("Auto"), "auto")
         self.ui.themeComboBox.addItem(self.tr("Light"), "light")
         self.ui.themeComboBox.addItem(self.tr("Dark"), "dark")
         self.ui.themeComboBox.currentIndexChanged.connect(self.change_theme)
@@ -29,12 +28,13 @@ class MainWindow(QMainWindow):
         self.change_theme(0)
 
         self.setWindowTitle(self.tr("MainWindow"))
-        self.setWindowIcon(QIcon(':/logo.png'))
+        self.setWindowIcon(QIcon(":/logo.png"))
 
     async def async_init(self):
         # from app.builtin.github_updater import GithubUpdater
         from app.builtin.gitlab_updater import GitlabUpdater
-        updater = GitlabUpdater.instance()
+
+        updater = GitlabUpdater()
         if os.getenv("DEBUG", "0") == "1":
             # Debug mode
             pass
@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
                 QMessageBox.warning(
                     self,
                     self.tr("Warning"),
-                    self.tr("Excepted unknown error: {}").format(str(e))
+                    self.tr("Excepted unknown error: {}").format(str(e)),
                 )
         else:
             QMessageBox.information(
@@ -83,10 +83,7 @@ class MainWindow(QMainWindow):
     async def click_push_button(self):
         async def async_task():
             await asyncio.sleep(1)
-            QMessageBox.information(
-                self,
-                self.tr("Hello"),
-                self.tr("Hello World!"))
+            QMessageBox.information(self, self.tr("Hello"), self.tr("Hello World!"))
 
         self.ui.pushButton.setEnabled(False)
         await async_task()
@@ -94,5 +91,4 @@ class MainWindow(QMainWindow):
 
     def change_theme(self, index):
         theme = self.ui.themeComboBox.itemData(index)
-        ThemeManager.instance().setup_theme(theme)
-        pass
+        ThemeManager().setup_theme(theme)

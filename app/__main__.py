@@ -52,7 +52,7 @@ def main(enable_updater: bool = True):
     app.installTranslator(translator)
 
     # theme
-    theme = ThemeManager.instance()
+    theme = ThemeManager()
 
     # start event loop
     run(task())
