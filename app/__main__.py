@@ -13,7 +13,7 @@ from qdarktheme import enable_hi_dpi
 async def task():
     app_close_event = asyncio.Event()
     app = QApplication.instance()
-    assert(app is QApplication)
+    assert isinstance(app, QApplication)
     app.aboutToQuit.connect(app_close_event.set)
 
     main_window = MainWindow()
@@ -58,6 +58,10 @@ def main(enable_updater: bool = True):
 
 def main_no_updater():
     main(enable_updater=False)
+
+
+def run_module():
+    main()
 
 
 if __name__ == "__main__":
