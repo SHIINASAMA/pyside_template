@@ -1,6 +1,6 @@
 # QML Demo
 
-> \[!WARN\]  
+> [!WARNING]  
 > This directory is for demonstration purposes only and is
 > not intended to be directly integrated into the workflow of the current project.  
 > Its structure, configuration, 
