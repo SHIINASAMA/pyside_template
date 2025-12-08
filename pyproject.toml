@@ -10,8 +10,8 @@ dependencies = [
     "qasync>=0.28.0",
     "glom>=24.11.0",
     "pyside6>=6.1.3",
-    "pyqtdarktheme-fork>=2.3.4",
     "singleton-decorator>=1.0.0",
+    "pyqtdarktheme-fork",
 ]
 
 [dependency-groups]
@@ -89,3 +89,6 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["app", "app.*", "qml_demo", "qml_demo.*"]
 exclude = ["app.test", "app.test.*"]
+
+[tool.uv.sources]
+pyqtdarktheme-fork = { git = "https://github.com/SHIINASAMA/PyQtDarkTheme", rev = "9e7c2d2f31a736971d06859ff1865e0e719b5115" }
