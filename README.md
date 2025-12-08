@@ -32,6 +32,7 @@ You just need to install uv and Python 3.8.
 | build/                       | Build destination directory                  |
 | CHANGE.md                    | Release notes for CI/CD                      |
 | pyproject.toml               | Project builds and settings                  |
+| qml_demo                     | See [qml_demo/README.md](qml_demo/README.md) |
 
 ## Project Setup and Usage
 

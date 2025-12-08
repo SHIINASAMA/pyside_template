@@ -18,7 +18,7 @@ dependencies = [
 dev = [
     "nuitka>=2.8.1",
     "pyinstaller>=6.16.0",
-    "pyside-cli>=0.3.3",
+    "pyside-cli>=0.3.5",
     "pytest>=8.3.5",
     "pytest-benchmark>=4.0.0",
     "pytest-cov>=5.0.0",
@@ -79,6 +79,7 @@ testpaths = [
 [project.scripts]
 App = "app.__main__:run_module"
 AppNoUpdater = "app.__main__:main_no_updater"
+QmlDemo = "qml_demo.__main__:main"
 
 # build sources wheel
 [build-system]
@@ -86,5 +87,5 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-include = ["app", "app.*"]
+include = ["app", "app.*", "qml_demo", "qml_demo.*"]
 exclude = ["app.test", "app.test.*"]

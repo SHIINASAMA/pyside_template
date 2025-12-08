@@ -353,7 +353,7 @@ wheels = [
 
 [[package]]
 name = "pyside-cli"
-version = "0.3.3"
+version = "0.3.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "colorama" },
@@ -362,9 +362,9 @@ dependencies = [
     { name = "singleton-decorator" },
     { name = "toml" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/f5/69/13c980fff58bcb7d487fc1a39cbd9c22cff95d93238553ed2b579bed1ffa/pyside_cli-0.3.3.tar.gz", hash = "sha256:af75742302f5903dc6576c2595c592a5a0a1d49cec3d351edffaf0f54b5e8df0", size = 10985, upload-time = "2025-12-07T11:10:58.87Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f4/dd/ae2c9e55114a14b2044582b7cafbbe679880131a2c284d200f1e706ce6d1/pyside_cli-0.3.5.tar.gz", hash = "sha256:891d016fd367bb50091d6123f1a9b64434086d7ab418926c891c757e155256aa", size = 11023, upload-time = "2025-12-08T06:13:51.415Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/04/78/fe0548a8087dec27a490a7b20ece513fdb286f7744923649763d0dd456e2/pyside_cli-0.3.3-py3-none-any.whl", hash = "sha256:b80e877b19e83b53f1b73a0225fc8ca95895b21c4d2be99986c68b436b609be5", size = 14123, upload-time = "2025-12-07T11:10:57.547Z" },
+    { url = "https://files.pythonhosted.org/packages/0d/d1/ee967cae4e209cf847698d45a1267d3bdaba3b11f10160f4f496a8a6c98e/pyside_cli-0.3.5-py3-none-any.whl", hash = "sha256:1f0f50ef4aa858e02822238850b870c42e68f91413e9f930a6f5afeb3e8cb2a6", size = 14170, upload-time = "2025-12-08T06:13:49.588Z" },
 ]
 
 [[package]]
