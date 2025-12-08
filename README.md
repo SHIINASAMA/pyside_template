@@ -7,6 +7,13 @@ It includes a basic project structure, a build script, and a pyproject file.
 Even if some company computers are underpowered, they're still usable in most cases.
 You just need to install uv and Python 3.8.
 
+<p align="center">
+  <img src="img/window_light.png" width=220 alt=""/>
+  <img src="img/window_dark.png" width=220 alt=""/>
+  <br>
+  <i>default theme preview</i>
+</p>
+
 ## Main Dependencies
 
 - pyside-cli
@@ -35,6 +42,12 @@ You just need to install uv and Python 3.8.
 | qml_demo                     | See [qml_demo/README.md](qml_demo/README.md) |
 
 ## Project Setup and Usage
+
+<p align="center">
+  <img src="img/build.gif" width=450 alt=""/>
+  <br>
+  <i>build via pyside-cli</i>
+</p>
 
 ### Create your project
 

@@ -407,7 +407,7 @@ requires-dist = [
 dev = [
     { name = "nuitka", specifier = ">=2.8.1" },
     { name = "pyinstaller", specifier = ">=6.16.0" },
-    { name = "pyside-cli", specifier = ">=0.3.3" },
+    { name = "pyside-cli", specifier = ">=0.3.5" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
