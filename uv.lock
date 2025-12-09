@@ -134,11 +134,11 @@ wheels = [
 
 [[package]]
 name = "darkdetect"
-version = "0.8.0"
+version = "0.7.1"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/45/77/7575be73bf12dee231d0c6e60ce7fb7a7be4fcd58823374fc59a6e48262e/darkdetect-0.8.0.tar.gz", hash = "sha256:b5428e1170263eb5dea44c25dc3895edd75e6f52300986353cd63533fe7df8b1", size = 7681, upload-time = "2022-12-16T14:14:42.113Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/48/2e/346667de53b48417e6237efd9d076d6530c413666fcbc381adbfeff21ce7/darkdetect-0.7.1.tar.gz", hash = "sha256:47be3cf5134432ddb616bbffc927237718407914993c82809983e7ccebf49013", size = 6976, upload-time = "2022-07-18T21:10:27.64Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/f2/f2/728f041460f1b9739b85ee23b45fa5a505962ea11fd85bdbe2a02b021373/darkdetect-0.8.0-py3-none-any.whl", hash = "sha256:a7509ccf517eaad92b31c214f593dbcf138ea8a43b2935406bbd565e15527a85", size = 8955, upload-time = "2022-12-16T14:14:40.92Z" },
+    { url = "https://files.pythonhosted.org/packages/63/bd/b31abc8fcaab163e0b9501020309dd9094b47d609035a23e6ec0a0a8ba10/darkdetect-0.7.1-py2.py3-none-any.whl", hash = "sha256:3efe69f8ecd5f1b7f4fbb0d1d93f656b0e493c45cc49222380ffe2a529cbc866", size = 8199, upload-time = "2022-07-18T21:10:26.178Z" },
 ]
 
 [[package]]
@@ -342,9 +342,13 @@ wheels = [
 [[package]]
 name = "pyqtdarktheme-fork"
 version = "2.3.4"
-source = { git = "https://github.com/SHIINASAMA/PyQtDarkTheme?rev=9e7c2d2f31a736971d06859ff1865e0e719b5115#9e7c2d2f31a736971d06859ff1865e0e719b5115" }
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "darkdetect" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2b/e4/6da580769cd9b669bdcffd5fa5caf5834e1dd55d5a03fa66f5380bc40488/pyqtdarktheme_fork-2.3.4.tar.gz", hash = "sha256:2a5fab9d2122e52f772a7088e87be1fc0af767346e5fa0b1333e6813ebb2116c", size = 41623, upload-time = "2025-01-03T17:19:21.662Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/48/f5/a16f1f72b1cd024013ba68b28396b3be989df9acd3d1428796a7922dd81e/pyqtdarktheme_fork-2.3.4-py3-none-any.whl", hash = "sha256:a1682eb0aa0f1f03cb6a081c5d58f0d30dcd862f3f7398f0773a3ba6aa25cb2a", size = 54397, upload-time = "2025-01-03T17:19:19.078Z" },
 ]
 
 [[package]]
@@ -393,7 +397,7 @@ requires-dist = [
     { name = "glom", specifier = ">=24.11.0" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "packaging", specifier = ">=25.0" },
-    { name = "pyqtdarktheme-fork", git = "https://github.com/SHIINASAMA/PyQtDarkTheme?rev=9e7c2d2f31a736971d06859ff1865e0e719b5115" },
+    { name = "pyqtdarktheme-fork", specifier = ">=2.3.4" },
     { name = "pyside6", specifier = ">=6.1.3" },
     { name = "qasync", specifier = ">=0.28.0" },
     { name = "singleton-decorator", specifier = ">=1.0.0" },
