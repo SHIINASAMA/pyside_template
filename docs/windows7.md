@@ -33,7 +33,7 @@ This project provides **PyInstaller** as a compatibility build backend for Windo
 You can enable this mode by adding the `--backend pyinstaller` flag when running commands:
 
 ```bash
-uv run pyside-cli --all --onefile --backend pyinstaller --low-perf
+uv run pyside-cli build --onefile --backend pyinstaller --low-perf
 ```
 
 ### Build Recommendations

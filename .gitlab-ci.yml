@@ -32,8 +32,8 @@ check_version:
   script:
    - pip install uv
    - uv sync
-   - uv run pyside-cli --rc
-   - uv run pyside-cli --test -- -v --junitxml=${REPORT_FILE}
+   - uv run pyside-cli build --stage rc
+   - uv run pyside-cli test -- -v --junitxml=${REPORT_FILE}
   artifacts:
     reports:
       junit: report-*.xml
@@ -43,7 +43,7 @@ check_version:
   script:
     - pip install uv
     - uv sync
-    - uv run pyside-cli --all --onedir
+    - uv run pyside-cli build --onedir
     - mv ./build/App ./Package
   rules:
     - if: $CI_COMMIT_TAG
@@ -72,7 +72,7 @@ build_whl:
   script:
     - pip install uv
     - uv sync
-    - uv run pyside-cli --rc
+    - uv run pyside-cli build --stage rc
     - uv build --no-sources
     - mkdir release
     - mv dist/*.whl release

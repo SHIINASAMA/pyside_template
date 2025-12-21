@@ -7,7 +7,7 @@
             "request": "launch",
             "module": "app",
             "envFile": "${workspaceFolder}/.env",
-            "preLaunchTask": "Build Resources"
+            "preLaunchTask": "Build Resources",
         },
         {
             "name": "Run Test",
@@ -18,7 +18,7 @@
                 "app"
             ],
             "envFile": "${workspaceFolder}/.env",
-            "preLaunchTask": "Build Resources"
-        }
-    ]
+            "preLaunchTask": "Build Resources",
+        },
+    ],
 }

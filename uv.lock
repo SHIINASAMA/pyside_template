@@ -60,18 +60,6 @@ wheels = [
 ]
 
 [[package]]
-name = "colorlog"
-version = "6.10.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "colorama", marker = "sys_platform == 'win32'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/a2/61/f083b5ac52e505dfc1c624eafbf8c7589a0d7f32daa398d2e7590efa5fda/colorlog-6.10.1.tar.gz", hash = "sha256:eb4ae5cb65fe7fec7773c2306061a8e63e02efc2c72eba9d27b0fa23c94f1321", size = 17162, upload-time = "2025-10-16T16:14:11.978Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/6d/c1/e419ef3723a074172b68aaa89c9f3de486ed4c2399e2dbd8113a4fdcaf9e/colorlog-6.10.1-py3-none-any.whl", hash = "sha256:2d7e8348291948af66122cff006c9f8da6255d224e7cf8e37d8de2df3bad8c9c", size = 11743, upload-time = "2025-10-16T16:14:10.512Z" },
-]
-
-[[package]]
 name = "coverage"
 version = "7.13.0"
 source = { registry = "https://pypi.org/simple" }
@@ -353,18 +341,13 @@ wheels = [
 
 [[package]]
 name = "pyside-cli"
-version = "0.3.5"
+version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "colorama" },
-    { name = "colorlog" },
-    { name = "glom" },
-    { name = "singleton-decorator" },
-    { name = "toml" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/f4/dd/ae2c9e55114a14b2044582b7cafbbe679880131a2c284d200f1e706ce6d1/pyside_cli-0.3.5.tar.gz", hash = "sha256:891d016fd367bb50091d6123f1a9b64434086d7ab418926c891c757e155256aa", size = 11023, upload-time = "2025-12-08T06:13:51.415Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/1f/d5d79d0e283a7e21e0534c984945c8f351f7a7a1f4d1baaca17fe85a881e/pyside_cli-1.0.0.tar.gz", hash = "sha256:83ebab72ae189866d0f4acce1e1b9bf9b0ebefeb60ec63c52657172d7c074106", size = 60755, upload-time = "2025-12-21T06:16:21.201Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/0d/d1/ee967cae4e209cf847698d45a1267d3bdaba3b11f10160f4f496a8a6c98e/pyside_cli-0.3.5-py3-none-any.whl", hash = "sha256:1f0f50ef4aa858e02822238850b870c42e68f91413e9f930a6f5afeb3e8cb2a6", size = 14170, upload-time = "2025-12-08T06:13:49.588Z" },
+    { url = "https://files.pythonhosted.org/packages/3d/5d/1f56039ed4107cafef6c57315d5861bb15bf2c13a21588a0a29ad7ce95bf/pyside_cli-1.0.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:92650b07876baf990bfde999a93119c6d6069f0212010abf90d4cd75c401dccf", size = 1269951, upload-time = "2025-12-21T06:16:17.494Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/e2/e1eb763102c96275d407b08b8959c52455f6986f0775bf42b86525bd6927/pyside_cli-1.0.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:74978740eb33ec33d42a9286aa78d94bb0d8fa7343b10a37270395dc50124827", size = 1418554, upload-time = "2025-12-21T06:16:19.005Z" },
+    { url = "https://files.pythonhosted.org/packages/a0/f8/fa6a3c2a0ef92eca2c7bd8f23081ce4375aec924bc46b5516f06945a8b54/pyside_cli-1.0.0-py3-none-win_amd64.whl", hash = "sha256:e97e6e7113aef1cd23a4e0cc0bc3cb79b6dc7930c55ef1376aa651dd01bd77e3", size = 1328468, upload-time = "2025-12-21T06:16:20.216Z" },
 ]
 
 [[package]]
@@ -407,7 +390,7 @@ requires-dist = [
 dev = [
     { name = "nuitka", specifier = ">=2.8.1" },
     { name = "pyinstaller", specifier = ">=6.16.0" },
-    { name = "pyside-cli", specifier = ">=0.3.5" },
+    { name = "pyside-cli", specifier = ">=1.0.0" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },

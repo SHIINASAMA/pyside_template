@@ -12,6 +12,8 @@
 For testing only, you can run it from source using:
 
 ```bash
-uv run pyside-cli -t QmlDemo --rc
+uv run pyside-cli build --target QmlDemo --stage i18n
+uv run pyside-cli build --target QmlDemo --stage ui
+uv run pyside-cli build --target QmlDemo --stage assets
 uv run QmlDemo
 ```

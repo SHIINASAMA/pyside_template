@@ -56,7 +56,7 @@ to create your project, for example:
 
 ```bash
 pip install pyside-cli
-pyside-cli --create your_project
+pyside-cli create your_project
 ```
 
 ### IDE/Editor Support
@@ -84,19 +84,19 @@ You also can use the command line to run the project.
 - How to build and package the project. Run the following command to get the help message:
 
     ```bash
-    uv run pyside-cli -h
+    uv run pyside-cli --help
     ```
 
 - Run test in command line:
 
     ```bash
-    uv run pyside-cli --test
+    uv run pyside-cli test
     ```
 
   Or use your environment file to run the app:
 
     ```bash
-    uv run pyside-cli --rc
+    uv run pyside-cli build --stage rc
     uv run --env-file .env -- python -m app
     ``` 
 

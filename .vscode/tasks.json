@@ -8,7 +8,9 @@
             "args": [
                 "run",
                 "pyside-cli",
-                "--rc"
+                "build",
+                "--stage",
+                "rc"
             ]
         }
     ]

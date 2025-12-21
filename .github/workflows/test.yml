@@ -31,7 +31,8 @@ jobs:
       - name: Setup, install dependencies, build
         run: |
           uv sync
-          uv run pyside-cli --test -- -v --junitxml=report-${{ matrix.name }}-${{ matrix.arch }}.xml
+          uv run pyside-cli build --stage rc
+          uv run pyside-cli test -- -v --junitxml=report-${{ matrix.name }}-${{ matrix.arch }}.xml
 
       - uses: dorny/test-reporter@v2
         with:
