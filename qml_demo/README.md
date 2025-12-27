@@ -1,17 +1,26 @@
 # QML Demo
 
-> [!WARNING]  
-> This directory is for demonstration purposes only and is
-> not intended to be directly integrated into the workflow of the current project.  
-> Its structure, configuration, 
-> and build process are designed solely to showcase a minimal runnable QML example, 
-> rather than a production-grade solution.  
-> As such, it may not even build successfully (though this may improve in the future).  
-> In short, you should not use its contents directly in real project work.
+`QmlDemo` does **not fully adapt to the entire workflow template**.  
+It only guarantees the most basic functionality: **build**.
 
-For testing only, you can run it from source using:
+The complete required configuration in `pyproject.toml` is as follows:
+
+```toml
+[tool.pyside-cli]
+quiet = true
+assume-yes-for-downloads = true
+enable-plugins = ["pyside6"]
+include-qt-plugins = ["qml", "platforms", "imageformats", "styles"]
+include-module = ["PySide6.QtQml", "PySide6.QtQuick", "PySide6.QtQuickControls2"]
+```
+
+> [!WARNING]   
+> The App(target's name) uses **httpx** as a replacement for **Qt6Network** by default.  
+> Therefore, `PySide6.QtNetwork` is intentionally excluded.  
+> However, using **QtQuick** implicitly depends on `PySide6.QtNetwork`.
+
+Build the project using the following command:
 
 ```bash
-uv run pyside-cli build --target QmlDemo --stage rc
-uv run QmlDemo
+uv run pyside-cli build -t QmlDemo
 ```

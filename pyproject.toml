@@ -31,7 +31,7 @@ dev = [
 # --output-dir, --output-filename, --product-version
 quiet = true
 assume-yes-for-downloads = true
-plugin-enable = ["pyside6"]
+enable-plugins = ["pyside6"]
 nofollow-import-to = [
     "unittest",
     "pytest",
