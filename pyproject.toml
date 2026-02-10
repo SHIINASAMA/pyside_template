@@ -12,6 +12,7 @@ dependencies = [
     "pyside6>=6.1.3",
     "singleton-decorator>=1.0.0",
     "pyqtdarktheme-fork>=2.3.4",
+    "pyobjc; sys_platform == 'darwin'",
 ]
 
 [dependency-groups]
@@ -52,6 +53,10 @@ noinclude-dlls = ["qt6network.dll"]
 [tool.pyside-cli.linux]
 linux-icon = "app/assets/logo.ico"
 noinclude-dlls = ["libQt6Network.so.6"]
+
+[tool.pyside-cli.darwin]
+macos-app-icon = "app/assets/logo.icns"
+macos-create-app-bundle = true
 
 [tool.pyside-cli.pyinstaller]
 # PyInstaller build options
