@@ -2,7 +2,7 @@ import asyncio
 import os.path
 import sys
 
-from PySide6.QtCore import QTranslator, QLocale, QLockFile
+from PySide6.QtCore import QTranslator, QLocale, QLockFile, QStandardPaths
 from qasync import QApplication, run
 
 from app.builtin.gitlab_updater import GitlabUpdater
@@ -34,7 +34,8 @@ def main(enable_updater: bool = True):
     updater.is_enable = enable_updater
 
     # check if the app is already running
-    lock_file = QLockFile("App.lock")
+    lock_dir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation)
+    lock_file = QLockFile(lock_dir + "/App.lock")
     if not lock_file.lock():
         sys.exit(0)
 
