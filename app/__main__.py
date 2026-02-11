@@ -2,7 +2,7 @@ import asyncio
 import os.path
 import sys
 
-from PySide6.QtCore import QTranslator, QLockFile, QStandardPaths
+from PySide6.QtCore import QTranslator, QLockFile, QCoreApplication
 from qasync import QApplication, run
 
 from app.builtin.gitlab_updater import GitlabUpdater
@@ -35,12 +35,7 @@ def main(enable_updater: bool = True):
     # self-updating is not available on macOS
     updater.is_enable = False if running_in_bundle else enable_updater
 
-    # check if the app is already running
-    lock_dir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation)
-    lock_file = QLockFile(lock_dir + "/App.lock")
-    if not lock_file.lock():
-        sys.exit(0)
-
+    # override updater config
     if os.path.exists("updater.json"):
         updater.load_from_file_and_override("updater.json")
 
@@ -49,6 +44,12 @@ def main(enable_updater: bool = True):
 
     # init QApplication
     app = QApplication(sys.argv)
+
+    # check if the app is already running
+    lock_dir = QCoreApplication.applicationDirPath()
+    lock_file = QLockFile(lock_dir + "/App.lock")
+    if not lock_file.lock():
+        sys.exit(0)
 
     # i18n
     translator = QTranslator()
