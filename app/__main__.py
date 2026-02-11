@@ -7,6 +7,7 @@ from qasync import QApplication, run
 
 from app.builtin.gitlab_updater import GitlabUpdater
 from app.builtin.locale import detect_system_ui_language
+from app.builtin.misc import running_in_bundle
 from app.main_window import MainWindow
 from qdarktheme import enable_hi_dpi
 
@@ -31,7 +32,8 @@ def main(enable_updater: bool = True):
     updater = GitlabUpdater()
     updater.base_url = "https://gitlab.mikumikumi.xyz"
     updater.project_name = "kaoru/pyside_template"
-    updater.is_enable = enable_updater
+    # self-updating is not available on macOS
+    updater.is_enable = False if running_in_bundle else enable_updater
 
     # check if the app is already running
     lock_dir = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.AppLocalDataLocation)
