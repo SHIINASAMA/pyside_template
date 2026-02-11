@@ -108,7 +108,7 @@ class Updater(ABC):
         return Version(__version__)
 
     def check_for_update(self):
-        assert(self.remote_version is Version)
+        assert(isinstance(self.remote_version, Version))
         return (self.release_type == self.remote_version.release_type
                 and self.remote_version > self.current_version)
 

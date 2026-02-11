@@ -2,7 +2,7 @@ import asyncio
 import os.path
 import sys
 
-from PySide6.QtCore import QTranslator, QLocale, QLockFile, QStandardPaths
+from PySide6.QtCore import QTranslator, QLockFile, QStandardPaths
 from qasync import QApplication, run
 
 from app.builtin.gitlab_updater import GitlabUpdater
