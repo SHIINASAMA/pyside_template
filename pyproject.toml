@@ -56,14 +56,21 @@ noinclude-dlls = ["libQt6Network.so.6"]
 
 [tool.pyside-cli.darwin]
 macos-app-icon = "app/assets/logo.icns"
-macos-create-app-bundle = true
 
 [tool.pyside-cli.pyinstaller]
 # PyInstaller build options
 # Some options are configured for CI and tool, DO NOT CHANGE:
 # --distpath, --workpath, --specpath, --name
 windowed = true
+
+[tool.pyside-cli.pyinstaller.win32]
 icon = "app/assets/logo.ico"
+
+[tool.pyside-cli.pyinstaller.linux]
+icon = "app/assets/logo.ico"
+
+[tool.pyside-cli.pyinstaller.darwin]
+icon = "app/assets/logo.icns"
 
 [tool.pyside-cli.i18n]
 # Default language is en_US where defined in *.ui and *.py files.
