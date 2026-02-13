@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
-    <height>371</height>
+    <width>430</width>
+    <height>280</height>
    </rect>
   </property>
   <property name="styleSheet">
@@ -68,6 +68,12 @@
         <width>120</width>
         <height>0</height>
        </size>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LayoutDirection::LeftToRight</enum>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
       </property>
      </widget>
     </item>
