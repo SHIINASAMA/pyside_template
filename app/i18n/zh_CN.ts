@@ -10,7 +10,7 @@
     </message>
     <message>
         <location filename="../ui/main_window.ui" line="35"/>
-        <source>Check me</source>
+        <source>Click me</source>
         <translation>点击我</translation>
     </message>
     <message>
