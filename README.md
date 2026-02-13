@@ -8,8 +8,8 @@ Even if some company computers are underpowered, they're still usable in most ca
 You just need to install uv and Python 3.8.
 
 <p align="center">
-  <img src="img/window_light.png" width=220 alt=""/>
-  <img src="img/window_dark.png" width=220 alt=""/>
+  <img src="img/window_light.png" width=325 alt=""/>
+  <img src="img/window_dark.png" width=325 alt=""/>
   <br>
   <i>default theme preview</i>
 </p>
