@@ -2938,13 +2938,13 @@ wheels = [
 
 [[package]]
 name = "pyside-cli"
-version = "1.0.1"
+version = "1.1.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/d0/b0/201c3c18dc10f39dc315e3e140dd3a2f14fee484f37c5aaed1a5e16befad/pyside_cli-1.0.1.tar.gz", hash = "sha256:1b80a26ac29ff314afbc9a2f083e8d86523af511b2cef08a33640ddad630d4a9", size = 61413, upload-time = "2025-12-31T16:44:39.397Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/02/5c/e1d0c616573ba23f726197683d4035aeab7c682c8bf7993ca884bc6e0523/pyside_cli-1.1.0.tar.gz", hash = "sha256:bba94edcd44e02f8641cb947954bec63daf34484562532dad3f74a12b9a4e08f", size = 61517, upload-time = "2026-02-13T01:10:35.488Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b9/d4/1917d00da6ffd00fe2d3f22f76c23f452624a8aa7392a95d1079ea4e86c4/pyside_cli-1.0.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:4273da80ba50595a31efd18b138e9ff351b6d6030ea418abdc0b1f2f3a696225", size = 1273770, upload-time = "2025-12-31T16:44:36.048Z" },
-    { url = "https://files.pythonhosted.org/packages/04/3c/7506dfb9c29bce41cd017b6b09428b39a8d4be6ab3f287e7bba8ce8a528b/pyside_cli-1.0.1-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:07dcb63ff47a89acf1951c7d023beb31d8b8460192ba8f7ec53a9faa42bd586c", size = 1424245, upload-time = "2025-12-31T16:44:37.129Z" },
-    { url = "https://files.pythonhosted.org/packages/c7/eb/795ed76619fee0d6e05cf2abc9d0ad8298c4a7ad530b9cfab8216380963a/pyside_cli-1.0.1-py3-none-win_amd64.whl", hash = "sha256:a449fb56e4f1c8a5421c28fe0126129fed81e66277befb863cc64e6a7466821f", size = 1334790, upload-time = "2025-12-31T16:44:38.503Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/a7/cada23e4574622a13e35e6350cb02ea88c9a876e49727e4e4cacc8697fc8/pyside_cli-1.1.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:8be7737279f2b84ab0b5cb4e22e655f8c88b4297d7d3840bfa8fa26e931f6c45", size = 1256158, upload-time = "2026-02-13T01:10:30.904Z" },
+    { url = "https://files.pythonhosted.org/packages/16/05/80063c54b33b2abd24fe33608a3e2119e7961c2a1c51268a0b44d48d5500/pyside_cli-1.1.0-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:05943d93ddfa81affcdb4488ccac8d62452a6ed2ee6809faf1749a62ef9cc05e", size = 1393146, upload-time = "2026-02-13T01:10:32.278Z" },
+    { url = "https://files.pythonhosted.org/packages/57/6b/99bcef63c807c929ad6d3fce78e0f2d1abed29fec1d7fc475031ea449991/pyside_cli-1.1.0-py3-none-win_amd64.whl", hash = "sha256:7ecfe7934a442141d6daaa73e52ddc1e9cc05972e3e17966329f60e271dcc2e2", size = 1295762, upload-time = "2026-02-13T01:10:33.901Z" },
 ]
 
 [[package]]
@@ -2989,7 +2989,7 @@ requires-dist = [
 dev = [
     { name = "nuitka", specifier = ">=2.8.1" },
     { name = "pyinstaller", specifier = ">=6.16.0" },
-    { name = "pyside-cli", specifier = ">=1.0.0" },
+    { name = "pyside-cli", specifier = ">=1.1.0" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "pytest-benchmark", specifier = ">=4.0.0" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
