@@ -38,6 +38,9 @@ jobs:
           - os: windows-latest
             arch: x64
             name: windows
+          - os: macos-latest
+            arch: arm64
+            name: macos
 
     runs-on: ${{ matrix.os }}
     needs:
@@ -51,19 +54,33 @@ jobs:
           python-version: '3.11'
       - uses: yezz123/setup-uv@v4
 
-      - name: Before script
+      - name: Before script (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y patchelf
 
       - name: Setup, install dependencies, build
+        if: runner.os != 'macOS'
         run: |
           uv sync
           uv run pyside-cli build --onedir
 
-      - name: Package artifact (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Setup, install dependencies, build (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          uv sync
+          uv run pyside-cli build
+
+      - name: Package artifact (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install create-dmg
+          xattr -cr build/*.app
+          create-dmg --volname App --window-pos 200 120 --window-size 600 400 --icon-size 100 --app-drop-link 450 185 ../App.dmg *.app
+
+      - name: Package artifact (Linux)
+        if: runner.os == 'Linux'
         run: |
           mv ./build/App ./Package
           zip -r App-${{ matrix.name }}-${{ matrix.arch }}.zip Package/
@@ -79,7 +96,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: App-${{ matrix.name }}-${{ matrix.arch }}
-          path: ./App-*
+          path: |
+            ./App-*
+            *.dmg
 
   build_whl:
     runs-on: ubuntu-latest
