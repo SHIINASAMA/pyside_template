@@ -77,7 +77,7 @@ jobs:
         run: |
           brew install create-dmg
           xattr -cr build/*.app
-          create-dmg --volname App --window-pos 200 120 --window-size 600 400 --icon-size 100 --app-drop-link 450 185 ../App.dmg *.app
+          create-dmg --volname App --window-pos 200 120 --window-size 600 400 --icon-size 100 --app-drop-link 450 185 App.dmg ./build/*.app
 
       - name: Package artifact (Linux)
         if: runner.os == 'Linux'
@@ -98,7 +98,7 @@ jobs:
           name: App-${{ matrix.name }}-${{ matrix.arch }}
           path: |
             ./App-*
-            *.dmg
+            ./*.dmg
 
   build_whl:
     runs-on: ubuntu-latest
