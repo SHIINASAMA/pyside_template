@@ -2,14 +2,13 @@ import asyncio
 import os.path
 import sys
 
-from PySide6.QtCore import QTranslator, QLockFile, QCoreApplication
+from PySide6.QtCore import QTranslator, QLockFile
 from qasync import QApplication, run
 
-from app.builtin.gitlab_updater import GitlabUpdater
 from app.builtin.locale import detect_system_ui_language
-from app.builtin.misc import running_in_bundle
+from app.builtin.utils import get_updater, running_in_bundle, init_app
+from app.builtin.paths import AppPaths
 from app.main_window import MainWindow
-from qdarktheme import enable_hi_dpi
 
 
 async def task():
@@ -25,29 +24,22 @@ async def task():
 
 
 def main(enable_updater: bool = True):
+    # init QApplication
+    app = init_app()
+    paths = AppPaths()
+
     # init updater, updater will remove some arguments
     # and do update logic
-    # updater = GithubUpdater()
-    # updater.project_name = "SHIINASAMA/pyside_template"
-    updater = GitlabUpdater()
-    updater.base_url = "https://gitlab.mikumikumi.xyz"
-    updater.project_name = "kaoru/pyside_template"
+    updater = get_updater()
     # self-updating is not available on macOS
     updater.is_enable = False if running_in_bundle else enable_updater
 
     # override updater config
-    if os.path.exists("updater.json"):
+    if os.getenv("DEBUG", "0") == 1 and os.path.exists("updater.json"):
         updater.load_from_file_and_override("updater.json")
 
-    # enable hdpi
-    enable_hi_dpi()
-
-    # init QApplication
-    app = QApplication(sys.argv)
-
     # check if the app is already running
-    lock_dir = QCoreApplication.applicationDirPath()
-    lock_file = QLockFile(lock_dir + "/App.lock")
+    lock_file = QLockFile(str(paths.base_dir) + "/App.lock")
     if not lock_file.lock():
         sys.exit(0)
 

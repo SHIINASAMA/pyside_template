@@ -78,5 +78,3 @@ class UpdateWidget(AsyncWidget):
                 tar_ref.extractall(os.path.dirname(self.updater.filename))
         else:
             raise RuntimeError(f"Unsupported file format: {self.updater.filename}")
-        # remove the downloaded file
-        os.remove(self.updater.filename)

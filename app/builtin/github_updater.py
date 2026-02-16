@@ -7,12 +7,14 @@ from singleton_decorator import singleton
 
 
 from .update import Updater, Version
+from .paths import AppPaths
 
 
 @singleton
 class GithubUpdater(Updater):
     base_url: str = "https://api.github.com"
     project_name: str = ""
+    app_name: str = "App"
     timeout = 5
     token = None
 
@@ -67,7 +69,7 @@ class GithubUpdater(Updater):
                 sysname = "linux"
             else:
                 raise RuntimeError(f"Unknown system: {sysname}")
-            package_name = f"App-{sysname}-{arch}.zip"
+            package_name = f"{self.app_name}-{sysname}-{arch}.zip"
 
             self.download_url = None
             for assets in glom(latest_release, "assets", default={}):
@@ -83,4 +85,5 @@ class GithubUpdater(Updater):
             r = await client.head(url=self.download_url, follow_redirects=True)
             r.raise_for_status()
 
-            self.filename = package_name
+            paths = AppPaths()
+            self.filename = f"{paths.update_tmp}/{package_name}"

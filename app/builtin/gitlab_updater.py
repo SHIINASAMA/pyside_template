@@ -8,12 +8,14 @@ from httpx import AsyncClient
 from singleton_decorator import singleton
 
 from .update import Updater, Version
+from .paths import AppPaths
 
 
 @singleton
 class GitlabUpdater(Updater):
     base_url: str = "https://gitlab.com"
     project_name: str = ""
+    app_name: str = "App"
     timeout = 5
     token = None
 
@@ -82,7 +84,7 @@ class GitlabUpdater(Updater):
                 sysname = "linux"
             else:
                 raise RuntimeError(f"Unknown system: {sysname}")
-            package_name = f"App-{sysname}-{arch}"
+            package_name = f"{self.app_name}-{sysname}-{arch}"
 
             self.download_url = None
             for link in glom(latest_release, "assets.links", default={}):
@@ -98,4 +100,5 @@ class GitlabUpdater(Updater):
             r.raise_for_status()
 
             path = urlparse(self.download_url).path
-            self.filename = os.path.basename(path)
+            paths = AppPaths()
+            self.filename = f"{paths.update_tmp}/{os.path.basename(path)}"

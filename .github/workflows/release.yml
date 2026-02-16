@@ -11,6 +11,9 @@ on:
 permissions:
   contents: write
 
+env:
+  APP_NAME: App
+
 jobs:
   check-version:
     runs-on: ubuntu-latest
@@ -51,7 +54,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - uses: yezz123/setup-uv@v4
 
       - name: Before script (Linux)
@@ -76,29 +79,39 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install create-dmg
-          xattr -cr build/*.app
-          create-dmg --volname App --window-pos 200 120 --window-size 600 400 --icon-size 100 --app-drop-link 450 185 App.dmg ./build/*.app
+          xattr -cr build/${{ env.APP_NAME }}.app
+          ./build-dmg.sh
+          mkdir -p release
+          cd build
+          zip -r \
+            ../release/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}.zip \
+            ${{ env.APP_NAME }}.app/
 
       - name: Package artifact (Linux)
         if: runner.os == 'Linux'
         run: |
-          mv ./build/App ./Package
-          zip -r App-${{ matrix.name }}-${{ matrix.arch }}.zip Package/
+          mv ./build/${{ env.APP_NAME }} ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}
+          mkdir -p release
+          cd build
+          zip -r \
+            ../release/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}.zip \
+            ${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}/
 
       - name: Package artifact (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Move-Item -Path ./build/App -Destination ./Package
-          Compress-Archive -Path .\Package\ -DestinationPath App-${{ matrix.name }}-${{ matrix.arch }}.zip
+          Move-Item -Path ./build/${{ env.APP_NAME }} -Destination ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}
+          New-Item -ItemType Directory -Path release
+          Compress-Archive -Path ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }} `
+            -DestinationPath ./release/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}.zip
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: App-${{ matrix.name }}-${{ matrix.arch }}
           path: |
-            ./App-*
-            ./*.dmg
+            ./release/*
 
   build_whl:
     runs-on: ubuntu-latest
@@ -110,7 +123,7 @@ jobs:
 
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
       - uses: yezz123/setup-uv@v4
 
       - name: Setup, install dependencies, build
