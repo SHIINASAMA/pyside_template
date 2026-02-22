@@ -14,6 +14,7 @@ dependencies = [
     "pyqtdarktheme-fork>=2.3.4",
     "pyobjc; sys_platform == 'darwin'",
     "psutil>=7.2.2",
+    "ruff>=0.15.2",
 ]
 
 [dependency-groups]

@@ -6,15 +6,15 @@ import subprocess
 import sys
 from abc import abstractmethod, ABC
 from pathlib import Path
-import packaging.version as Version0
+from packaging.version import Version as BuiltinVersion
 
 from httpx import AsyncClient
 import psutil
 
 from app.resources.version import __version__
-import app.builtin.config as CFG
 from app.builtin.args import pop_arg, pop_arg_pair
 from app.builtin.paths import AppPaths
+import app.builtin.config as cfg
 
 
 class ReleaseType(enum.Enum):
@@ -25,7 +25,7 @@ class ReleaseType(enum.Enum):
     NIGHTLY = "nightly"
 
 
-class Version(Version0.Version):
+class Version(BuiltinVersion):
     def __init__(self, version_string: str):
         version_part = version_string.split("-")
         super().__init__(version_part[0])
@@ -119,7 +119,7 @@ class Updater(ABC):
     @staticmethod
     def apply_update():
         """
-        Call `New Execuable` to copy itself to current work directory and run it.
+        Call `New Executable` to copy itself to current work directory and run it.
         Will call `sys.exit(0)` automatically.
         """
         pid = os.getpid()
@@ -186,8 +186,8 @@ class Updater(ABC):
 
         # Copy current directory to parent directory
         if sys.platform == "darwin":
-            old_bundle = f"{parent_dir}/{CFG.APP_NAME}.app"
-            new_bundle = f"{os.getcwd()}/{CFG.APP_NAME}.app"
+            old_bundle = f"{parent_dir}/{cfg.APP_NAME}.app"
+            new_bundle = f"{os.getcwd()}/{cfg.APP_NAME}.app"
             shutil.rmtree(old_bundle)
             subprocess.run(f"ditto {new_bundle} {old_bundle}", check=True)
         else:
@@ -210,7 +210,7 @@ class Updater(ABC):
             str(os.getpid()),
         ]
         if sys.platform == "win32":
-            new_executable = f"{parent_dir}/{CFG.APP_NAME}.exe"
+            new_executable = f"{parent_dir}/{cfg.APP_NAME}.exe"
             subprocess.Popen(
                 [new_executable] + options,
                 creationflags=subprocess.DETACHED_PROCESS,
@@ -218,14 +218,14 @@ class Updater(ABC):
             )
         elif sys.platform == "darwin":
             # f"/Applications/{CFG.APP_NAME}.app"
-            new_executable = f"{parent_dir}/{CFG.APP_NAME}.app"
+            new_executable = f"{parent_dir}/{cfg.APP_NAME}.app"
             subprocess.Popen(
                 ["open", new_executable, "--args"] + options,
                 preexec_fn=os.setpgrp,
                 env=os.environ.copy(),
             )
         else:
-            new_executable = f"{parent_dir}/{CFG.APP_NAME}"
+            new_executable = f"{parent_dir}/{cfg.APP_NAME}"
             subprocess.Popen(
                 [new_executable] + options,
                 preexec_fn=os.setpgrp,
