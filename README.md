@@ -7,6 +7,9 @@ It includes a basic project structure, a build script, and a pyproject file.
 Even if some company computers are underpowered, they're still usable in most cases.
 You just need to install uv and Python 3.8.
 
+> [!WARNING]
+> The project is currently testing new features and is in an unstable phase.
+
 <p align="center">
   <img src="img/window_light.png" width=325 alt=""/>
   <img src="img/window_dark.png" width=325 alt=""/>
