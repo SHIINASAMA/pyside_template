@@ -7,8 +7,9 @@ from httpx import AsyncClient
 
 from singleton_decorator import singleton
 
-from .update import Updater, Version
-from .paths import AppPaths
+from app.builtin.update import Updater, Version
+from app.builtin.paths import AppPaths
+from app.builtin.utils import get_arch, get_sysname
 
 
 @singleton
@@ -67,23 +68,8 @@ class GitlabUpdater(Updater):
             self.remote_version = Version(latest_release["tag_name"])
             self.description = latest_release["description"]
 
-            arch = platform.machine().lower()
-            if arch in ["x86_64", "amd64"]:
-                arch = "x64"
-            elif arch in ["aarch64", "arm64"]:
-                arch = "arm64"
-            else:
-                raise RuntimeError(f"Unknown architecture: {arch}")
-
-            sysname = platform.system().lower()
-            if sysname == "windows":
-                sysname = "windows"
-            elif sysname == "darwin":
-                sysname = "macos"
-            elif sysname == "linux":
-                sysname = "linux"
-            else:
-                raise RuntimeError(f"Unknown system: {sysname}")
+            arch = get_arch()
+            sysname = get_sysname()
             package_name = f"{self.app_name}-{sysname}-{arch}"
 
             self.download_url = None
