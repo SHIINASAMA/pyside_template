@@ -123,22 +123,31 @@ class Updater(ABC):
         Will call `sys.exit(0)` automatically.
         """
         pid = os.getpid()
-        # TODO fill the filed, executable can be `Onedir | Onefile | Bundle`
-        new_executable_name = ""
-        if sys.platform == "win32":
+        paths = AppPaths()
+        if sys.platform == "darwin":
+            new_executable_name = f"{paths.update_tmp}/{cfg.APP_NAME}.app"
             subprocess.Popen(
                 [
-                    f"{new_executable_name}.exe",
+                    "open",
+                    new_executable_name,
+                    "--args",
                     Updater._copy_self_cmd,
                     Updater._old_pid_cmd,
                     str(pid),
                     Updater._old_dir_cmd,
                     os.getcwd(),
                 ],
-                creationflags=subprocess.DETACHED_PROCESS,
+                preexec_fn=os.setpgrp,
                 env=os.environ.copy(),
+                cwd=paths.update_tmp
             )
-        else:
+        elif sys.platform == "linux":
+            new_executable_name = Path(f"{paths.update_tmp}/{cfg.APP_NAME}")
+            work_dir = Path(f"{paths.update_tmp}")
+            if new_executable_name.is_dir():
+                # Onedir
+                work_dir = new_executable_name
+                new_executable_name = new_executable_name / cfg.APP_NAME
             subprocess.Popen(
                 [
                     new_executable_name,
@@ -150,7 +159,33 @@ class Updater(ABC):
                 ],
                 preexec_fn=os.setpgrp,
                 env=os.environ.copy(),
+                cwd=work_dir
             )
+        else: # win32
+            new_executable_name = Path(f"{paths.update_tmp}/{cfg.APP_NAME}")
+            new_executable_name_with_exe = Path(f"{paths.update_tmp}/{cfg.APP_NAME}.exe")
+            work_dir = Path(f"{paths.update_tmp}")
+            if new_executable_name.is_dir():
+                # Onedir
+                work_dir = new_executable_name
+                new_executable_name = new_executable_name / f"{cfg.APP_NAME}.exe"
+            elif new_executable_name_with_exe.is_file():
+                # Onefile
+                new_executable_name = new_executable_name_with_exe
+            subprocess.Popen(
+                [
+                    f"{new_executable_name}",
+                    Updater._copy_self_cmd,
+                    Updater._old_pid_cmd,
+                    str(pid),
+                    Updater._old_dir_cmd,
+                    os.getcwd(),
+                ],
+                creationflags=subprocess.DETACHED_PROCESS,
+                env=os.environ.copy(),
+                cwd=work_dir
+            )
+            
         sys.exit(0)
 
     @staticmethod
