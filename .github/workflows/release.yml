@@ -90,20 +90,20 @@ jobs:
       - name: Package artifact (Linux)
         if: runner.os == 'Linux'
         run: |
-          mv ./build/${{ env.APP_NAME }} ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}
+          mv ./build/${{ env.APP_NAME }} ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}
           mkdir -p release
           cd build
           zip -r \
             ../release/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}.zip \
-            ${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}/
+            ${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}/
 
       - name: Package artifact (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          Move-Item -Path ./build/${{ env.APP_NAME }} -Destination ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}
+          Move-Item -Path ./build/${{ env.APP_NAME }} -Destination ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}
           New-Item -ItemType Directory -Path release
-          Compress-Archive -Path ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }} `
+          Compress-Archive -Path ./build/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }} `
             -DestinationPath ./release/${{ env.APP_NAME }}-${{ matrix.name }}-${{ matrix.arch }}-${{ github.ref_name }}.zip
 
       - name: Upload artifact

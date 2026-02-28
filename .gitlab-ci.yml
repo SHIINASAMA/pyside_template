@@ -90,9 +90,9 @@ build_windows_x64:
   tags:
     - windows
   after_script:
-    - Move-Item -Path ./build/${APP_NAME} -Destination ./build/${APP_NAME}-windows-x64-${CI_COMMIT_TAG}
+    - Move-Item -Path ./build/${APP_NAME} -Destination ./build/${APP_NAME}-windows-x64
     - New-Item -Path release -Type Directory
-    - Compress-Archive -Path ./build/${APP_NAME}-windows-x64-${CI_COMMIT_TAG}/ `
+    - Compress-Archive -Path ./build/${APP_NAME}-windows-x64/ `
       -DestinationPath ./release/${APP_NAME}-windows-x64-${CI_COMMIT_TAG}.zip `
       -CompressionLevel Optimal
 
@@ -103,11 +103,11 @@ build_linux_x64:
     - apt-get update
     - apt-get install -y patchelf
   after_script:
-    - mv ./build/${APP_NAME} ./build/${APP_NAME}-linux-x64-${CI_COMMIT_TAG}
+    - mv ./build/${APP_NAME} ./build/${APP_NAME}-linux-x64
     - mkdir -p release
     - cd build
     - tar -czf ../release/${APP_NAME}-linux-x64-${CI_COMMIT_TAG}.tar.gz \
-      ${APP_NAME}-linux-x64-${CI_COMMIT_TAG}/
+      ${APP_NAME}-linux-x64/
 
 # build_macos_arm64:
 #   stage: build
