@@ -1,18 +1,18 @@
-import platform
-
 from glom import glom
 from httpx import AsyncClient
 
 from singleton_decorator import singleton
 
 
-from .update import Updater, Version
+from app.builtin.update import Updater, Version, get_arch, get_sysname
+from app.builtin.paths import AppPaths
 
 
 @singleton
 class GithubUpdater(Updater):
     base_url: str = "https://api.github.com"
     project_name: str = ""
+    app_name: str = "App"
     timeout = 5
     token = None
 
@@ -33,6 +33,7 @@ class GithubUpdater(Updater):
             r = await client.get(
                 url=f"{self.base_url}/repos/{self.project_name}/releases",
                 params={"pre_page": "100", "page": "1"},
+                follow_redirects=True
             )
             r.raise_for_status()
             releases = []
@@ -50,28 +51,14 @@ class GithubUpdater(Updater):
             self.remote_version = Version(latest_release["tag_name"])
             self.description = latest_release["body"]
 
-            arch = platform.machine().lower()
-            if arch in ["x86_64", "amd64"]:
-                arch = "x64"
-            elif arch in ["aarch64", "arm64"]:
-                arch = "arm64"
-            else:
-                raise RuntimeError(f"Unknown architecture: {arch}")
-
-            sysname = platform.system().lower()
-            if sysname == "windows":
-                sysname = "windows"
-            elif sysname == "darwin":
-                sysname = "macos"
-            elif sysname == "linux":
-                sysname = "linux"
-            else:
-                raise RuntimeError(f"Unknown system: {sysname}")
-            package_name = f"App-{sysname}-{arch}.zip"
+            arch = get_arch()
+            sysname = get_sysname()
+            package_name = f"{self.app_name}-{sysname}-{arch}"
 
             self.download_url = None
             for assets in glom(latest_release, "assets", default={}):
-                if assets["name"] == package_name:
+                if package_name in assets["name"]:
+                    package_name = assets["name"]
                     self.download_url = assets["browser_download_url"]
                     break
 
@@ -83,4 +70,5 @@ class GithubUpdater(Updater):
             r = await client.head(url=self.download_url, follow_redirects=True)
             r.raise_for_status()
 
-            self.filename = package_name
+            paths = AppPaths()
+            self.filename = f"{paths.update_dir}/{package_name}"

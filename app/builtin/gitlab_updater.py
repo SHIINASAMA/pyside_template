@@ -1,5 +1,4 @@
 import os
-import platform
 from urllib.parse import urlparse
 
 from glom import glom
@@ -7,13 +6,15 @@ from httpx import AsyncClient
 
 from singleton_decorator import singleton
 
-from .update import Updater, Version
+from app.builtin.update import Updater, Version, get_arch, get_sysname
+from app.builtin.paths import AppPaths
 
 
 @singleton
 class GitlabUpdater(Updater):
     base_url: str = "https://gitlab.com"
     project_name: str = ""
+    app_name: str = "App"
     timeout = 5
     token = None
 
@@ -65,28 +66,14 @@ class GitlabUpdater(Updater):
             self.remote_version = Version(latest_release["tag_name"])
             self.description = latest_release["description"]
 
-            arch = platform.machine().lower()
-            if arch in ["x86_64", "amd64"]:
-                arch = "x64"
-            elif arch in ["aarch64", "arm64"]:
-                arch = "arm64"
-            else:
-                raise RuntimeError(f"Unknown architecture: {arch}")
-
-            sysname = platform.system().lower()
-            if sysname == "windows":
-                sysname = "windows"
-            elif sysname == "darwin":
-                sysname = "macos"
-            elif sysname == "linux":
-                sysname = "linux"
-            else:
-                raise RuntimeError(f"Unknown system: {sysname}")
-            package_name = f"App-{sysname}-{arch}"
+            arch = get_arch()
+            sysname = get_sysname()
+            package_name = f"{self.app_name}-{sysname}-{arch}"
 
             self.download_url = None
             for link in glom(latest_release, "assets.links", default={}):
                 if package_name in link["name"]:
+                    package_name = link["name"]
                     self.download_url = link["url"]
                     break
             if self.download_url is None:
@@ -98,4 +85,5 @@ class GitlabUpdater(Updater):
             r.raise_for_status()
 
             path = urlparse(self.download_url).path
-            self.filename = os.path.basename(path)
+            paths = AppPaths()
+            self.filename = f"{paths.update_dir}/{os.path.basename(path)}"
