@@ -33,8 +33,8 @@ def detect_system_ui_language():
     lang = locale.language()
     script = locale.script()
     # country = locale.country()
-    if lang == QLocale.Language.Chinese:
-        if script == QLocale.Script.SimplifiedChineseScript:
-            return "zh_CN"
+    # if lang == QLocale.Language.Chinese:
+    #     if script == QLocale.Script.SimplifiedChineseScript:
+    #         return "zh-Hans"
 
-    return lang.name()
+    return f"{QLocale.languageToCode(lang)}-{QLocale.scriptToCode(script)}"
