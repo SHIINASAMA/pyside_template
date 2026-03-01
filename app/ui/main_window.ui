@@ -37,6 +37,12 @@
         <height>0</height>
        </size>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="text">
        <string>Click me</string>
       </property>
@@ -67,6 +73,12 @@
        <size>
         <width>120</width>
         <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
        </size>
       </property>
       <property name="layoutDirection">
