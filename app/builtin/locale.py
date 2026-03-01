@@ -1,4 +1,4 @@
-import sys
+from PySide6.QtCore import QLocale
 
 
 def bcp47_to_locale(tag: str) -> str:
@@ -29,25 +29,12 @@ def bcp47_to_locale(tag: str) -> str:
 
 
 def detect_system_ui_language():
-    if sys.platform == "win32":
-        import ctypes, locale
+    locale = QLocale()
+    lang = locale.language()
+    script = locale.script()
+    # country = locale.country()
+    if lang == QLocale.Language.Chinese:
+        if script == QLocale.Script.SimplifiedChineseScript:
+            return "zh_CN"
 
-        lang_id = ctypes.windll.kernel32.GetUserDefaultUILanguage()
-        return locale.windows_locale.get(lang_id)
-
-    elif sys.platform == "darwin":  # macOS
-        from Foundation import NSUserDefaults
-
-        langs = NSUserDefaults.standardUserDefaults().objectForKey_("AppleLanguages")
-        lang = langs[0] if langs else None
-        assert lang is not None
-        return bcp47_to_locale(lang)
-
-    else:  # Linux
-        import os
-
-        return (
-            os.environ.get("LANG")
-            or os.environ.get("LC_ALL")
-            or os.environ.get("LC_MESSAGES")
-        )
+    return lang.name()
