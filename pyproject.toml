@@ -77,7 +77,7 @@ icon = "app/assets/logo.icns"
 [tool.pyside-cli.i18n]
 # Default language is en_US where defined in *.ui and *.py files.
 # Exclude the app/resources/*.py.
-languages = ["zh_CN"]
+languages = ["zh-Hans"]
 
 [tool.pytest.ini_options]
 testpaths = ["app/test"]
