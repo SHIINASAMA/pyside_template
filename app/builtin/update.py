@@ -110,9 +110,9 @@ class Updater(ABC):
         if pop_arg(Updater._disable_cmd, False):
             self.is_enable = False
 
-    def load_from_file_and_override(self, filename: str):
+    def load_from_file_and_override(self, file: str | Path):
         """Load updater configuration from a JSON file."""
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(file, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         version: str = data.get("version", None)

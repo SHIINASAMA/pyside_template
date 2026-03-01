@@ -5,7 +5,7 @@ from PySide6.QtCore import QStandardPaths, QCoreApplication
 @singleton
 class AppPaths:
     base_dir: Path
-    update_tmp: Path
+    update_dir: Path
 
     def __init__(self, *, base_dir=None):
         if base_dir is None:
@@ -16,7 +16,7 @@ class AppPaths:
         else:
             self.base_dir = base_dir
 
-        self.update_tmp = self.base_dir / "update_tmp"
+        self.update_dir = self.base_dir / "update_tmp"
 
         self.base_dir.mkdir(parents=True, exist_ok=True)
-        self.update_tmp.mkdir(parents=True, exist_ok=True)
+        self.update_dir.mkdir(parents=True, exist_ok=True)

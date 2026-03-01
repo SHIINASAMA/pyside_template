@@ -1,8 +1,8 @@
 import asyncio
-import os.path
 import sys
+import os
 
-from PySide6.QtCore import QTranslator, QLocale, QLockFile
+from PySide6.QtCore import QTranslator, QLockFile
 from qasync import QApplication, run
 
 from app.builtin.locale import detect_system_ui_language
@@ -33,10 +33,12 @@ def main(enable_updater: bool = True):
     updater = get_updater()
     # self-updating is not available on macOS
     # updater.is_enable = False if running_in_bundle else enable_updater
+    updater.is_enable = enable_updater
 
     # override updater config
-    if os.getenv("DEBUG", "0") == 1 and os.path.exists("updater.json"):
-        updater.load_from_file_and_override("updater.json")
+    config_file = paths.update_dir.join("updater.json")
+    if os.getenv("DEBUG", "0") == 1 and config_file.exists() and config_file.is_file():
+        updater.load_from_file_and_override(config_file)
 
     # check if the app is already running
     lock_file = QLockFile(str(paths.base_dir) + "/App.lock")
