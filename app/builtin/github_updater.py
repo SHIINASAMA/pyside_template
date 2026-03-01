@@ -69,4 +69,4 @@ class GithubUpdater(Updater):
             r.raise_for_status()
 
             paths = AppPaths()
-            self.filename = f"{paths.update_tmp}/{package_name}"
+            self.filename = f"{paths.update_dir}/{package_name}"

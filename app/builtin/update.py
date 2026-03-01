@@ -150,7 +150,7 @@ class Updater(ABC):
         pid = os.getpid()
         paths = AppPaths()
         if sys.platform == "darwin":
-            new_executable_name = f"{paths.update_tmp}/{cfg.APP_NAME}.app"
+            new_executable_name = f"{paths.update_dir}/{cfg.APP_NAME}.app"
             subprocess.Popen(
                 [
                     "open",
@@ -164,11 +164,11 @@ class Updater(ABC):
                 ],
                 preexec_fn=os.setpgrp,
                 env=os.environ.copy(),
-                cwd=paths.update_tmp,
+                cwd=paths.update_dir,
             )
         elif sys.platform == "linux":
-            new_executable_name = Path(f"{paths.update_tmp}/{cfg.APP_NAME}")
-            work_dir = Path(f"{paths.update_tmp}")
+            new_executable_name = Path(f"{paths.update_dir}/{cfg.APP_NAME}")
+            work_dir = Path(f"{paths.update_dir}")
             if new_executable_name.is_dir():
                 # Onedir
                 work_dir = new_executable_name
@@ -187,11 +187,11 @@ class Updater(ABC):
                 cwd=work_dir,
             )
         else:  # win32
-            new_executable_name = Path(f"{paths.update_tmp}/{cfg.APP_NAME}")
+            new_executable_name = Path(f"{paths.update_dir}/{cfg.APP_NAME}")
             new_executable_name_with_exe = Path(
-                f"{paths.update_tmp}/{cfg.APP_NAME}.exe"
+                f"{paths.update_dir}/{cfg.APP_NAME}.exe"
             )
-            work_dir = Path(f"{paths.update_tmp}")
+            work_dir = Path(f"{paths.update_dir}")
             if new_executable_name.is_dir():
                 # Onedir
                 work_dir = new_executable_name
@@ -308,7 +308,7 @@ class Updater(ABC):
 
         # Remove files in package_dir
         paths = AppPaths()
-        package_dir = paths.update_tmp
+        package_dir = paths.update_dir
         if package_dir.exists() and package_dir.is_dir():
             for entry in os.scandir(package_dir):
                 entry_path = Path(entry.path)

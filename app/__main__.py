@@ -36,8 +36,8 @@ def main(enable_updater: bool = True):
     updater.is_enable = enable_updater
 
     # override updater config
-    config_file = paths.update_dir.join("updater.json")
-    if os.getenv("DEBUG", "0") == 1 and config_file.exists() and config_file.is_file():
+    config_file = paths.update_dir / "updater.json"
+    if os.getenv("DEBUG", "0") == "1" and config_file.exists() and config_file.is_file():
         updater.load_from_file_and_override(config_file)
 
     # check if the app is already running

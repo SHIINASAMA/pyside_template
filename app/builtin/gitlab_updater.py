@@ -85,4 +85,4 @@ class GitlabUpdater(Updater):
 
             path = urlparse(self.download_url).path
             paths = AppPaths()
-            self.filename = f"{paths.update_tmp}/{os.path.basename(path)}"
+            self.filename = f"{paths.update_dir}/{os.path.basename(path)}"
