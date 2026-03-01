@@ -1,6 +1,7 @@
 import enum
 import json
 import os
+import platform
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,30 @@ from app.resources.version import __version__
 from app.builtin.args import pop_arg, pop_arg_pair
 from app.builtin.paths import AppPaths
 import app.builtin.config as cfg
+
+
+def get_sysname() -> str:
+    sysname = platform.system().lower()
+    if sysname == "windows":
+        sysname = "windows"
+    elif sysname == "darwin":
+        sysname = "macos"
+    elif sysname == "linux":
+        sysname = "linux"
+    else:
+        raise RuntimeError(f"Unknown system: {sysname}")
+    return sysname
+
+
+def get_arch() -> str:
+    arch = platform.machine().lower()
+    if arch in ["x86_64", "amd64"]:
+        arch = "x64"
+    elif arch in ["aarch64", "arm64"]:
+        arch = "arm64"
+    else:
+        raise RuntimeError(f"Unknown architecture: {arch}")
+    return arch
 
 
 class ReleaseType(enum.Enum):
@@ -139,7 +164,7 @@ class Updater(ABC):
                 ],
                 preexec_fn=os.setpgrp,
                 env=os.environ.copy(),
-                cwd=paths.update_tmp
+                cwd=paths.update_tmp,
             )
         elif sys.platform == "linux":
             new_executable_name = Path(f"{paths.update_tmp}/{cfg.APP_NAME}")
@@ -159,11 +184,13 @@ class Updater(ABC):
                 ],
                 preexec_fn=os.setpgrp,
                 env=os.environ.copy(),
-                cwd=work_dir
+                cwd=work_dir,
             )
-        else: # win32
+        else:  # win32
             new_executable_name = Path(f"{paths.update_tmp}/{cfg.APP_NAME}")
-            new_executable_name_with_exe = Path(f"{paths.update_tmp}/{cfg.APP_NAME}.exe")
+            new_executable_name_with_exe = Path(
+                f"{paths.update_tmp}/{cfg.APP_NAME}.exe"
+            )
             work_dir = Path(f"{paths.update_tmp}")
             if new_executable_name.is_dir():
                 # Onedir
@@ -183,9 +210,9 @@ class Updater(ABC):
                 ],
                 creationflags=subprocess.DETACHED_PROCESS,
                 env=os.environ.copy(),
-                cwd=work_dir
+                cwd=work_dir,
             )
-            
+
         sys.exit(0)
 
     @staticmethod

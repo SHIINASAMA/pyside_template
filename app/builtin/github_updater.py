@@ -1,14 +1,11 @@
-import platform
-
 from glom import glom
 from httpx import AsyncClient
 
 from singleton_decorator import singleton
 
 
-from app.builtin.update import Updater, Version
+from app.builtin.update import Updater, Version, get_arch, get_sysname
 from app.builtin.paths import AppPaths
-from app.builtin.utils import get_arch, get_sysname
 
 
 @singleton
