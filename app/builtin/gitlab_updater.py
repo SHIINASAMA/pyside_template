@@ -73,6 +73,7 @@ class GitlabUpdater(Updater):
             self.download_url = None
             for link in glom(latest_release, "assets.links", default={}):
                 if package_name in link["name"]:
+                    package_name = link["name"]
                     self.download_url = link["url"]
                     break
             if self.download_url is None:

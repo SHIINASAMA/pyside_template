@@ -28,7 +28,6 @@ class MainWindow(QMainWindow):
         self.ui.themeComboBox.setCurrentIndex(0)
         self.change_theme(0)
 
-        self.setWindowTitle(self.tr("MainWindow"))
         self.setWindowIcon(QIcon(":/logo.png"))
 
     async def async_init(self):

@@ -33,6 +33,7 @@ class GithubUpdater(Updater):
             r = await client.get(
                 url=f"{self.base_url}/repos/{self.project_name}/releases",
                 params={"pre_page": "100", "page": "1"},
+                follow_redirects=True
             )
             r.raise_for_status()
             releases = []
@@ -52,11 +53,12 @@ class GithubUpdater(Updater):
 
             arch = get_arch()
             sysname = get_sysname()
-            package_name = f"{self.app_name}-{sysname}-{arch}.zip"
+            package_name = f"{self.app_name}-{sysname}-{arch}"
 
             self.download_url = None
             for assets in glom(latest_release, "assets", default={}):
-                if assets["name"] == package_name:
+                if package_name in assets["name"]:
+                    package_name = assets["name"]
                     self.download_url = assets["browser_download_url"]
                     break
 
