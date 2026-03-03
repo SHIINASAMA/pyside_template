@@ -34,10 +34,7 @@ class MainWindow(QMainWindow):
             pass
         else:
             # Production mode
-            await self.check_update()
-
-    async def check_update(self):
-        pass
+            pass
 
     @asyncSlot()
     async def click_push_button(self):
