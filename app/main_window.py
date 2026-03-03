@@ -3,13 +3,10 @@ import os
 
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMessageBox, QMainWindow
-from httpx import HTTPError
 from qasync import asyncSlot
 from qdarktheme import setup_theme
 
 import app.resources.resource  # type: ignore
-from app.builtin.update_widget import UpdateWidget
-from app.builtin.utils import get_updater
 from app.resources.main_window_ui import Ui_MainWindow
 
 
@@ -40,41 +37,7 @@ class MainWindow(QMainWindow):
             await self.check_update()
 
     async def check_update(self):
-        updater = get_updater()
-        if not updater.is_enable:
-            return
-        if not updater.is_updated:
-            try:
-                await updater.fetch()
-                if updater.check_for_update():
-                    update_widget = UpdateWidget(self, updater)
-                    await update_widget.async_show()
-                    if update_widget.need_restart:
-                        updater.apply_update()
-            except HTTPError:
-                QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Failed to check for updates"),
-                )
-            except FileNotFoundError:
-                QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("No update files found"),
-                )
-            except Exception as e:
-                QMessageBox.warning(
-                    self,
-                    self.tr("Warning"),
-                    self.tr("Excepted unknown error: {}").format(str(e)),
-                )
-        else:
-            QMessageBox.information(
-                self,
-                self.tr("Info"),
-                self.tr("Update completed"),
-            )
+        pass
 
     @asyncSlot()
     async def click_push_button(self):

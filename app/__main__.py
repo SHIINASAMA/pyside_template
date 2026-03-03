@@ -6,7 +6,7 @@ from PySide6.QtCore import QTranslator, QLockFile
 from qasync import QApplication, run
 
 from app.builtin.locale import detect_system_ui_language
-from app.builtin.utils import get_updater, init_app, running_in_bundle
+from app.builtin.utils import init_app
 from app.builtin.paths import AppPaths
 from app.main_window import MainWindow
 
@@ -28,16 +28,15 @@ def main(enable_updater: bool = True):
     app = init_app()
     paths = AppPaths()
 
-    # init updater, updater will remove some arguments
-    # and do update logic
-    updater = get_updater()
-    # self-updating is not available on macOS
-    updater.is_enable = False if running_in_bundle else enable_updater
-
     # override updater config
     config_file = paths.update_dir / "updater.json"
-    if os.getenv("DEBUG", "0") == "1" and config_file.exists() and config_file.is_file():
-        updater.load_from_file_and_override(config_file)
+    if (
+        os.getenv("DEBUG", "0") == "1"
+        and config_file.exists()
+        and config_file.is_file()
+    ):
+        # updater.load_from_file_and_override(config_file)
+        pass
 
     # check if the app is already running
     lock_file = QLockFile(str(paths.base_dir) + "/App.lock")
